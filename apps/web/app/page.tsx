@@ -58,7 +58,7 @@ const BENTO_FEATURES = [
 ];
 
 export default function HomePage() {
-  const heroRef = useRef<HTMLDivElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
 
   useGSAP(() => {
     // Cinematic Hero entrance
@@ -101,10 +101,10 @@ export default function HomePage() {
       duration: 0.8,
       ease: 'power2.out',
     });
-  }, { scope: heroRef });
+  }, { scope: mainRef });
 
   return (
-    <main className="overflow-x-hidden w-full max-w-full bg-[#0A0A0F] text-[#F8FAFC] min-h-screen">
+    <main ref={mainRef} className="w-full max-w-full bg-[#0A0A0F] text-[#F8FAFC] min-h-screen">
       {/* Floating Glass Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between backdrop-blur-2xl bg-black/40 border-b border-white/[0.08]">
         <Link href="/" className="flex items-center gap-2.5 text-decoration-none group">
@@ -139,7 +139,7 @@ export default function HomePage() {
       </nav>
 
       {/* Hero Section — Strict 2-Line Iron Rule & Wide Container */}
-      <section ref={heroRef} className="pt-36 sm:pt-44 pb-20 px-6 max-w-7xl mx-auto text-center relative z-10">
+      <section className="pt-36 sm:pt-44 pb-20 px-6 max-w-7xl mx-auto text-center relative z-10">
         {/* Subtle Brand Pill */}
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.05] border border-white/10 text-xs font-mono text-slate-300 mb-8">
           <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
