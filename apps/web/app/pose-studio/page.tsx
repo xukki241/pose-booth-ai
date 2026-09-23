@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Camera, RefreshCw, CheckCircle2, ArrowRight, UserCheck, Sparkles, Compass } from "lucide-react";
 import confetti from "canvas-confetti";
 import { usePoseDetection } from "@/lib/mediapipe/usePoseDetection";
-import { PoseSkeleton } from "@/components/pose/PoseSkeleton";
+import { HuaweiArContour } from "@/components/pose/HuaweiArContour";
 import type { PoseTemplate } from "@/types/pose";
 
 const RICH_POSES: PoseTemplate[] = [
@@ -290,13 +290,15 @@ export default function PoseStudioPage() {
                   width={1280}
                   height={720}
                 />
-                <PoseSkeleton
+                <HuaweiArContour
                   landmarks={landmarks}
+                  targetLandmarks={selectedPose?.keypoints}
                   canvasRef={canvasRef}
                   width={1280}
                   height={720}
-                  showScore={score !== null}
+                  showScoreHud={score !== null}
                   score={score ?? undefined}
+                  guidanceText={feedback.length > 0 ? feedback[0] : (score && score >= 85 ? 'Dáng khớp rất chuẩn! Giữ yên.' : undefined)}
                 />
 
                 {isLoading && (
