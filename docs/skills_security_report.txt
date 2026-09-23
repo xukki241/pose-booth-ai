@@ -1,0 +1,318 @@
+======================================================================
+  PIKPOSE SKILLS SECURITY SCAN REPORT
+======================================================================
+Total skills scanned: 2445
+✅ Clean (no issues):  2197
+⚠️  Warnings:           220
+❌ Critical issues:    28
+
+======================================================================
+❌ CRITICAL — DO NOT INSTALL (blocked)
+======================================================================
+
+  ❌ agent-evals
+     REASON: Prompt injection: ignoring instructions
+     MATCH:  ('all ', 'previous')
+     MATCH:  ('', 'previous')
+
+  ❌ ai-coding-agent-guardrails
+     REASON: Dangerous: rm -rf /
+     MATCH:  rm -rf /
+
+  ❌ ai-engineer
+     REASON: Jailbreak attempt
+     MATCH:  jailbreak
+
+  ❌ ai-red-teaming
+     REASON: Prompt injection: ignoring instructions
+     MATCH:  ('all ', 'previous')
+     REASON: Jailbreak attempt
+     MATCH:  jailbreak
+     REASON: DAN jailbreak pattern
+     MATCH:  Do Anything Now
+
+  ❌ ai-security-hardening
+     REASON: Jailbreak attempt
+     MATCH:  Jailbreak
+     MATCH:  jailbreak
+
+  ❌ audit-skills
+     REASON: Jailbreak attempt
+     MATCH:  Jailbreak
+     REASON: Dangerous: rm -rf /
+     MATCH:  rm -rf /
+
+  ❌ browser-testing-with-devtools
+     REASON: Prompt injection: ignoring instructions
+     MATCH:  ('', 'previous')
+
+  ❌ claude-in-chrome-troubleshooting
+     REASON: Dangerous: rm -rf /
+     MATCH:  rm -rf /
+
+  ❌ container-hardening
+     REASON: Dangerous: rm -rf /
+     MATCH:  rm -rf /
+
+  ❌ devcontainers-nix
+     REASON: Dangerous: rm -rf /
+     MATCH:  rm -rf /
+
+  ❌ effective-agent-skills
+     REASON: Prompt injection: ignoring instructions
+     MATCH:  ('', 'previous')
+
+  ❌ git-pr-review
+     REASON: Prompt injection: ignoring instructions
+     MATCH:  ('', 'previous')
+
+  ❌ hunt-file-upload
+     REASON: Dangerous: rm -rf /
+     MATCH:  rm -rf /
+
+  ❌ hunt-llm-ai
+     REASON: Prompt injection: ignoring instructions
+     MATCH:  ('', 'previous')
+
+  ❌ ios-redteam-pipeline
+     REASON: Jailbreak attempt
+     MATCH:  jailbreak
+
+  ❌ last30days
+     REASON: Prompt injection: identity override
+     MATCH:  an
+
+  ❌ llm-security
+     REASON: Prompt injection: ignoring instructions
+     MATCH:  ('all ', 'previous')
+     REASON: DAN jailbreak pattern
+     MATCH:  Do Anything Now
+     REASON: LLM prompt format injection
+     MATCH:  [SYSTEM]
+
+  ❌ mobile-reverse
+     REASON: Jailbreak attempt
+     MATCH:  jailbreak
+
+  ❌ mobile-security-coder
+     REASON: Jailbreak attempt
+     MATCH:  jailbreak
+
+  ❌ model-registry-governance
+     REASON: Jailbreak attempt
+     MATCH:  jailbreak
+
+  ❌ prompt-engineer
+     REASON: LLM prompt format injection
+     MATCH:  [system]
+
+  ❌ prompt-injection-defense
+     REASON: Prompt injection: ignoring instructions
+     MATCH:  ('', 'previous')
+
+  ❌ recursive-context-pruning-token-budgeting
+     REASON: Jailbreak attempt
+     MATCH:  jailbreak
+
+  ❌ reverse-engineering
+     REASON: Jailbreak attempt
+     MATCH:  jailbreak
+
+  ❌ security-scanning-security-hardening
+     REASON: Jailbreak attempt
+     MATCH:  jailbreak
+
+  ❌ skill-audit
+     REASON: Prompt injection: ignoring instructions
+     MATCH:  ('', 'previous')
+
+  ❌ skill-scanner
+     REASON: Jailbreak attempt
+     MATCH:  jailbreak
+
+  ❌ the-honoured-one
+     REASON: LLM prompt format injection
+     MATCH:  [system]
+
+======================================================================
+⚠️  WARNINGS — Requires your approval before installing
+======================================================================
+
+  ⚠️  add-app-clip
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  adhx
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  agent-creator
+     WARN: Credential harvesting attempt
+
+  ⚠️  agentmail
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  agentphone
+     WARN: Possible data exfiltration
+     WARN: Credential harvesting attempt
+
+  ⚠️  ai-agent-security
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  ai-inference-service-mesh
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  ai-sre-incident-response
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  android-cli
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  api-documentation-generator
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  api-fuzzing-bug-bounty
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  api-onboarding
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  apk-redteam-pipeline
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  apk-reverse
+     WARN: Dangerous: pipe to shell execution
+
+  ⚠️  appdeploy
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  arm-templates
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  atlas-contract
+     WARN: Credential harvesting attempt
+
+  ⚠️  aws-ec2
+     WARN: Suspicious: wget to non-standard URL
+
+  ⚠️  aws-ecs-fargate
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  aws-penetration-testing
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  azure-aks
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  azure-devops
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  azure-functions-devsec
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  azure-networking
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  azure-sql
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  azure-vms
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  bash-linux
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  beatra-ai-video-studio
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  bug-bounty
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  cdn-setup
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  check-identity-pack
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  claimable-postgres
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  client-secret-exposure-audit
+     WARN: Possible data exfiltration
+
+  ⚠️  cloud-iam-deep
+     WARN: Suspicious: curl to non-standard URL
+     WARN: Possible data exfiltration
+
+  ⚠️  cloud-penetration-testing
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  cloudflare-pages
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  cloudflare-r2
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  cloudflare-zero-trust
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  crypto-bd-agent
+     WARN: Credential harvesting attempt
+
+  ⚠️  dast-scanning
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  datadog
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  defi-protocol-templates
+     WARN: Credential harvesting attempt
+
+  ⚠️  deployment-pipeline-design
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  detect-ai-text
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  devops-deploy
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  devops-pipeline-builder
+     WARN: Suspicious: wget to non-standard URL
+
+  ⚠️  disaster-recovery
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  dns-management
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  docker-expert
+     WARN: Suspicious: curl to non-standard URL
+
+  ⚠️  docker-management
+     WARN: Suspicious: curl to non-standard URL
+
+  ... and 170 more warning skills
+
+======================================================================
+✅ CLEAN SKILLS (2197 total) — Safe to install
+======================================================================
+  ✅ 00-andruia-consultant
+  ✅ 007
+  ✅ 10-andruia-skill-smith
+  ✅ 20-andruia-niche-intelligence
+  ✅ 2slides-ppt-generator
+  ✅ 3d-web-experience
+  ✅ ab-test-setup
+  ✅ ab-testing
+  ✅ acceptance-orchestrator
+  ✅ access-review
+  ✅ accessibility-compliance-accessibility-audit
+  ✅ accesslint-audit
+  ✅ accesslint-diff
+  ✅ accesslint-scan
+  ✅ accint-commitments
+  ✅ accint-frames
+  ✅ accint-solve
+  ✅ active-directory-attacks
+  ✅ activecampaign-automation
+  ✅ ad-campaign-analyzer
+  ... and 2177 more clean skills

@@ -1,0 +1,324 @@
+{
+  "poses": [
+    {
+      "id": "power_pose",
+      "name": "Power Pose",
+      "name_vi": "Tư Thế Quyền Lực",
+      "category": "portrait",
+      "difficulty": "easy",
+      "description": "Đứng thẳng, hai tay chống hông, đầu ngẩng cao. Thể hiện sự tự tin.",
+      "keypoints": [
+        [0.50, -1.20], [0.48, -1.30], [0.52, -1.30],
+        [0.42, -1.28], [0.58, -1.28], [0.32, -0.80],
+        [0.68, -0.80], [0.20, -0.40], [0.80, -0.40],
+        [0.28, 0.00],  [0.72, 0.00],  [0.35, 0.00],
+        [0.65, 0.00],  [0.37, 0.50],  [0.63, 0.50],
+        [0.38, 1.00],  [0.62, 1.00]
+      ]
+    },
+    {
+      "id": "arms_wide",
+      "name": "Arms Wide Open",
+      "name_vi": "Giang Rộng Tay",
+      "category": "portrait",
+      "difficulty": "easy",
+      "description": "Đứng thẳng, giang rộng hai tay sang ngang. Pose năng động, vui tươi.",
+      "keypoints": [
+        [0.50, -1.20], [0.48, -1.30], [0.52, -1.30],
+        [0.42, -1.28], [0.58, -1.28], [0.32, -0.80],
+        [0.68, -0.80], [0.05, -0.75], [0.95, -0.75],
+        [-0.10, -0.70], [1.10, -0.70], [0.38, 0.00],
+        [0.62, 0.00],  [0.37, 0.50],  [0.63, 0.50],
+        [0.38, 1.00],  [0.62, 1.00]
+      ]
+    },
+    {
+      "id": "hands_up",
+      "name": "Hands Up",
+      "name_vi": "Giơ Tay Lên",
+      "category": "portrait",
+      "difficulty": "easy",
+      "description": "Đứng thẳng, giơ cả hai tay lên cao. Pose vui vẻ, phấn khích.",
+      "keypoints": [
+        [0.50, -1.20], [0.48, -1.30], [0.52, -1.30],
+        [0.42, -1.28], [0.58, -1.28], [0.32, -0.80],
+        [0.68, -0.80], [0.25, -1.30], [0.75, -1.30],
+        [0.20, -1.80], [0.80, -1.80], [0.38, 0.00],
+        [0.62, 0.00],  [0.37, 0.50],  [0.63, 0.50],
+        [0.38, 1.00],  [0.62, 1.00]
+      ]
+    },
+    {
+      "id": "crossed_arms",
+      "name": "Crossed Arms",
+      "name_vi": "Khoanh Tay",
+      "category": "portrait",
+      "difficulty": "easy",
+      "description": "Đứng thẳng, khoanh tay trước ngực. Pose nghiêm túc, tự tin.",
+      "keypoints": [
+        [0.50, -1.20], [0.48, -1.30], [0.52, -1.30],
+        [0.42, -1.28], [0.58, -1.28], [0.32, -0.80],
+        [0.68, -0.80], [0.55, -0.55], [0.45, -0.55],
+        [0.35, -0.45], [0.65, -0.45], [0.38, 0.00],
+        [0.62, 0.00],  [0.37, 0.50],  [0.63, 0.50],
+        [0.38, 1.00],  [0.62, 1.00]
+      ]
+    },
+    {
+      "id": "one_hand_up",
+      "name": "One Hand Up",
+      "name_vi": "Giơ Một Tay",
+      "category": "portrait",
+      "difficulty": "easy",
+      "description": "Giơ một tay lên, tay kia thả tự nhiên. Pose vui tươi.",
+      "keypoints": [
+        [0.50, -1.20], [0.48, -1.30], [0.52, -1.30],
+        [0.42, -1.28], [0.58, -1.28], [0.32, -0.80],
+        [0.68, -0.80], [0.20, -1.20], [0.80, -0.50],
+        [0.15, -1.70], [0.82, -0.10], [0.38, 0.00],
+        [0.62, 0.00],  [0.37, 0.50],  [0.63, 0.50],
+        [0.38, 1.00],  [0.62, 1.00]
+      ]
+    },
+    {
+      "id": "peace_sign",
+      "name": "Peace Sign",
+      "name_vi": "Dấu Hoà Bình",
+      "category": "portrait",
+      "difficulty": "easy",
+      "description": "Giơ tay phải làm dấu V (hoà bình). Pose cute, phổ biến.",
+      "keypoints": [
+        [0.50, -1.20], [0.48, -1.30], [0.52, -1.30],
+        [0.42, -1.28], [0.58, -1.28], [0.32, -0.80],
+        [0.68, -0.80], [0.28, -0.50], [0.72, -1.10],
+        [0.32, -0.10], [0.75, -1.55], [0.38, 0.00],
+        [0.62, 0.00],  [0.37, 0.50],  [0.63, 0.50],
+        [0.38, 1.00],  [0.62, 1.00]
+      ]
+    },
+    {
+      "id": "jump_pose",
+      "name": "Jump",
+      "name_vi": "Nhảy Lên",
+      "category": "dynamic",
+      "difficulty": "medium",
+      "description": "Tư thế nhảy — hai chân co lên, tay giang rộng. Pose năng động.",
+      "keypoints": [
+        [0.50, -1.20], [0.48, -1.30], [0.52, -1.30],
+        [0.42, -1.28], [0.58, -1.28], [0.30, -0.80],
+        [0.70, -0.80], [0.10, -0.70], [0.90, -0.70],
+        [0.00, -0.60], [1.00, -0.60], [0.38, 0.00],
+        [0.62, 0.00],  [0.25, 0.35],  [0.75, 0.35],
+        [0.20, 0.10],  [0.80, 0.10]
+      ]
+    },
+    {
+      "id": "sitting_cross",
+      "name": "Sitting Cross-legged",
+      "name_vi": "Ngồi Khoanh Chân",
+      "category": "casual",
+      "difficulty": "medium",
+      "description": "Ngồi khoanh chân, tay đặt lên đầu gối. Pose thư giãn, tự nhiên.",
+      "keypoints": [
+        [0.50, -1.20], [0.48, -1.30], [0.52, -1.30],
+        [0.42, -1.28], [0.58, -1.28], [0.30, -0.80],
+        [0.70, -0.80], [0.22, -0.40], [0.78, -0.40],
+        [0.30, -0.05], [0.70, -0.05], [0.32, 0.15],
+        [0.68, 0.15],  [0.20, 0.35],  [0.80, 0.35],
+        [0.45, 0.25],  [0.55, 0.25]
+      ]
+    },
+    {
+      "id": "lean_back",
+      "name": "Lean Back",
+      "name_vi": "Ngả Người Lại",
+      "category": "casual",
+      "difficulty": "medium",
+      "description": "Ngả người lại, tay chống ra sau. Pose thoải mái, phong cách.",
+      "keypoints": [
+        [0.50, -1.10], [0.48, -1.20], [0.52, -1.20],
+        [0.42, -1.18], [0.58, -1.18], [0.25, -0.75],
+        [0.75, -0.75], [0.10, -0.30], [0.90, -0.30],
+        [0.05, 0.15],  [0.95, 0.15],  [0.35, 0.10],
+        [0.65, 0.10],  [0.37, 0.60],  [0.63, 0.60],
+        [0.38, 1.05],  [0.62, 1.05]
+      ]
+    },
+    {
+      "id": "runner_pose",
+      "name": "Runner's Pose",
+      "name_vi": "Tư Thế Chạy",
+      "category": "dynamic",
+      "difficulty": "hard",
+      "description": "Tư thế chạy — một chân tiến, một chân sau, tay swing theo.",
+      "keypoints": [
+        [0.45, -1.20], [0.43, -1.30], [0.47, -1.30],
+        [0.37, -1.28], [0.53, -1.28], [0.28, -0.78],
+        [0.65, -0.78], [0.15, -0.40], [0.78, -1.10],
+        [0.10, 0.00],  [0.80, -0.65], [0.32, 0.05],
+        [0.58, 0.05],  [0.20, 0.55],  [0.65, 0.30],
+        [0.18, 1.00],  [0.70, 0.00]
+      ]
+    },
+    {
+      "id": "group_hug",
+      "name": "Group Hug Ready",
+      "name_vi": "Sẵn Sàng Ôm Nhóm",
+      "category": "group",
+      "difficulty": "easy",
+      "description": "Dang rộng tay như đón chào, mỉm cười. Phù hợp cho ảnh nhóm.",
+      "keypoints": [
+        [0.50, -1.20], [0.48, -1.30], [0.52, -1.30],
+        [0.42, -1.28], [0.58, -1.28], [0.28, -0.80],
+        [0.72, -0.80], [0.08, -0.65], [0.92, -0.65],
+        [0.00, -0.35], [1.00, -0.35], [0.38, 0.00],
+        [0.62, 0.00],  [0.37, 0.50],  [0.63, 0.50],
+        [0.38, 1.00],  [0.62, 1.00]
+      ]
+    },
+    {
+      "id": "thinking_pose",
+      "name": "Thinking Pose",
+      "name_vi": "Tư Thế Suy Nghĩ",
+      "category": "portrait",
+      "difficulty": "easy",
+      "description": "Tay phải chống cằm, nhìn lên. Pose thể hiện sự trầm tư.",
+      "keypoints": [
+        [0.50, -1.18], [0.48, -1.28], [0.52, -1.28],
+        [0.42, -1.26], [0.58, -1.26], [0.32, -0.80],
+        [0.68, -0.80], [0.30, -0.42], [0.70, -0.55],
+        [0.40, -0.08], [0.55, -1.00], [0.38, 0.00],
+        [0.62, 0.00],  [0.37, 0.50],  [0.63, 0.50],
+        [0.38, 1.00],  [0.62, 1.00]
+      ]
+    },
+    {
+      "id": "victory_arms",
+      "name": "Victory Arms",
+      "name_vi": "Ăn Mừng Chiến Thắng",
+      "category": "dynamic",
+      "difficulty": "easy",
+      "description": "Giơ cả hai tay lên, tạo chữ V lớn. Pose ăn mừng phấn khích.",
+      "keypoints": [
+        [0.50, -1.20], [0.48, -1.30], [0.52, -1.30],
+        [0.42, -1.28], [0.58, -1.28], [0.30, -0.80],
+        [0.70, -0.80], [0.10, -1.30], [0.90, -1.30],
+        [0.05, -1.75], [0.95, -1.75], [0.38, 0.00],
+        [0.62, 0.00],  [0.37, 0.50],  [0.63, 0.50],
+        [0.38, 1.00],  [0.62, 1.00]
+      ]
+    },
+    {
+      "id": "hand_on_chin",
+      "name": "Hand on Chin",
+      "name_vi": "Chống Cằm Hai Tay",
+      "category": "portrait",
+      "difficulty": "easy",
+      "description": "Chống cằm hai tay, nhìn thẳng. Pose cute, dễ thương.",
+      "keypoints": [
+        [0.50, -1.20], [0.48, -1.30], [0.52, -1.30],
+        [0.42, -1.28], [0.58, -1.28], [0.32, -0.80],
+        [0.68, -0.80], [0.38, -0.55], [0.62, -0.55],
+        [0.42, -1.10], [0.58, -1.10], [0.38, 0.00],
+        [0.62, 0.00],  [0.37, 0.50],  [0.63, 0.50],
+        [0.38, 1.00],  [0.62, 1.00]
+      ]
+    },
+    {
+      "id": "ballet_arabesque",
+      "name": "Ballet Arabesque",
+      "name_vi": "Múa Một Chân",
+      "category": "dynamic",
+      "difficulty": "hard",
+      "description": "Đứng một chân, chân kia giơ lên sau, tay giang rộng. Pose nghệ thuật.",
+      "keypoints": [
+        [0.50, -1.20], [0.48, -1.30], [0.52, -1.30],
+        [0.42, -1.28], [0.58, -1.28], [0.30, -0.80],
+        [0.70, -0.80], [0.05, -0.60], [0.95, -0.60],
+        [-0.05, -0.30],[1.05, -0.30], [0.40, 0.00],
+        [0.60, 0.00],  [0.42, 0.55],  [0.62, 0.20],
+        [0.43, 1.05],  [0.80, -0.10]
+      ]
+    },
+    {
+      "id": "hair_toss",
+      "name": "Hair Toss",
+      "name_vi": "Tung Tóc",
+      "category": "portrait",
+      "difficulty": "medium",
+      "description": "Nghiêng đầu sang một bên, tay vuốt tóc. Pose thời trang, sành điệu.",
+      "keypoints": [
+        [0.45, -1.22], [0.43, -1.32], [0.47, -1.32],
+        [0.37, -1.30], [0.53, -1.30], [0.30, -0.80],
+        [0.70, -0.80], [0.22, -0.45], [0.75, -1.05],
+        [0.28, -0.08], [0.70, -1.50], [0.38, 0.00],
+        [0.62, 0.00],  [0.37, 0.50],  [0.63, 0.50],
+        [0.38, 1.00],  [0.62, 1.00]
+      ]
+    },
+    {
+      "id": "walking_pose",
+      "name": "Walking",
+      "name_vi": "Đang Đi Bộ",
+      "category": "casual",
+      "difficulty": "medium",
+      "description": "Tư thế bước đi tự nhiên. Phong cách đời thường.",
+      "keypoints": [
+        [0.50, -1.20], [0.48, -1.30], [0.52, -1.30],
+        [0.42, -1.28], [0.58, -1.28], [0.32, -0.78],
+        [0.68, -0.78], [0.22, -0.38], [0.78, -0.55],
+        [0.18, 0.02],  [0.75, -0.15], [0.37, 0.02],
+        [0.63, 0.02],  [0.32, 0.52],  [0.68, 0.38],
+        [0.28, 1.02],  [0.72, 0.72]
+      ]
+    },
+    {
+      "id": "superhero",
+      "name": "Superhero Landing",
+      "name_vi": "Hạ Cánh Siêu Anh Hùng",
+      "category": "dynamic",
+      "difficulty": "hard",
+      "description": "Khuỵu gối một bên, một tay chống đất, một tay giơ lên. Pose siêu anh hùng.",
+      "keypoints": [
+        [0.50, -0.90], [0.48, -1.00], [0.52, -1.00],
+        [0.42, -0.98], [0.58, -0.98], [0.30, -0.55],
+        [0.70, -0.55], [0.15, -0.15], [0.75, -0.90],
+        [0.10, 0.25],  [0.80, -1.35], [0.38, 0.20],
+        [0.62, 0.20],  [0.28, 0.65],  [0.70, 0.55],
+        [0.20, 0.35],  [0.80, 1.00]
+      ]
+    },
+    {
+      "id": "look_away",
+      "name": "Candid Look Away",
+      "name_vi": "Nhìn Sang Một Phía",
+      "category": "portrait",
+      "difficulty": "easy",
+      "description": "Đứng tự nhiên, nhìn sang một phía như ảnh candid. Pose nghệ thuật.",
+      "keypoints": [
+        [0.45, -1.20], [0.43, -1.30], [0.47, -1.30],
+        [0.37, -1.28], [0.53, -1.28], [0.30, -0.80],
+        [0.68, -0.80], [0.22, -0.42], [0.78, -0.42],
+        [0.28, -0.05], [0.72, -0.05], [0.38, 0.00],
+        [0.62, 0.00],  [0.37, 0.50],  [0.63, 0.50],
+        [0.38, 1.00],  [0.62, 1.00]
+      ]
+    },
+    {
+      "id": "selfie_pose",
+      "name": "Selfie Ready",
+      "name_vi": "Pose Selfie",
+      "category": "portrait",
+      "difficulty": "easy",
+      "description": "Một tay giơ lên như cầm điện thoại selfie, mỉm cười. Pose quen thuộc.",
+      "keypoints": [
+        [0.50, -1.18], [0.48, -1.28], [0.52, -1.28],
+        [0.42, -1.26], [0.58, -1.26], [0.30, -0.78],
+        [0.70, -0.78], [0.20, -1.20], [0.78, -0.45],
+        [0.12, -1.65], [0.72, -0.08], [0.38, 0.00],
+        [0.62, 0.00],  [0.37, 0.50],  [0.63, 0.50],
+        [0.38, 1.00],  [0.62, 1.00]
+      ]
+    }
+  ]
+}
