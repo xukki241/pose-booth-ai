@@ -1,178 +1,182 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { Cpu, Eye, Layers, Server, Shield, ArrowRight, Camera, Sparkles, CheckCircle2 } from "lucide-react";
+import { useRef } from 'react';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Link from 'next/link';
 
-const SYSTEM_PILLARS = [
-  {
-    icon: Eye,
-    color: "bg-blue-100 text-blue-600",
-    title: "Thị giác máy tính cục bộ",
-    desc: "Sử dụng MediaPipe Tasks Vision WebAssembly với GPU delegate trên trình duyệt, xử lý 33 landmarks ở tốc độ 30 FPS không cần GPU máy chủ.",
-  },
-  {
-    icon: Server,
-    color: "bg-rose-100 text-rose-600",
-    title: "Backend AI linh hoạt",
-    desc: "FastAPI tích hợp YOLOv8-Pose và giải thuật Cosine Similarity chuẩn hoá theo tâm hông và chiều cao thân, độ trễ phản hồi dưới 20ms.",
-  },
-  {
-    icon: Cpu,
-    color: "bg-emerald-100 text-emerald-600",
-    title: "Tối ưu phần cứng cá nhân",
-    desc: "Được thiết kế để chạy mượt mà trên laptop cá nhân (RTX 4050 6GB / CPU 14 nhân) hoặc máy bàn (RTX 3060 12GB), không phụ thuộc cloud API đắt đỏ.",
-  },
-  {
-    icon: Shield,
-    color: "bg-indigo-100 text-indigo-600",
-    title: "Bảo mật & Quyền riêng tư",
-    desc: "Hình ảnh từ camera xử lý trực tiếp trong bộ nhớ RAM trình duyệt, không lưu trữ ngầm hoặc gửi hình ảnh cá nhân lên máy chủ khi không có sự đồng ý.",
-  },
+gsap.registerPlugin(ScrollTrigger);
+
+const TIMELINE = [
+  { phase: 'Phase 0', date: 'Sep 2026 W1', title: 'Project Kickoff', desc: 'EXE101 startup project defined at FPT University. 2,197 AI skills installed. GitHub repo created at xukki241/pose-booth-ai. CLAUDE.md, .rules/, and skills/ initialized.' },
+  { phase: 'Phase 1', date: 'Sep 2026 W2', title: 'AI Backend (FastAPI + YOLOv8)', desc: 'FastAPI server deployed with endpoints: /api/pose/analyze, /api/pose/score, /api/pose/suggest. YOLOv8s-pose.pt (22.4 MB) downloaded. Routers: pose.py, score.py, suggest.py.' },
+  { phase: 'Phase 2', date: 'Sep 2026 W2', title: 'MediaPipe Integration', desc: 'pose_landmarker_lite.task (5.5 MB) downloaded to public/models/. Hook usePoseDetection.ts updated with local-first loading + CDN fallback. WASM runtime configured.' },
+  { phase: 'Phase 3', date: 'Sep 2026 W3', title: 'Frontend SPA (Next.js 16)', desc: 'Next.js 16 App Router SPA with 5 routes: /, /booth, /pose-studio, /frames, /about. GSAP 3 + @gsap/react installed. Nginx config for reverse proxy.' },
+  { phase: 'Phase 4', date: 'Sep 2026 W3', title: 'Dark Prism Redesign', desc: 'Full frontend redesign: Dark Glassmorphism + Prism accents. Space Grotesk + Space Mono fonts. GSAP 3D transitions (page rotateX, card flip, parallax). Stitch AI used for design mockups.' },
 ];
 
-const HARDWARE_PROFILES = [
-  {
-    device: "Laptop Hiện Tại (Đang Dùng)",
-    specs: "NVIDIA RTX 4050 (6GB VRAM) + Intel Core i5 13500HX (14 Cores / 20 Threads)",
-    capability: "Chạy trơn tru MediaPipe 30 FPS trên trình duyệt + YOLOv8s-Pose inference 80–120 FPS cục bộ",
-    vramUsed: "~1.5 GB / 6 GB VRAM",
-    status: "Rất Tốt",
-    statusColor: "bg-emerald-100 text-emerald-700",
-  },
-  {
-    device: "Máy Bàn AI (RTX 3060)",
-    specs: "NVIDIA RTX 3060 (12GB VRAM) + AMD Ryzen 7 5700X (8 Cores / 16 Threads)",
-    capability: "Fine-tune lại mô hình YOLOv8 trên tập dữ liệu COCO mở rộng và phục vụ đồng thời nhiều booth",
-    vramUsed: "~2.2 GB / 12 GB VRAM",
-    status: "Mạnh Mẽ",
-    statusColor: "bg-blue-100 text-blue-700",
-  },
+const HARDWARE = [
+  { label: 'Laptop (Dev Machine)', gpu: 'RTX 4050 6GB', cpu: 'i5-13500HX 14C', ram: '16GB DDR5', fps: '45–60 FPS', model: 'YOLOv8n-pose', color: 'var(--prism-cyan)' },
+  { label: 'Desktop (AI Machine)', gpu: 'RTX 3060 12GB', cpu: 'R7 5700X 8C', ram: '32GB DDR4', fps: '60+ FPS', model: 'YOLOv8s-pose', color: 'var(--prism-violet)' },
 ];
 
-const SPECS = [
-  { label: "Frontend Framework", value: "Next.js 16 (React 19, TypeScript)" },
-  { label: "Styling & Tokens", value: "Tailwind CSS 4 (Vibrant Studio Light Theme)" },
-  { label: "Client-side Vision", value: "MediaPipe Vision Tasks (WASM Float16 GPU Delegate)" },
-  { label: "Server Architecture", value: "FastAPI + Uvicorn Async Workers" },
-  { label: "AI Pose Engine", value: "YOLOv8s-Pose (17 COCO Keypoints) + Cosine Distance" },
-  { label: "Production Gateway", value: "Nginx Reverse Proxy with SPA Fallback & COEP Headers" },
+const STACK = [
+  { cat: 'AI / ML', items: ['YOLOv8s-pose (Ultralytics 8.4)', 'MediaPipe Pose Landmarker Lite', 'OpenCV', 'NumPy', 'PyTorch 2.14'] },
+  { cat: 'Backend', items: ['FastAPI', 'Python 3.14', 'Uvicorn ASGI', 'Pydantic v2', 'CORS Middleware'] },
+  { cat: 'Frontend', items: ['Next.js 16 (App Router)', 'TypeScript 5', 'GSAP 3 + ScrollTrigger', 'Tailwind CSS 4', 'Space Grotesk / Space Mono'] },
+  { cat: 'Infrastructure', items: ['Nginx (SPA reverse proxy)', 'Git + GitHub (xukki241)', 'PowerShell scripts', 'Next.js standalone build'] },
+];
+
+const PIPELINE = [
+  { label: 'Camera', sub: 'MediaPipe WASM', icon: '📷', color: 'var(--prism-cyan)' },
+  { label: 'Pose Detection', sub: 'YOLOv8s-pose', icon: '🦾', color: 'var(--prism-violet)' },
+  { label: 'Score API', sub: 'FastAPI :8000', icon: '📊', color: 'var(--prism-pink)' },
+  { label: 'UI Feedback', sub: 'Next.js :3000', icon: '✨', color: 'var(--accent-emerald)' },
 ];
 
 export default function AboutPage() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    gsap.from('.about-hero-content', { opacity: 0, y: 40, duration: 0.9, ease: 'power3.out' });
+    gsap.from('.pipeline-node', {
+      scrollTrigger: { trigger: '.pipeline-section', start: 'top 80%' },
+      opacity: 0, scale: 0.7, stagger: 0.12, duration: 0.7, ease: 'back.out(1.4)',
+    });
+    gsap.from('.timeline-item', {
+      scrollTrigger: { trigger: '.timeline-section', start: 'top 80%' },
+      opacity: 0, x: -50, stagger: 0.15, duration: 0.7, ease: 'power3.out',
+    });
+    gsap.from('.hw-card', {
+      scrollTrigger: { trigger: '.hw-section', start: 'top 80%' },
+      opacity: 0, y: 40, scale: 0.9, stagger: 0.2, duration: 0.7, ease: 'back.out(1.2)',
+    });
+    gsap.from('.stack-card', {
+      scrollTrigger: { trigger: '.stack-section', start: 'top 80%' },
+      opacity: 0, y: 30, stagger: 0.1, duration: 0.6, ease: 'power3.out',
+    });
+  }, { scope: containerRef });
+
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-slate-900 flex flex-col">
-      {/* Studio Header */}
-      <header className="bg-white/85 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-6 h-15 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-rose-500 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
-              <Camera className="w-4 h-4" />
-            </div>
-            <span className="font-extrabold text-base tracking-tight text-slate-900">
-              Pose-Booth AI
-            </span>
-          </Link>
+    <div ref={containerRef} style={{ background: 'var(--bg-base)', minHeight: '100vh', color: 'var(--text-primary)' }}>
+      {/* Ambient */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(ellipse 50% 40% at 70% 20%, rgba(168,85,247,0.07) 0%, transparent 70%), radial-gradient(ellipse 40% 35% at 20% 80%, rgba(6,182,212,0.06) 0%, transparent 70%)' }} />
 
-          <nav className="flex items-center gap-6 text-xs font-semibold text-slate-600">
-            <Link href="/booth" className="hover:text-rose-600 transition-colors">Photobooth</Link>
-            <Link href="/pose-studio" className="hover:text-indigo-600 transition-colors">Pose Studio</Link>
-            <Link href="/frames" className="hover:text-emerald-600 transition-colors">Khung Ảnh</Link>
-          </nav>
+      {/* NAV */}
+      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, background: 'rgba(10,10,15,0.78)', backdropFilter: 'blur(24px)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '0 2rem', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '1.1rem', color: 'var(--text-primary)', textDecoration: 'none' }}>
+          📸 <span className="prism-text">Pose-Booth AI</span>
+        </Link>
+        <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+          {([['Booth', '/booth'], ['Pose Studio', '/pose-studio'], ['Frames', '/frames']] as [string, string][]).map(([l, h]) => (
+            <Link key={h} href={h} style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem' }}>{l}</Link>
+          ))}
+          <Link href="/booth" className="btn-prism-primary" style={{ padding: '0.5rem 1.25rem', fontSize: '0.875rem' }}>Open Booth</Link>
         </div>
-      </header>
+      </nav>
 
-      {/* Main Content */}
-      <main className="flex-1 max-w-5xl mx-auto px-6 py-12 w-full flex flex-col gap-12">
-        {/* Intro */}
-        <div className="flex flex-col gap-3">
-          <div className="inline-flex items-center gap-2 text-xs font-bold text-rose-600 tracking-wider uppercase">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Dự án khởi nghiệp môn học EXE101 · FPT University</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900">
-            Kiến trúc hệ thống & Khả năng vận hành
+      {/* HERO */}
+      <section style={{ paddingTop: '9rem', paddingBottom: '5rem', paddingLeft: '2rem', paddingRight: '2rem', maxWidth: '880px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+        <div className="about-hero-content">
+          <span className="glass-pill" style={{ display: 'inline-flex', marginBottom: '1.5rem' }}>
+            <span className="dot dot-pulse" />EXE101 · FPT University 2026
+          </span>
+          <h1 style={{ fontSize: 'clamp(2.2rem,5vw,3.75rem)', fontWeight: 700, letterSpacing: '-0.04em', margin: '1rem 0' }}>
+            About <span className="prism-text">Pose-Booth AI</span>
           </h1>
-          <p className="text-base text-slate-600 leading-relaxed max-w-3xl">
-            Pose-Booth AI là giải pháp photobooth thông minh giải quyết rào cản người dùng bối rối khi tạo dáng trước máy ảnh. Hệ thống phân tách tính toán: trình duyệt xử lý nhận diện cơ thể tức thì, trong khi backend cục bộ đảm nhận chấm điểm chuẩn hóa và xuất khung ảnh độ phân giải cao.
+          <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: 1.75, maxWidth: '580px', margin: '0 auto' }}>
+            An AI-powered photobooth that uses computer vision to guide users into perfect poses in real-time.
+            Built as an EXE101 startup capstone at FPT University, 2026.
           </p>
         </div>
+      </section>
 
-        {/* 4 Pillars Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {SYSTEM_PILLARS.map((p) => {
-            const Icon = p.icon;
-            return (
-              <div key={p.title} className="studio-card p-6 flex flex-col gap-3 bg-white border border-slate-200/90 shadow-sm">
-                <div className={`w-9 h-9 rounded-xl ${p.color} flex items-center justify-center font-bold`}>
-                  <Icon className="w-5 h-5" />
+      {/* AI PIPELINE */}
+      <section className="pipeline-section" style={{ padding: '2rem 2rem 5rem', maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+        <h2 style={{ fontSize: '1.7rem', fontWeight: 700, textAlign: 'center', marginBottom: '2.5rem' }}>AI <span className="prism-text">Pipeline</span> Architecture</h2>
+        <div className="glass-card" style={{ padding: '2.5rem', overflowX: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 0, minWidth: '560px', justifyContent: 'center' }}>
+            {PIPELINE.map((node, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+                <div className="pipeline-node" style={{ textAlign: 'center', padding: '1rem 1.25rem', background: 'rgba(255,255,255,0.04)', border: `1px solid ${node.color}40`, borderRadius: '0.75rem', minWidth: '120px' }}>
+                  <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{node.icon}</div>
+                  <div style={{ fontWeight: 600, fontSize: '0.875rem', color: node.color }}>{node.label}</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-space-mono,monospace)', marginTop: '0.25rem' }}>{node.sub}</div>
                 </div>
-                <h3 className="font-bold text-sm text-slate-900">{p.title}</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">{p.desc}</p>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Hardware Compatibility Profiles */}
-        <div className="studio-card p-6 bg-white border border-slate-200/90 shadow-sm flex flex-col gap-4">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-            <Cpu className="w-4 h-4 text-emerald-600" />
-            <span>Đánh giá cấu hình phần cứng triển khai</span>
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {HARDWARE_PROFILES.map((prof) => (
-              <div key={prof.device} className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-xs text-slate-900">{prof.device}</span>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${prof.statusColor}`}>
-                    {prof.status}
-                  </span>
-                </div>
-                <p className="text-[11px] font-mono text-slate-600">{prof.specs}</p>
-                <p className="text-xs text-slate-600 mt-1">{prof.capability}</p>
-                <div className="mt-auto pt-2 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-500 font-mono">
-                  <span>VRAM ước tính:</span>
-                  <span className="font-bold text-slate-800">{prof.vramUsed}</span>
-                </div>
+                {i < PIPELINE.length - 1 && <div style={{ padding: '0 0.625rem', color: 'var(--text-muted)', fontSize: '1.25rem', flexShrink: 0 }}>→</div>}
               </div>
             ))}
           </div>
         </div>
+      </section>
 
-        {/* Technical Specifications Table */}
-        <div className="studio-card p-6 bg-white border border-slate-200/90 shadow-sm flex flex-col gap-4">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800">
-            Thông số kỹ thuật phần mềm
-          </h2>
-          <div className="divide-y divide-slate-100 text-xs">
-            {SPECS.map((spec) => (
-              <div key={spec.label} className="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                <span className="font-medium text-slate-600">{spec.label}</span>
-                <span className="font-mono text-slate-900 font-semibold">{spec.value}</span>
+      {/* TIMELINE */}
+      <section className="timeline-section" style={{ padding: '2rem 2rem 5rem', maxWidth: '780px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+        <h2 style={{ fontSize: '1.7rem', fontWeight: 700, textAlign: 'center', marginBottom: '3rem' }}>Development <span className="prism-text">Timeline</span></h2>
+        <div style={{ position: 'relative', paddingLeft: '2.5rem' }}>
+          <div style={{ position: 'absolute', left: '0.5rem', top: 0, bottom: 0, width: '2px', background: 'linear-gradient(180deg, var(--prism-violet), var(--prism-cyan))' }} />
+          {TIMELINE.map((item, i) => (
+            <div key={i} className="timeline-item" style={{ position: 'relative', marginBottom: '2.5rem' }}>
+              <div style={{ position: 'absolute', left: '-2.5rem', top: '1.1rem', width: '12px', height: '12px', borderRadius: '50%', background: i % 2 === 0 ? 'var(--prism-violet)' : 'var(--prism-cyan)', boxShadow: `0 0 10px ${i % 2 === 0 ? 'var(--prism-violet)' : 'var(--prism-cyan)'}`, zIndex: 1 }} />
+              <div className="glass-card" style={{ padding: '1.25rem 1.5rem' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <span className="glass-pill" style={{ fontSize: '0.72rem', color: 'var(--prism-violet)' }}>{item.phase}</span>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: 'var(--font-space-mono,monospace)' }}>{item.date}</span>
+                </div>
+                <h3 style={{ fontWeight: 600, fontSize: '1rem', margin: '0 0 0.5rem' }}>{item.title}</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', lineHeight: 1.65, margin: 0 }}>{item.desc}</p>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
+      </section>
 
-        {/* Clean Architecture Note */}
-        <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 text-xs text-emerald-800 leading-relaxed flex items-center gap-3">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-          <p>
-            Hệ thống Pose-Booth AI đã sẵn sàng hoạt động độc lập không cần internet sau khi tải mô hình lần đầu. Mọi tương tác trực quan đều được phản hồi tức thì với độ trễ dưới 33ms.
-          </p>
+      {/* HARDWARE */}
+      <section className="hw-section" style={{ padding: '2rem 2rem 5rem', maxWidth: '880px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+        <h2 style={{ fontSize: '1.7rem', fontWeight: 700, textAlign: 'center', marginBottom: '2.5rem' }}>Hardware <span className="prism-text">Specs</span></h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '1.5rem' }}>
+          {HARDWARE.map((hw, i) => (
+            <div key={i} className="hw-card glass-card" style={{ padding: '2rem', borderColor: `${hw.color}40` }}>
+              <span className="glass-pill" style={{ display: 'inline-flex', marginBottom: '1.25rem', color: hw.color, borderColor: `${hw.color}40` }}>{hw.label}</span>
+              <div style={{ display: 'grid', gap: '0.75rem' }}>
+                {([['GPU', hw.gpu], ['CPU', hw.cpu], ['RAM', hw.ram], ['Target FPS', hw.fps], ['Model', hw.model]] as [string, string][]).map(([k, v]) => (
+                  <div key={k} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem' }}>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontFamily: 'var(--font-space-mono,monospace)' }}>{k}</span>
+                    <span style={{ color: 'var(--text-primary)', fontSize: '0.85rem', fontWeight: 500 }}>{v}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
+      </section>
 
-        {/* Navigation Action */}
-        <div className="flex items-center justify-between pt-2 border-t border-slate-200">
-          <Link href="/" className="text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors">
-            ← Quay lại trang chủ
-          </Link>
-          <Link href="/booth" className="btn-shutter text-xs">
-            <Camera className="w-3.5 h-3.5" />
-            <span>Mở Photobooth</span>
-          </Link>
+      {/* TECH STACK */}
+      <section className="stack-section" style={{ padding: '2rem 2rem 5rem', maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+        <h2 style={{ fontSize: '1.7rem', fontWeight: 700, textAlign: 'center', marginBottom: '2.5rem' }}>Tech <span className="prism-text">Stack</span></h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '1.25rem' }}>
+          {STACK.map((cat, i) => (
+            <div key={i} className="stack-card glass-card" style={{ padding: '1.5rem' }}>
+              <span className="prism-text-lr" style={{ fontWeight: 600, fontSize: '0.8rem', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '1rem', display: 'block' }}>{cat.cat}</span>
+              <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {cat.items.map(item => (
+                  <li key={item} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                    <span style={{ display: 'inline-block', width: 4, height: 4, borderRadius: '50%', background: 'var(--prism-cyan)', boxShadow: '0 0 5px var(--prism-cyan)', flexShrink: 0 }} />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
-      </main>
+      </section>
+
+      {/* FOOTER */}
+      <footer style={{ padding: '3rem 2rem', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.06)', position: 'relative', zIndex: 1 }}>
+        <Link href="/booth" className="btn-prism-primary" style={{ display: 'inline-flex', marginBottom: '2rem' }}>Try Pose-Booth AI →</Link>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Pose-Booth AI © 2026 · EXE101 FPT University</p>
+      </footer>
     </div>
   );
 }

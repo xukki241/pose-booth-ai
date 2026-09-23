@@ -17,11 +17,11 @@ const SHOT_MODES: { mode: ShotMode; label: string; badge: string }[] = [
 ];
 
 const FRAME_COLORS = [
-  { id: "white", name: "Trắng Studio", bg: "bg-white", border: "border-slate-300" },
-  { id: "rose", name: "Hồng Pastel", bg: "bg-rose-50", border: "border-rose-200" },
-  { id: "mint", name: "Xanh Bạc Hà", bg: "bg-emerald-50", border: "border-emerald-200" },
-  { id: "sky", name: "Xanh Da Trời", bg: "bg-sky-50", border: "border-sky-200" },
-  { id: "dark", name: "Đen Điện Ảnh", bg: "bg-slate-900", border: "border-slate-800", text: "text-white" },
+  { id: "dark",    name: "Đen Điện Ảnh",  bg: "bg-slate-900",   border: "border-slate-700" },
+  { id: "violet",  name: "Tím Prism",      bg: "bg-violet-950",  border: "border-violet-800" },
+  { id: "cyan",    name: "Xanh Neon",      bg: "bg-cyan-950",    border: "border-cyan-800" },
+  { id: "slate",   name: "Xám Tro",        bg: "bg-slate-800",   border: "border-slate-600" },
+  { id: "black",   name: "Đen Tuyệt Đối",  bg: "bg-black",       border: "border-slate-900" },
 ];
 
 export default function BoothPage() {
@@ -46,7 +46,7 @@ export default function BoothPage() {
       particleCount: 75,
       spread: 60,
       origin: { y: 0.7 },
-      colors: ["#f43f5e", "#3b82f6", "#10b981", "#fbbf24"],
+      colors: ["#A855F7", "#06B6D4", "#F0ABFC", "#10b981"],
     });
   }, []);
 
@@ -88,21 +88,40 @@ export default function BoothPage() {
   }, [completedShots, downloadShot]);
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-slate-900 flex flex-col">
-      {/* Studio Header */}
-      <header className="bg-white/85 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 h-15 flex items-center justify-between">
+    <div
+      className="min-h-screen flex flex-col"
+      style={{ background: "var(--bg-base)", color: "var(--text-primary)" }}
+    >
+      {/* ── Navigation Bar ── */}
+      <header
+        className="sticky top-0 z-40 border-b"
+        style={{
+          background: "rgba(10,10,15,0.85)",
+          backdropFilter: "blur(24px) saturate(140%)",
+          WebkitBackdropFilter: "blur(24px) saturate(140%)",
+          borderColor: "rgba(255,255,255,0.07)",
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-rose-500 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+              <div
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-sm"
+                style={{ background: "linear-gradient(135deg,#A855F7,#06B6D4)" }}
+              >
                 <Camera className="w-4 h-4" />
               </div>
-              <span className="font-extrabold text-base tracking-tight text-slate-900">
+              <span className="font-extrabold text-base tracking-tight" style={{ color: "var(--text-primary)" }}>
                 Photobooth Studio
               </span>
             </Link>
-            <div className="h-4 w-px bg-slate-200" />
-            <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 font-semibold">
+
+            <div className="h-4 w-px" style={{ background: "rgba(255,255,255,0.1)" }} />
+
+            <span
+              className="glass-pill text-xs font-mono font-semibold"
+              style={{ color: "var(--text-secondary)" }}
+            >
               {cameraReady ? `${fps} FPS · ${Math.round(confidence * 100)}% CONF` : "SẴN SÀNG"}
             </span>
           </div>
@@ -110,38 +129,54 @@ export default function BoothPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowSkeleton(!showSkeleton)}
-              className="btn-secondary text-xs py-2 px-3"
+              className="btn-glass text-xs py-2 px-3"
             >
-              {showSkeleton ? <Eye className="w-3.5 h-3.5 text-rose-500" /> : <EyeOff className="w-3.5 h-3.5 text-slate-400" />}
+              {showSkeleton
+                ? <Eye className="w-3.5 h-3.5" style={{ color: "#A855F7" }} />
+                : <EyeOff className="w-3.5 h-3.5" style={{ color: "var(--text-muted)" }} />}
               <span>Khung xương: {showSkeleton ? "Bật" : "Tắt"}</span>
             </button>
-            <Link href="/pose-studio" className="btn-secondary text-xs py-2 px-3">
+            <Link href="/pose-studio" className="btn-glass text-xs py-2 px-3">
               Pose Studio
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Main Studio Area */}
+      {/* ── Main Studio Area ── */}
       <main className="flex-1 max-w-7xl mx-auto w-full p-6 flex flex-col lg:flex-row gap-6">
+
         {/* Left Column: Camera Stage */}
         <div className="flex-1 flex flex-col gap-4">
-          {/* Viewport Box */}
-          <div className="relative rounded-2xl overflow-hidden bg-slate-950 aspect-video shadow-md border border-slate-300">
+
+          {/* Camera Viewport */}
+          <div
+            className="relative rounded-2xl overflow-hidden aspect-video"
+            style={{
+              background: "#050508",
+              border: "1px solid rgba(168,85,247,0.3)",
+              boxShadow: "0 0 40px -8px rgba(168,85,247,0.35), 0 8px 32px -4px rgba(0,0,0,0.7)",
+            }}
+          >
             {!cameraReady ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-slate-300">
-                <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-rose-400 mb-1">
-                  <Camera className="w-8 h-8 stroke-[1.5]" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4" style={{ color: "var(--text-secondary)" }}>
+                <div
+                  className="w-16 h-16 rounded-2xl flex items-center justify-center mb-1"
+                  style={{ background: "rgba(168,85,247,0.12)", border: "1px solid rgba(168,85,247,0.25)" }}
+                >
+                  <Camera className="w-8 h-8 stroke-[1.5]" style={{ color: "#A855F7" }} />
                 </div>
                 <div className="text-center">
-                  <p className="font-bold text-base text-white">Camera Studio Sẵn Sàng</p>
-                  <p className="text-xs text-slate-400 mt-1">Bấm nút bên dưới để kết nối camera máy tính</p>
+                  <p className="font-bold text-base" style={{ color: "var(--text-primary)" }}>Camera Studio Sẵn Sàng</p>
+                  <p className="text-xs mt-1" style={{ color: "var(--text-secondary)" }}>
+                    Bấm nút bên dưới để kết nối camera máy tính
+                  </p>
                 </div>
                 <button
                   onClick={startCamera}
-                  className="btn-shutter text-xs px-6 py-2.5 mt-2"
+                  className="btn-prism-primary text-xs px-6 py-2.5 mt-1"
                 >
-                  <Camera className="w-4 h-4 mr-1" />
+                  <Camera className="w-4 h-4" />
                   Bật Camera Ngay
                 </button>
               </div>
@@ -166,28 +201,52 @@ export default function BoothPage() {
                   height={720}
                 />
 
-                {/* Animated GSAP Countdown Overlay */}
+                {/* Countdown Overlay */}
                 {state === "countdown" && (
-                  <div className="absolute inset-0 bg-slate-950/65 backdrop-blur-[2px] flex items-center justify-center">
-                    <CountdownDisplay countdown={countdown} total={3} />
+                  <div
+                    className="absolute inset-0 flex items-center justify-center"
+                    style={{
+                      background: "rgba(10,10,15,0.7)",
+                      backdropFilter: "blur(4px)",
+                    }}
+                  >
+                    <div
+                      className="glass-card p-8 flex flex-col items-center gap-2"
+                      style={{ border: "1px solid rgba(168,85,247,0.4)" }}
+                    >
+                      <CountdownDisplay countdown={countdown} total={3} />
+                    </div>
                   </div>
                 )}
 
-                {/* Shutter Flash Animation */}
+                {/* Shutter Flash */}
                 {state === "capturing" && (
-                  <div className="absolute inset-0 bg-white opacity-90 transition-opacity duration-150 pointer-events-none" />
+                  <div className="absolute inset-0 bg-white opacity-80 transition-opacity duration-150 pointer-events-none" />
                 )}
 
-                {/* Studio Live Badges */}
+                {/* Live Badges */}
                 <div className="absolute top-3.5 left-3.5 flex items-center gap-2">
                   {isLoading && (
-                    <div className="bg-slate-900/90 backdrop-blur px-3 py-1.5 rounded-lg text-xs text-white border border-slate-700 flex items-center gap-2 font-mono">
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin text-rose-400" />
+                    <div
+                      className="backdrop-blur px-3 py-1.5 rounded-lg text-xs border flex items-center gap-2 font-mono"
+                      style={{
+                        background: "rgba(10,10,15,0.9)",
+                        borderColor: "rgba(168,85,247,0.3)",
+                        color: "var(--text-secondary)",
+                      }}
+                    >
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" style={{ color: "#A855F7" }} />
                       <span>Đang nạp AI Pose...</span>
                     </div>
                   )}
                   {state !== "idle" && state !== "review" && (
-                    <div className="bg-gradient-to-r from-rose-600 to-rose-500 text-white px-3 py-1.5 rounded-lg text-xs font-mono font-bold shadow-sm">
+                    <div
+                      className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold"
+                      style={{
+                        background: "linear-gradient(135deg,#A855F7,#06B6D4)",
+                        color: "#F8FAFC",
+                      }}
+                    >
                       ẢNH SỐ {currentShot + 1} / {totalShots}
                     </div>
                   )}
@@ -197,9 +256,17 @@ export default function BoothPage() {
           </div>
 
           {/* Studio Control Toolbar */}
-          <div className="studio-card p-4 flex flex-wrap items-center justify-between gap-4 bg-white">
+          <div
+            className="glass-card p-4 flex flex-wrap items-center justify-between gap-4"
+          >
             {/* Mode Selector */}
-            <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200">
+            <div
+              className="flex items-center gap-1 p-1 rounded-xl"
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.08)",
+              }}
+            >
               {SHOT_MODES.map(({ mode, label }) => (
                 <button
                   key={mode}
@@ -207,25 +274,34 @@ export default function BoothPage() {
                     setShotMode(mode);
                     reset();
                   }}
-                  className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-all ${
+                  className="px-3.5 py-2 rounded-lg text-xs font-semibold transition-all"
+                  style={
                     shotMode === mode
-                      ? "bg-white text-slate-900 shadow-sm"
-                      : "text-slate-600 hover:text-slate-900"
-                  }`}
+                      ? {
+                          background: "rgba(168,85,247,0.2)",
+                          border: "1px solid rgba(168,85,247,0.5)",
+                          color: "var(--text-primary)",
+                        }
+                      : {
+                          background: "transparent",
+                          border: "1px solid transparent",
+                          color: "var(--text-secondary)",
+                        }
+                  }
                 >
                   {label}
                 </button>
               ))}
             </div>
 
-            {/* Shutter Button & Review Actions */}
+            {/* Shutter & Review Actions */}
             <div className="flex items-center gap-3">
               {state === "review" ? (
                 <>
-                  <button onClick={downloadAll} className="btn-shutter text-xs">
+                  <button onClick={downloadAll} className="btn-prism-primary text-xs">
                     <Download className="w-3.5 h-3.5" /> Tải Toàn Bộ Ảnh
                   </button>
-                  <button onClick={reset} className="btn-secondary text-xs">
+                  <button onClick={reset} className="btn-glass text-xs">
                     <RotateCcw className="w-3.5 h-3.5" /> Chụp Lại
                   </button>
                 </>
@@ -233,7 +309,7 @@ export default function BoothPage() {
                 <button
                   onClick={cameraReady ? start : startCamera}
                   disabled={state === "countdown" || state === "capturing"}
-                  className="btn-shutter text-xs px-7 py-3 disabled:opacity-50"
+                  className="btn-prism-primary text-xs px-7 py-3 disabled:opacity-50"
                 >
                   <Camera className="w-4 h-4" />
                   <span>
@@ -251,21 +327,29 @@ export default function BoothPage() {
 
         {/* Right Column: Live Photo Strip Console */}
         <div className="w-full lg:w-80 flex flex-col gap-4">
-          <div className="studio-card p-4 flex items-center justify-between bg-white">
+
+          {/* Header */}
+          <div className="glass-card p-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-rose-500" />
-              <span className="font-bold text-xs text-slate-800 uppercase tracking-wider">
+              <Sparkles className="w-4 h-4" style={{ color: "#A855F7" }} />
+              <span
+                className="font-bold text-xs uppercase tracking-wider"
+                style={{ color: "var(--text-primary)" }}
+              >
                 Dải Khung Ảnh Strip
               </span>
             </div>
-            <span className="text-xs font-mono font-bold text-slate-500">
+            <span className="glass-pill text-xs font-mono font-bold">
               {completedShots.length} / {totalShots}
             </span>
           </div>
 
           {/* Frame Theme Picker */}
-          <div className="studio-card p-3.5 bg-white flex flex-col gap-2">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+          <div className="glass-card p-3.5 flex flex-col gap-2">
+            <span
+              className="text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1.5"
+              style={{ color: "var(--text-secondary)" }}
+            >
               <Layers className="w-3.5 h-3.5" />
               <span>Màu Khung Ảnh:</span>
             </span>
@@ -274,9 +358,16 @@ export default function BoothPage() {
                 <button
                   key={frame.id}
                   onClick={() => setActiveFrame(frame)}
-                  className={`w-7 h-7 rounded-full border-2 transition-transform ${frame.bg} ${
-                    activeFrame.id === frame.id ? "scale-110 ring-2 ring-rose-500 ring-offset-2" : "border-slate-300 opacity-80"
-                  }`}
+                  className={`w-7 h-7 rounded-full border-2 transition-transform ${frame.bg}`}
+                  style={
+                    activeFrame.id === frame.id
+                      ? {
+                          borderColor: "#A855F7",
+                          transform: "scale(1.15)",
+                          boxShadow: "0 0 0 2px rgba(168,85,247,0.4)",
+                        }
+                      : { borderColor: "rgba(255,255,255,0.15)", opacity: 0.75 }
+                  }
                   title={frame.name}
                 />
               ))}
@@ -284,14 +375,30 @@ export default function BoothPage() {
           </div>
 
           {/* Film Strip View */}
-          <div className={`studio-card p-4 flex-1 flex flex-col gap-3 min-h-[420px] max-h-[660px] overflow-y-auto ${activeFrame.bg} border-2 ${activeFrame.border}`}>
+          <div
+            className={`glass-card p-4 flex-1 flex flex-col gap-3 min-h-[420px] max-h-[660px] overflow-y-auto film-strip ${activeFrame.bg} border-2 ${activeFrame.border}`}
+          >
             {completedShots.length === 0 ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-slate-400">
-                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-2">
-                  <Camera className="w-6 h-6 stroke-[1.5]" />
+              <div
+                className="flex-1 flex flex-col items-center justify-center text-center p-6"
+                style={{ color: "var(--text-muted)" }}
+              >
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center mb-3"
+                  style={{
+                    background: "rgba(168,85,247,0.08)",
+                    border: "1px solid rgba(168,85,247,0.2)",
+                  }}
+                >
+                  <Camera className="w-6 h-6 stroke-[1.5]" style={{ color: "#A855F7" }} />
                 </div>
-                <p className="text-xs font-bold text-slate-600">Dải ảnh đang chờ chụp</p>
-                <p className="text-[11px] text-slate-400 mt-1 max-w-[180px]">
+                <p className="text-xs font-bold" style={{ color: "var(--text-secondary)" }}>
+                  Dải ảnh đang chờ chụp
+                </p>
+                <p
+                  className="text-[11px] mt-1 max-w-[180px]"
+                  style={{ color: "var(--text-muted)" }}
+                >
                   Bấm chụp để ảnh xuất hiện trong dải khung photobooth
                 </p>
               </div>
@@ -299,7 +406,11 @@ export default function BoothPage() {
               completedShots.map((shot, idx) => (
                 <div
                   key={shot.id}
-                  className="group relative rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-100"
+                  className="group relative rounded-xl overflow-hidden"
+                  style={{
+                    border: "1px solid rgba(168,85,247,0.2)",
+                    background: "rgba(0,0,0,0.4)",
+                  }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -307,16 +418,27 @@ export default function BoothPage() {
                     alt={`Shot ${idx + 1}`}
                     className="w-full aspect-[4/3] object-cover"
                   />
-                  <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  <div className="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <button
                       onClick={() => downloadShot(shot, idx)}
-                      className="p-2 rounded-full bg-white text-slate-900 hover:bg-rose-50 hover:text-rose-600 transition-colors shadow-md"
+                      className="p-2 rounded-full transition-colors shadow-md"
+                      style={{
+                        background: "rgba(168,85,247,0.85)",
+                        color: "#F8FAFC",
+                      }}
                       title="Tải ảnh này về"
                     >
                       <Download className="w-4 h-4" />
                     </button>
                   </div>
-                  <div className="absolute bottom-1.5 left-1.5 bg-slate-900/80 text-white text-[10px] font-mono px-2 py-0.5 rounded">
+                  <div
+                    className="absolute bottom-1.5 left-1.5 text-[10px] font-mono px-2 py-0.5 rounded"
+                    style={{
+                      background: "rgba(10,10,15,0.85)",
+                      color: "var(--text-secondary)",
+                      border: "1px solid rgba(168,85,247,0.25)",
+                    }}
+                  >
                     SHOT #{idx + 1}
                   </div>
                 </div>

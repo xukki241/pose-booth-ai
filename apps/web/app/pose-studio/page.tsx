@@ -74,18 +74,23 @@ const RICH_POSES: PoseTemplate[] = [
   },
 ];
 
-const DIFFICULTY_CONFIG: Record<string, { label: string; cls: string }> = {
-  easy: { label: "Dễ", cls: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  medium: { label: "Vừa", cls: "bg-amber-50 text-amber-700 border-amber-200" },
-  hard: { label: "Khó", cls: "bg-rose-50 text-rose-700 border-rose-200" },
+// Dark-theme difficulty badges
+const DIFFICULTY_CONFIG: Record<string, { label: string; bg: string; color: string; border: string }> = {
+  easy:   { label: "Dễ",  bg: "rgba(16,185,129,0.12)",  color: "#10B981", border: "rgba(16,185,129,0.35)" },
+  medium: { label: "Vừa", bg: "rgba(245,158,11,0.12)",  color: "#F59E0B", border: "rgba(245,158,11,0.35)" },
+  hard:   { label: "Khó", bg: "rgba(239,68,68,0.12)",   color: "#EF4444", border: "rgba(239,68,68,0.35)"  },
 };
 
 const CATEGORIES = [
-  { id: "all", label: "Tất Cả" },
+  { id: "all",      label: "Tất Cả" },
   { id: "portrait", label: "Chân Dung" },
-  { id: "dynamic", label: "Năng Động" },
-  { id: "fun", label: "Vui Nhộn" },
+  { id: "dynamic",  label: "Năng Động" },
+  { id: "fun",      label: "Vui Nhộn" },
 ];
+
+// Circular progress ring radius
+const RING_R = 44;
+const RING_CIRC = 2 * Math.PI * RING_R;
 
 export default function PoseStudioPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -166,7 +171,7 @@ export default function PoseStudioPage() {
           particleCount: 60,
           spread: 70,
           origin: { y: 0.6 },
-          colors: ["#10b981", "#3b82f6", "#f43f5e"],
+          colors: ["#A855F7", "#06B6D4", "#F0ABFC"],
         });
       }
     } catch {
@@ -180,28 +185,50 @@ export default function PoseStudioPage() {
     }
   };
 
+  // Score ring helpers
+  const scoreColor = score !== null
+    ? score >= 80 ? "#10B981" : score >= 60 ? "#F59E0B" : "#EF4444"
+    : "#A855F7";
+  const scoreDash = score !== null ? (score / 100) * RING_CIRC : 0;
+
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-slate-900 flex flex-col">
-      {/* Studio Header */}
-      <header className="bg-white/85 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 h-15 flex items-center justify-between">
+    <div
+      className="min-h-screen flex flex-col"
+      style={{ background: "var(--bg-base)", color: "var(--text-primary)" }}
+    >
+      {/* ── Navigation Bar ── */}
+      <header
+        className="sticky top-0 z-40 border-b"
+        style={{
+          background: "rgba(10,10,15,0.85)",
+          backdropFilter: "blur(24px) saturate(140%)",
+          WebkitBackdropFilter: "blur(24px) saturate(140%)",
+          borderColor: "rgba(255,255,255,0.07)",
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+              <div
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-sm"
+                style={{ background: "linear-gradient(135deg,#06B6D4,#A855F7)" }}
+              >
                 <Compass className="w-4 h-4" />
               </div>
-              <span className="font-extrabold text-base tracking-tight text-slate-900">
+              <span className="font-extrabold text-base tracking-tight" style={{ color: "var(--text-primary)" }}>
                 Phòng Tập Tạo Dáng AI
               </span>
             </Link>
-            <div className="h-4 w-px bg-slate-200" />
-            <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 font-semibold">
+
+            <div className="h-4 w-px" style={{ background: "rgba(255,255,255,0.1)" }} />
+
+            <span className="glass-pill text-xs font-mono font-semibold">
               {cameraReady ? `${fps} FPS · AI TRACKING ACTIVE` : "CHỜ CAMERA"}
             </span>
           </div>
 
           <div className="flex items-center gap-3">
-            <Link href="/booth" className="btn-shutter text-xs">
+            <Link href="/booth" className="btn-prism-primary text-xs">
               <Camera className="w-3.5 h-3.5" />
               <span>Chuyển Sang Photobooth</span>
               <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
@@ -210,27 +237,42 @@ export default function PoseStudioPage() {
         </div>
       </header>
 
-      {/* Main Workspace */}
+      {/* ── Main Workspace ── */}
       <main className="flex-1 max-w-7xl mx-auto w-full p-6 flex flex-col lg:flex-row gap-6">
+
         {/* Left Column: Vision Viewport & Live Scoring */}
         <div className="flex-1 flex flex-col gap-4">
-          <div className="relative rounded-2xl overflow-hidden bg-slate-950 aspect-video shadow-md border border-slate-300">
+
+          {/* Camera Viewport */}
+          <div
+            className="relative rounded-2xl overflow-hidden aspect-video"
+            style={{
+              background: "#050508",
+              border: "1px solid rgba(168,85,247,0.3)",
+              boxShadow: "0 0 40px -8px rgba(168,85,247,0.35), 0 8px 32px -4px rgba(0,0,0,0.7)",
+            }}
+          >
             {!cameraReady ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-slate-300">
-                <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-indigo-400 mb-1">
-                  <Camera className="w-8 h-8 stroke-[1.5]" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+                <div
+                  className="w-16 h-16 rounded-2xl flex items-center justify-center mb-1"
+                  style={{
+                    background: "rgba(6,182,212,0.1)",
+                    border: "1px solid rgba(6,182,212,0.25)",
+                  }}
+                >
+                  <Camera className="w-8 h-8 stroke-[1.5]" style={{ color: "#06B6D4" }} />
                 </div>
                 <div className="text-center">
-                  <p className="font-bold text-base text-white">Chưa Bật Camera Studio</p>
-                  <p className="text-xs text-slate-400 mt-1">
+                  <p className="font-bold text-base" style={{ color: "var(--text-primary)" }}>
+                    Chưa Bật Camera Studio
+                  </p>
+                  <p className="text-xs mt-1" style={{ color: "var(--text-secondary)" }}>
                     Bật webcam để hệ thống nhận diện khung xương và so sánh với tư thế mẫu
                   </p>
                 </div>
-                <button
-                  onClick={startCamera}
-                  className="btn-accent-blue text-xs px-6 py-2.5 mt-2"
-                >
-                  <Camera className="w-4 h-4 mr-1" />
+                <button onClick={startCamera} className="btn-prism-primary text-xs px-6 py-2.5 mt-1">
+                  <Camera className="w-4 h-4" />
                   Bật Camera Ngay
                 </button>
               </div>
@@ -258,8 +300,15 @@ export default function PoseStudioPage() {
                 />
 
                 {isLoading && (
-                  <div className="absolute top-3.5 left-3.5 bg-slate-900/90 backdrop-blur px-3 py-1.5 rounded-lg text-xs text-white border border-slate-700 flex items-center gap-2 font-mono">
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin text-indigo-400" />
+                  <div
+                    className="absolute top-3.5 left-3.5 backdrop-blur px-3 py-1.5 rounded-lg text-xs border flex items-center gap-2 font-mono"
+                    style={{
+                      background: "rgba(10,10,15,0.9)",
+                      borderColor: "rgba(6,182,212,0.3)",
+                      color: "var(--text-secondary)",
+                    }}
+                  >
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" style={{ color: "#06B6D4" }} />
                     <span>Đang nạp mô hình thị giác...</span>
                   </div>
                 )}
@@ -273,7 +322,7 @@ export default function PoseStudioPage() {
               <button
                 onClick={scoreAgainstPose}
                 disabled={!selectedPose}
-                className="btn-shutter text-xs flex-1 py-3.5 disabled:opacity-50"
+                className="btn-prism-primary text-xs flex-1 py-3.5 disabled:opacity-50"
               >
                 <UserCheck className="w-4 h-4" />
                 <span>
@@ -287,30 +336,93 @@ export default function PoseStudioPage() {
 
           {/* Live Score Assessment Card */}
           {score !== null && (
-            <div className="studio-card p-6 bg-white flex flex-col sm:flex-row items-center gap-6 shadow-sm border border-slate-200">
-              <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-slate-50 border border-slate-200 min-w-[120px]">
-                <span className={`num-mono text-5xl font-black ${
-                  score >= 85 ? "text-emerald-600" : score >= 65 ? "text-amber-600" : "text-rose-600"
-                }`}>
-                  {score}%
-                </span>
-                <span className="text-[10px] text-slate-500 font-bold uppercase mt-1">
-                  Độ Khớp Dáng
-                </span>
+            <div
+              className="glass-card p-6 flex flex-col sm:flex-row items-center gap-6"
+              style={{ border: "1px solid rgba(168,85,247,0.25)" }}
+            >
+              {/* Score Ring */}
+              <div className="flex flex-col items-center justify-center min-w-[120px]">
+                <svg width="110" height="110" viewBox="0 0 110 110">
+                  <defs>
+                    <linearGradient id="prismGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#A855F7" />
+                      <stop offset="100%" stopColor="#06B6D4" />
+                    </linearGradient>
+                  </defs>
+                  {/* Track */}
+                  <circle
+                    cx="55" cy="55" r={RING_R}
+                    fill="none"
+                    stroke="rgba(255,255,255,0.06)"
+                    strokeWidth="8"
+                  />
+                  {/* Progress */}
+                  <circle
+                    cx="55" cy="55" r={RING_R}
+                    fill="none"
+                    stroke={score >= 80 ? "url(#prismGrad)" : scoreColor}
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    strokeDasharray={`${scoreDash} ${RING_CIRC}`}
+                    strokeDashoffset={RING_CIRC / 4}
+                    style={{ transition: "stroke-dasharray 0.6s ease" }}
+                  />
+                  {/* Score text */}
+                  <text
+                    x="55" y="50"
+                    textAnchor="middle"
+                    fontSize="22"
+                    fontWeight="700"
+                    fontFamily="'Space Mono', monospace"
+                    fill={scoreColor}
+                  >
+                    {score}%
+                  </text>
+                  <text
+                    x="55" y="66"
+                    textAnchor="middle"
+                    fontSize="8"
+                    fontWeight="600"
+                    fill="#94A3B8"
+                    letterSpacing="1"
+                  >
+                    ĐỘ KHỚP DÁNG
+                  </text>
+                </svg>
               </div>
 
+              {/* Feedback */}
               <div className="flex-1 flex flex-col gap-2 w-full text-center sm:text-left">
-                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5 justify-center sm:justify-start">
-                  <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                <span
+                  className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 justify-center sm:justify-start"
+                  style={{ color: "var(--text-primary)" }}
+                >
+                  <Sparkles className="w-3.5 h-3.5" style={{ color: "#A855F7" }} />
                   <span>Hướng dẫn tinh chỉnh chi tiết</span>
                 </span>
                 <div className="flex flex-col gap-1.5">
-                  {feedback.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-xs text-slate-700 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200/80">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>{item}</span>
-                    </div>
-                  ))}
+                  {feedback.map((item, idx) => {
+                    const pillColor =
+                      score >= 80
+                        ? { bg: "rgba(16,185,129,0.12)", border: "rgba(16,185,129,0.3)", icon: "#10B981" }
+                        : score >= 60
+                        ? { bg: "rgba(245,158,11,0.12)", border: "rgba(245,158,11,0.3)", icon: "#F59E0B" }
+                        : { bg: "rgba(239,68,68,0.12)", border: "rgba(239,68,68,0.3)", icon: "#EF4444" };
+                    return (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-2 text-xs px-3 py-2 rounded-lg"
+                        style={{
+                          background: pillColor.bg,
+                          border: `1px solid ${pillColor.border}`,
+                          color: "var(--text-primary)",
+                        }}
+                      >
+                        <CheckCircle2 className="w-4 h-4 shrink-0" style={{ color: pillColor.icon }} />
+                        <span>{item}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -319,27 +431,45 @@ export default function PoseStudioPage() {
 
         {/* Right Column: Pose Catalog */}
         <div className="w-full lg:w-80 flex flex-col gap-3">
-          <div className="studio-card p-4 bg-white flex flex-col gap-3">
+          <div className="glass-card p-4 flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <span className="font-bold text-xs text-slate-800 uppercase tracking-wider">
+              <span
+                className="font-bold text-xs uppercase tracking-wider"
+                style={{ color: "var(--text-primary)" }}
+              >
                 Thư Viện Dáng Chuẩn
               </span>
-              <span className="text-xs text-slate-500 font-mono font-bold">
+              <span className="glass-pill text-xs font-mono font-bold">
                 {filteredPoses.length} mẫu
               </span>
             </div>
 
-            {/* Filter Tabs */}
-            <div className="grid grid-cols-4 gap-1 p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs">
+            {/* Category Filter Tabs */}
+            <div
+              className="grid grid-cols-4 gap-1 p-1 rounded-xl text-xs"
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.07)",
+              }}
+            >
               {CATEGORIES.map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id)}
-                  className={`py-1.5 rounded-lg text-center font-semibold transition-all ${
+                  className="py-1.5 rounded-lg text-center font-semibold transition-all"
+                  style={
                     activeCategory === cat.id
-                      ? "bg-white text-slate-900 shadow-sm"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
+                      ? {
+                          background: "rgba(168,85,247,0.2)",
+                          border: "1px solid rgba(168,85,247,0.5)",
+                          color: "var(--text-primary)",
+                        }
+                      : {
+                          background: "transparent",
+                          border: "1px solid transparent",
+                          color: "var(--text-muted)",
+                        }
+                  }
                 >
                   {cat.label}
                 </button>
@@ -347,7 +477,7 @@ export default function PoseStudioPage() {
             </div>
           </div>
 
-          {/* List of Pose Cards */}
+          {/* Pose Card List */}
           <div className="flex flex-col gap-2.5 max-h-[580px] overflow-y-auto pr-0.5">
             {filteredPoses.map((pose) => {
               const diff = DIFFICULTY_CONFIG[pose.difficulty] || DIFFICULTY_CONFIG.easy;
@@ -361,21 +491,33 @@ export default function PoseStudioPage() {
                     setScore(null);
                     setFeedback([]);
                   }}
-                  className={`studio-card-interactive p-4 text-left flex flex-col gap-2 ${
+                  className="glass-card glass-card-interactive p-4 text-left flex flex-col gap-2"
+                  style={
                     isSelected
-                      ? "border-rose-500 ring-2 ring-rose-500/20 bg-rose-50/20 shadow-sm"
-                      : "bg-white"
-                  }`}
+                      ? {
+                          border: "1px solid rgba(168,85,247,0.4)",
+                          boxShadow: "0 0 20px -4px rgba(168,85,247,0.3), var(--shadow-elevated)",
+                          background: "rgba(168,85,247,0.06)",
+                        }
+                      : {}
+                  }
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-xs text-slate-900">
+                    <span className="font-bold text-xs" style={{ color: "var(--text-primary)" }}>
                       {pose.name_vi}
                     </span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${diff.cls}`}>
+                    <span
+                      className="text-[10px] font-bold px-2 py-0.5 rounded-full border"
+                      style={{
+                        background: diff.bg,
+                        color: diff.color,
+                        borderColor: diff.border,
+                      }}
+                    >
                       {diff.label}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
+                  <p className="text-xs leading-relaxed line-clamp-2" style={{ color: "var(--text-secondary)" }}>
                     {pose.description}
                   </p>
                 </button>

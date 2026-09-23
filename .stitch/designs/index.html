@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pose-Booth AI — Neural Vision Photobooth</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-surface": "#e4e1e9",
+            "on-secondary": "#003640",
+            "on-primary-fixed-variant": "#6900b3",
+            "outline-variant": "#4d4354",
+            "on-background": "#e4e1e9",
+            "on-tertiary": "#4e155d",
+            "error": "#ffb4ab",
+            "outline": "#988d9f",
+            "surface-container-high": "#2a292f",
+            "surface-bright": "#39383e",
+            "secondary-fixed": "#acedff",
+            "inverse-on-surface": "#303036",
+            "surface-variant": "#35343a",
+            "on-primary-fixed": "#2c0051",
+            "error-container": "#93000a",
+            "surface-container": "#1f1f25",
+            "secondary": "#4cd7f6",
+            "on-tertiary-fixed-variant": "#682f76",
+            "surface-container-lowest": "#0e0e13",
+            "primary-fixed-dim": "#ddb7ff",
+            "on-secondary-fixed-variant": "#004e5c",
+            "surface": "#131318",
+            "on-primary-container": "#400071",
+            "tertiary-container": "#b979c6",
+            "on-tertiary-fixed": "#340042",
+            "tertiary-fixed": "#fcd6ff",
+            "on-secondary-container": "#00424e",
+            "surface-tint": "#ddb7ff",
+            "inverse-primary": "#842bd2",
+            "primary-container": "#b76dff",
+            "tertiary-fixed-dim": "#f3aeff",
+            "background": "#131318",
+            "on-error-container": "#ffdad6",
+            "on-secondary-fixed": "#001f26",
+            "surface-dim": "#131318",
+            "on-primary": "#490080",
+            "on-tertiary-container": "#470c56",
+            "secondary-fixed-dim": "#4cd7f6",
+            "on-error": "#690005",
+            "surface-container-low": "#1b1b20",
+            "surface-container-highest": "#35343a",
+            "secondary-container": "#03b5d3",
+            "primary-fixed": "#f0dbff",
+            "primary": "#ddb7ff",
+            "on-surface-variant": "#cfc2d6",
+            "inverse-surface": "#e4e1e9",
+            "tertiary": "#f3aeff"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          spacing: {
+            "margin": "2rem",
+            "space-lg": "1.5rem",
+            "gutter-mobile": "0.75rem",
+            "space-xs": "0.25rem",
+            "margin-mobile": "1rem",
+            "space-sm": "0.5rem",
+            "space-xl": "2.5rem",
+            "space-md": "1rem",
+            "gutter": "1.5rem"
+          },
+          fontFamily: {
+            "body-md": ["Space Grotesk"],
+            "headline-sm": ["Space Grotesk"],
+            "headline-lg-mobile": ["Space Grotesk"],
+            "display-xl": ["Space Grotesk"],
+            "headline-md": ["Space Grotesk"],
+            "headline-lg": ["Space Grotesk"],
+            "label-sm": ["Space Grotesk"],
+            "label-lg": ["Space Grotesk"],
+            "body-lg": ["Space Grotesk"],
+            "body-sm": ["Space Grotesk"],
+            "display-xl-mobile": ["Space Grotesk"],
+            "label-md": ["Space Grotesk"]
+          },
+          fontSize: {
+            "body-md": ["14px", { lineHeight: "20px", letterSpacing: "0em", fontWeight: "400" }],
+            "headline-sm": ["20px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600" }],
+            "headline-lg-mobile": ["28px", { lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "700" }],
+            "display-xl": ["56px", { lineHeight: "64px", letterSpacing: "-0.04em", fontWeight: "700" }],
+            "headline-md": ["28px", { lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "600" }],
+            "headline-lg": ["40px", { lineHeight: "48px", letterSpacing: "-0.03em", fontWeight: "700" }],
+            "label-sm": ["10px", { lineHeight: "14px", letterSpacing: "0.08em", fontWeight: "600" }],
+            "label-lg": ["14px", { lineHeight: "20px", letterSpacing: "0.02em", fontWeight: "600" }],
+            "body-lg": ["16px", { lineHeight: "24px", letterSpacing: "-0.01em", fontWeight: "400" }],
+            "body-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "400" }],
+            "display-xl-mobile": ["36px", { lineHeight: "44px", letterSpacing: "-0.03em", fontWeight: "700" }],
+            "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.04em", fontWeight: "500" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      background-color: #0A0A0F;
+      color: #F8FAFC;
+      font-family: 'Space Grotesk', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Ambient Tech Grid Background */
+    .bg-tech-grid {
+      background-size: 40px 40px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    }
+
+    /* Optical Prism Borders */
+    .glass-prism-card {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(24px) saturate(140%);
+      -webkit-backdrop-filter: blur(24px) saturate(140%);
+      border-top: 1px solid rgba(255, 255, 255, 0.18);
+      border-left: 1px solid rgba(255, 255, 255, 0.07);
+      border-right: 1px solid rgba(255, 255, 255, 0.07);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .glass-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(16px);
+    }
+
+    /* Glows */
+    .luminescent-violet {
+      box-shadow: 0 0 35px -5px rgba(168, 85, 247, 0.45);
+    }
+    .luminescent-cyan {
+      box-shadow: 0 0 35px -5px rgba(6, 182, 212, 0.35);
+    }
+    .skeleton-joint {
+      box-shadow: 0 0 10px #06B6D4, 0 0 20px #06B6D4;
+    }
+    .skeleton-bone {
+      filter: drop-shadow(0 0 4px rgba(168, 85, 247, 0.8));
+    }
+  </style>
+</head>
+<body class="bg-[#0A0A0F] text-[#F8FAFC] antialiased selection:bg-primary-container selection:text-white relative min-h-screen">
+<!-- Atmospheric Cosmic Ambient Shimmers -->
+<div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+<div class="absolute -top-40 left-1/4 w-[600px] h-[600px] rounded-full bg-[#A855F7]/15 blur-[140px]"></div>
+<div class="absolute top-1/3 -right-40 w-[550px] h-[550px] rounded-full bg-[#06B6D4]/12 blur-[150px]"></div>
+<div class="absolute -bottom-20 left-1/3 w-[700px] h-[700px] rounded-full bg-[#D946EF]/10 blur-[170px]"></div>
+<div class="absolute inset-0 bg-tech-grid opacity-60"></div>
+</div>
+<!-- Shared Component: TopNavBar (Exact mapping from JSON & Anchors) -->
+<header class="fixed top-6 left-1/2 -translate-x-1/2 w-[92%] max-w-7xl rounded-xl z-50 bg-surface-container/60 dark:bg-surface-container/60 backdrop-blur-xl shadow-[0_8px_32px_-4px_rgba(0,0,0,0.5)]">
+<div class="flex justify-between items-center px-6 py-3 w-full">
+<!-- Brand Logo -->
+<a class="flex items-center gap-3 group" href="#">
+<div class="relative w-10 h-10 rounded-lg bg-surface-container-high/80 flex items-center justify-center border-t border-white/20 border-x border-b border-white/10 shadow-[0_0_15px_rgba(168,85,247,0.3)] group-hover:shadow-[0_0_22px_rgba(6,182,212,0.5)] transition-all duration-300">
+<span class="material-symbols-outlined text-[#4cd7f6] text-xl group-hover:scale-110 transition-transform">photo_camera</span>
+<span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[#F0ABFC] shadow-[0_0_8px_#F0ABFC]"></span>
+</div>
+<div class="flex flex-col">
+<span class="text-headline-sm font-headline-sm font-bold text-on-surface dark:text-on-surface tracking-tight">Pose-Booth AI</span>
+<span class="text-[10px] tracking-wider text-[#94A3B8] font-mono uppercase -mt-1">Neural Vision Booth</span>
+</div>
+</a>
+<!-- Navigation Links -->
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-primary dark:text-primary font-semibold transition-colors text-label-md font-label-md" href="#features">Features</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface transition-colors text-label-md font-label-md" href="#how-it-works">How It Works</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface transition-colors text-label-md font-label-md" href="#pose-library">Pose Library</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface transition-colors text-label-md font-label-md" href="#technology">Technology</a>
+</nav>
+<!-- Trailing Action Buttons -->
+<div class="flex items-center gap-4">
+<a class="hidden sm:inline-flex text-on-surface-variant hover:text-on-surface transition-colors text-label-md font-label-md px-3 py-2" href="#signin">
+          Sign In
+        </a>
+<a class="relative group inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-[#A855F7] text-[#F8FAFC] font-semibold text-label-md font-label-md shadow-[0_0_24px_-2px_rgba(168,85,247,0.45)] hover:shadow-[0_0_32px_rgba(168,85,247,0.7)] hover:brightness-110 active:scale-[0.98] transition-all duration-150" href="#booth-demo">
+<span class="flex items-center gap-1.5">
+            Launch Booth
+            <span class="material-symbols-outlined text-sm transition-transform group-hover:translate-x-0.5">arrow_forward</span>
+</span>
+</a>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="relative z-10 pt-32 md:pt-40">
+<!-- HERO SECTION -->
+<section class="max-w-7xl mx-auto px-6 lg:px-12 pt-8 pb-24 flex flex-col items-center text-center">
+<!-- Academic & Project Badge -->
+<div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full glass-pill mb-8 border border-white/10 hover:border-[#A855F7]/40 transition-colors cursor-default">
+<span class="w-2 h-2 rounded-full bg-[#A855F7] shadow-[0_0_8px_#A855F7] animate-pulse"></span>
+<span class="text-label-md font-label-md text-on-surface-variant font-medium tracking-wide">
+          EXE101 · FPT University 2026
+        </span>
+<span class="text-xs text-outline font-mono">|</span>
+<span class="text-xs font-mono text-[#4cd7f6]">v2.4 Live Model</span>
+</div>
+<!-- Hero Headline -->
+<h1 class="max-w-4xl tracking-tight text-display-xl-mobile md:text-display-xl font-display-xl-mobile md:font-display-xl mb-6">
+        AI Pose Detection <br class="hidden sm:inline"/>
+<span class="bg-gradient-to-r from-[#A855F7] via-[#D946EF] to-[#06B6D4] bg-clip-text text-transparent">
+          Made Beautiful
+        </span>
+</h1>
+<!-- Hero Subtitle -->
+<p class="max-w-2xl text-body-lg font-body-lg text-[#94A3B8] mb-10 leading-relaxed">
+        Real-time AI pose guidance with glassmorphism photobooth. Strike the perfect pose, every time, with sub-15ms joint tracking precision.
+      </p>
+<!-- Dual Call to Actions -->
+<div class="flex flex-col sm:flex-row items-center gap-4 mb-16 w-full sm:w-auto">
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg bg-[#A855F7] text-[#F8FAFC] font-label-lg text-label-lg luminescent-violet hover:brightness-110 active:scale-[0.98] transition-all" href="#booth-demo">
+<span>Open Photobooth</span>
+<span class="material-symbols-outlined text-lg">arrow_forward</span>
+</a>
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg bg-white/10 hover:bg-white/15 border border-white/20 text-white backdrop-blur-md font-label-lg text-label-lg active:scale-[0.98] transition-all" href="#pose-library">
+<span class="material-symbols-outlined text-lg">accessibility_new</span>
+<span>Explore Poses</span>
+</a>
+</div>
+<!-- HERO VISUAL SHOWCASE: Cybernetic Photobooth Viewfinder -->
+<div class="w-full max-w-5xl relative rounded-2xl glass-prism-card p-3 md:p-6 shadow-[0_16px_50px_-10px_rgba(0,0,0,0.8)]" id="booth-demo">
+<!-- Viewfinder Outer Frame Header -->
+<div class="flex items-center justify-between px-4 py-3 border-b border-white/10 mb-4 text-xs font-mono text-[#94A3B8]">
+<div class="flex items-center gap-3">
+<span class="flex items-center gap-1.5 text-secondary">
+<span class="w-2 h-2 rounded-full bg-[#06B6D4] shadow-[0_0_6px_#06B6D4]"></span>
+              LIVE FEED // CAM_01
+            </span>
+<span class="hidden sm:inline text-white/20">|</span>
+<span class="hidden sm:inline">1920x1080 @ 60FPS</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1 bg-white/[0.06] px-2.5 py-1 rounded-md border border-white/10">
+<span class="material-symbols-outlined text-xs text-[#A855F7]">bolt</span>
+<span>LATENCY: 12ms</span>
+</div>
+<div class="flex items-center gap-1 bg-[#A855F7]/20 text-[#ddb7ff] px-2.5 py-1 rounded-md border border-[#A855F7]/40">
+<span class="material-symbols-outlined text-xs">verified</span>
+<span>ALIGNMENT: 98.4%</span>
+</div>
+</div>
+</div>
+<!-- Simulated Interactive Viewfinder Stage -->
+<div class="relative w-full aspect-[16/9] md:aspect-[21/9] rounded-xl overflow-hidden bg-[#0A0A0F] border border-white/10 flex items-center justify-center">
+<!-- Background Subject with Photobooth Filter -->
+<img class="absolute inset-0 w-full h-full object-cover opacity-45 mix-blend-luminosity" data-alt="A fashionable creative model striking a sleek modern pose in a futuristic dark studio bathed in dynamic cyan and violet volumetric studio lighting. Subtle digital grid lines and aesthetic holographic light reflections shimmer softly across the dark obsidian backdrop, matching a cinematic AI vision photobooth application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOyGhK52L6d9QcxhynzqiaQDtOFTiepGj9CczKvYpqOuU0uYWNQk_NbwZmcUi6eBHwLM5i5cdR4Z2GDrf13tDSDTxWYO-Ws19dFBSoCjN7Rc0VwySlDhltffeu4JjjbSay2kHtWwOL-YCArgbYDHGj11Xu-BWErZMlYNW2-4XpnOkN2EdAcwz_5L_mzN-_1L5kn4F5csf24GMpZ3NLO4HrUeYzHWdaiR5-JtNStemUoDUYRkUyFyfHLDQBMbKHBv5WNYzb7kV6YYg"/>
+<!-- Dark Gradient Masking -->
+<div class="absolute inset-0 bg-gradient-to-t from-[#0A0A0F] via-transparent to-[#0A0A0F]/60"></div>
+<!-- Target Silhouette Guide Overlay (Ghost Stencil) -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none opacity-40 stroke-white/40" fill="none" viewbox="0 0 1000 500">
+<!-- Ghost Pose Silhouette Template -->
+<path d="M500,120 C515,120 525,135 525,150 C525,165 515,180 500,180 C485,180 475,165 475,150 C475,135 485,120 500,120 Z" stroke-dasharray="6 4" stroke-width="1.5"></path>
+<path d="M500,180 L500,310 M440,210 L500,195 L560,210 M440,210 L410,270 M560,210 L600,160 M500,310 L460,420 M500,310 L540,420" stroke-dasharray="6 4" stroke-width="1.5"></path>
+</svg>
+<!-- SVG Real-Time Pose Vector Detection Overlay -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none" viewbox="0 0 1000 500">
+<!-- Neural Connection Bones (Violet Glow) -->
+<g class="skeleton-bone stroke-[#A855F7]" stroke-linecap="round" stroke-width="3">
+<!-- Torso / Spine -->
+<line x1="500" x2="500" y1="175" y2="305"></line>
+<!-- Shoulders -->
+<line x1="435" x2="565" y1="205" y2="205"></line>
+<!-- Left Arm (Angled) -->
+<line x1="435" x2="400" y1="205" y2="265"></line>
+<line x1="400" x2="430" y1="265" y2="295"></line>
+<!-- Right Arm (K-Pop Dynamic Heart Pose) -->
+<line x1="565" x2="605" y1="205" y2="160"></line>
+<line x1="605" x2="540" y1="160" y2="135"></line>
+<!-- Pelvis & Legs -->
+<line x1="500" x2="465" y1="305" y2="415"></line>
+<line x1="500" x2="535" y1="305" y2="415"></line>
+</g>
+<!-- Holographic Keypoint Tracking Nodes -->
+<!-- Head / Nose / Eyes -->
+<circle class="fill-[#06B6D4] skeleton-joint" cx="500" cy="148" r="5"></circle>
+<circle class="fill-[#ddb7ff]" cx="488" cy="142" r="3"></circle>
+<circle class="fill-[#ddb7ff]" cx="512" cy="142" r="3"></circle>
+<!-- Shoulders -->
+<circle class="fill-[#06B6D4] skeleton-joint" cx="435" cy="205" r="7"></circle>
+<circle class="fill-[#06B6D4] skeleton-joint" cx="565" cy="205" r="7"></circle>
+<!-- Elbows -->
+<circle class="fill-[#06B6D4] skeleton-joint" cx="400" cy="265" r="6"></circle>
+<circle class="fill-[#06B6D4] skeleton-joint" cx="605" cy="160" r="6"></circle>
+<!-- Wrists / Hands -->
+<circle class="fill-[#F0ABFC] skeleton-joint" cx="430" cy="295" r="5"></circle>
+<circle class="fill-[#F0ABFC] skeleton-joint" cx="540" cy="135" r="5"></circle>
+<!-- Hips -->
+<circle class="fill-[#06B6D4] skeleton-joint" cx="500" cy="305" r="7"></circle>
+<!-- Knees -->
+<circle class="fill-[#06B6D4] skeleton-joint" cx="465" cy="415" r="6"></circle>
+<circle class="fill-[#06B6D4] skeleton-joint" cx="535" cy="415" r="6"></circle>
+</svg>
+<!-- Viewfinder Optics Reticle Lines -->
+<div class="absolute inset-8 border border-white/10 rounded-lg pointer-events-none flex flex-col justify-between p-4">
+<div class="flex justify-between">
+<div class="w-6 h-6 border-t-2 border-l-2 border-[#06B6D4]/70"></div>
+<div class="w-6 h-6 border-t-2 border-r-2 border-[#06B6D4]/70"></div>
+</div>
+<!-- Center Aim Reticle -->
+<div class="absolute inset-0 m-auto w-12 h-12 flex items-center justify-center opacity-40">
+<div class="w-full h-[1px] bg-[#06B6D4]"></div>
+<div class="h-full w-[1px] bg-[#06B6D4] absolute"></div>
+<div class="w-6 h-6 rounded-full border border-[#06B6D4] absolute"></div>
+</div>
+<div class="flex justify-between">
+<div class="w-6 h-6 border-b-2 border-l-2 border-[#06B6D4]/70"></div>
+<div class="w-6 h-6 border-b-2 border-r-2 border-[#06B6D4]/70"></div>
+</div>
+</div>
+<!-- Bottom Viewfinder Control Ribbon -->
+<div class="absolute bottom-4 inset-x-6 flex items-center justify-between pointer-events-auto">
+<!-- Left Info Pill -->
+<div class="glass-pill px-3 py-1.5 rounded-full flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-[#06B6D4]">adjust</span>
+<span class="text-xs font-mono font-medium">Pose: "Heart Crown 04"</span>
+</div>
+<!-- Central Shutter Trigger Button (Decorative/Interactive) -->
+<div class="flex items-center gap-3">
+<button class="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/30 backdrop-blur-xl flex items-center justify-center text-white shadow-[0_0_20px_rgba(255,255,255,0.2)] active:scale-95 transition-all">
+<span class="w-8 h-8 rounded-full bg-[#A855F7] flex items-center justify-center shadow-[0_0_12px_#A855F7]">
+<span class="material-symbols-outlined text-base">photo_camera</span>
+</span>
+</button>
+</div>
+<!-- Right Pose Score Gauge Pill -->
+<div class="glass-pill px-3.5 py-1.5 rounded-full flex items-center gap-2">
+<span class="text-xs text-[#94A3B8]">Match Score</span>
+<span class="text-xs font-bold text-[#4cd7f6] font-mono">98/100</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION: HOW IT WORKS -->
+<section class="max-w-7xl mx-auto px-6 lg:px-12 py-20" id="how-it-works">
+<div class="text-center mb-16">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-pill text-xs font-mono text-[#06B6D4] mb-3">
+<span class="material-symbols-outlined text-sm">hub</span>
+          WORKFLOW PIPELINE
+        </div>
+<h2 class="text-headline-lg-mobile md:text-headline-lg font-headline-lg-mobile md:font-headline-lg tracking-tight mb-4">
+          Streamlined <span class="bg-gradient-to-r from-[#A855F7] via-[#D946EF] to-[#06B6D4] bg-clip-text text-transparent">3-Step AI Capture</span>
+</h2>
+<p class="text-body-md font-body-md text-[#94A3B8] max-w-xl mx-auto">
+          High-performance edge inference translates complex computer vision into intuitive, playful photobooth sessions.
+        </p>
+</div>
+<!-- 3 Horizontal Step Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Step 1 -->
+<div class="relative group rounded-2xl glass-prism-card p-8 transition-all duration-300 hover:translate-y-[-4px] hover:shadow-[0_12px_32px_rgba(168,85,247,0.15)]">
+<div class="flex items-center justify-between mb-8">
+<div class="w-14 h-14 rounded-xl bg-[#A855F7]/15 border border-[#A855F7]/30 flex items-center justify-center text-[#ddb7ff] group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">filter_tilt_shift</span>
+</div>
+<span class="text-3xl font-bold font-mono text-white/15 group-hover:text-[#A855F7]/40 transition-colors">01</span>
+</div>
+<h3 class="text-headline-sm font-headline-sm text-white mb-2">Point Camera</h3>
+<p class="text-body-md font-body-md text-[#94A3B8] leading-relaxed">
+            Position yourself in frame with automatic lighting calibration, background segmentation, and focal depth alignment.
+          </p>
+<div class="mt-6 pt-4 border-t border-white/5 flex items-center gap-2 text-xs font-mono text-[#ddb7ff]">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+            Instant WebRTC Sync
+          </div>
+</div>
+<!-- Step 2 -->
+<div class="relative group rounded-2xl glass-prism-card p-8 transition-all duration-300 hover:translate-y-[-4px] hover:shadow-[0_12px_32px_rgba(6,182,212,0.15)]">
+<div class="flex items-center justify-between mb-8">
+<div class="w-14 h-14 rounded-xl bg-[#06B6D4]/15 border border-[#06B6D4]/30 flex items-center justify-center text-[#4cd7f6] group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">neurology</span>
+</div>
+<span class="text-3xl font-bold font-mono text-white/15 group-hover:text-[#06B6D4]/40 transition-colors">02</span>
+</div>
+<h3 class="text-headline-sm font-headline-sm text-white mb-2">AI Analyzes</h3>
+<p class="text-body-md font-body-md text-[#94A3B8] leading-relaxed">
+            YOLOv8 &amp; MediaPipe detect your 33-point body skeleton in real-time at 60 FPS with micro-second accuracy checks.
+          </p>
+<div class="mt-6 pt-4 border-t border-white/5 flex items-center gap-2 text-xs font-mono text-[#4cd7f6]">
+<span class="material-symbols-outlined text-sm">model_training</span>
+            Real-Time Cosine Distance
+          </div>
+</div>
+<!-- Step 3 -->
+<div class="relative group rounded-2xl glass-prism-card p-8 transition-all duration-300 hover:translate-y-[-4px] hover:shadow-[0_12px_32px_rgba(240,171,252,0.15)]">
+<div class="flex items-center justify-between mb-8">
+<div class="w-14 h-14 rounded-xl bg-[#F0ABFC]/15 border border-[#F0ABFC]/30 flex items-center justify-center text-[#F0ABFC] group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">auto_awesome_motion</span>
+</div>
+<span class="text-3xl font-bold font-mono text-white/15 group-hover:text-[#F0ABFC]/40 transition-colors">03</span>
+</div>
+<h3 class="text-headline-sm font-headline-sm text-white mb-2">Perfect Shot</h3>
+<p class="text-body-md font-body-md text-[#94A3B8] leading-relaxed">
+            Capture with AI-guided pose lock precision, high-res dynamic tone rendering, and instant custom holographic frame styling.
+          </p>
+<div class="mt-6 pt-4 border-t border-white/5 flex items-center gap-2 text-xs font-mono text-[#F0ABFC]">
+<span class="material-symbols-outlined text-sm">photo_library</span>
+            Lossless Polaroid Export
+          </div>
+</div>
+</div>
+</section>
+<!-- SECTION: FEATURES BENTO GRID (2x2 Glass Cards) -->
+<section class="max-w-7xl mx-auto px-6 lg:px-12 py-20" id="features">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+<div>
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-pill text-xs font-mono text-[#ddb7ff] mb-3">
+<span class="material-symbols-outlined text-sm">arrow_back_ios_new</span>
+            INTELLIGENT CAPTURE SUITE
+          </div>
+<h2 class="text-headline-lg-mobile md:text-headline-lg font-headline-lg-mobile md:font-headline-lg tracking-tight">
+            Engineered for <span class="bg-gradient-to-r from-[#A855F7] via-[#D946EF] to-[#06B6D4] bg-clip-text text-transparent">Creative Precision</span>
+</h2>
+</div>
+<p class="text-body-md font-body-md text-[#94A3B8] max-w-md mt-4 md:mt-0">
+          Seamlessly merges advanced neural vision estimation with playful photobooth aesthetics.
+        </p>
+</div>
+<!-- 2x2 Bento Matrix -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Card 1: Real-time Detection (Violet Glow Accent) -->
+<div class="rounded-2xl glass-prism-card p-8 relative overflow-hidden flex flex-col justify-between border-t border-white/20">
+<div class="absolute top-0 right-0 w-64 h-64 bg-[#A855F7]/10 rounded-full blur-3xl pointer-events-none"></div>
+<div>
+<!-- Badge Cluster -->
+<div class="flex items-center gap-2 mb-6">
+<span class="glass-pill px-2.5 py-1 rounded text-xs font-mono text-[#ddb7ff]">YOLOv8 Pose</span>
+<span class="glass-pill px-2.5 py-1 rounded text-xs font-mono text-[#4cd7f6]">MediaPipe</span>
+<span class="glass-pill px-2.5 py-1 rounded text-xs font-mono text-white/60">60 FPS</span>
+</div>
+<h3 class="text-headline-md font-headline-md text-white mb-2">Real-Time Neural Detection</h3>
+<p class="text-body-md font-body-md text-[#94A3B8] mb-8 max-w-md">
+              Zero-latency multi-person keypoint extraction. Tracks facial landmarks, extremities, and skeletal angles with zero jitter.
+            </p>
+</div>
+<!-- Interactive Visualization Cardlet -->
+<div class="rounded-xl bg-[#0A0A0F]/80 p-4 border border-white/10 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-[#A855F7]/20 flex items-center justify-center text-[#ddb7ff]">
+<span class="material-symbols-outlined">speed</span>
+</div>
+<div>
+<div class="text-xs font-mono text-[#94A3B8]">Inference Latency</div>
+<div class="text-sm font-bold text-white">12.4ms (WebAssembly Core)</div>
+</div>
+</div>
+<span class="px-3 py-1 rounded-full text-xs font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+              OPTIMIZED
+            </span>
+</div>
+</div>
+<!-- Card 2: Pose Library (Cyan Glow Accent) -->
+<div class="rounded-2xl glass-prism-card p-8 relative overflow-hidden flex flex-col justify-between border-t border-white/20" id="pose-library">
+<div class="absolute top-0 right-0 w-64 h-64 bg-[#06B6D4]/10 rounded-full blur-3xl pointer-events-none"></div>
+<div>
+<!-- Header Tag -->
+<div class="flex items-center justify-between mb-6">
+<span class="glass-pill px-3 py-1 rounded-full text-xs font-mono text-[#4cd7f6]">
+                7+ Curated Pose Presets
+              </span>
+<span class="text-xs text-[#94A3B8]">Dynamic Catalog</span>
+</div>
+<h3 class="text-headline-md font-headline-md text-white mb-2">Curated Pose Studio</h3>
+<p class="text-body-md font-body-md text-[#94A3B8] mb-6 max-w-md">
+              Switch between viral trends, fashion editorial positions, and playful couple silhouettes designed for instant photo inspiration.
+            </p>
+<!-- Dynamic Pose Switcher Pills -->
+<div class="flex flex-wrap gap-2 mb-6">
+<span class="px-3 py-1.5 rounded-lg bg-[#A855F7]/30 border border-[#A855F7] text-white text-xs font-medium shadow-[0_0_12px_rgba(168,85,247,0.4)]">
+                ★ K-Pop Heart
+              </span>
+<span class="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-on-surface-variant text-xs hover:border-white/30 transition-colors">
+                Editorial Runway
+              </span>
+<span class="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-on-surface-variant text-xs hover:border-white/30 transition-colors">
+                Dynamic Jump
+              </span>
+<span class="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-on-surface-variant text-xs hover:border-white/30 transition-colors">
+                Vogue Chic
+              </span>
+<span class="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-on-surface-variant text-xs hover:border-white/30 transition-colors">
+                Duo Mirror
+              </span>
+</div>
+</div>
+<div class="text-xs font-mono text-[#4cd7f6] flex items-center gap-1.5 pt-2">
+<span class="material-symbols-outlined text-sm">check</span>
+            Target angles automatically adapt to user height
+          </div>
+</div>
+<!-- Card 3: Smart Scoring (Pink Glow Accent) -->
+<div class="rounded-2xl glass-prism-card p-8 relative overflow-hidden flex flex-col justify-between border-t border-white/20">
+<div class="absolute top-0 right-0 w-64 h-64 bg-[#F0ABFC]/10 rounded-full blur-3xl pointer-events-none"></div>
+<div>
+<div class="flex items-center gap-2 mb-6">
+<span class="glass-pill px-2.5 py-1 rounded text-xs font-mono text-[#F0ABFC]">Accuracy Matrix</span>
+<span class="glass-pill px-2.5 py-1 rounded text-xs font-mono text-white/60">Live Heuristics</span>
+</div>
+<h3 class="text-headline-md font-headline-md text-white mb-2">Smart Accuracy Scoring</h3>
+<p class="text-body-md font-body-md text-[#94A3B8] mb-6 max-w-md">
+              Evaluates limb alignment using vector geometry. Get live gentle visual corrections to nail the shot.
+            </p>
+</div>
+<!-- Circular Score Graphic & Breakdown -->
+<div class="rounded-xl bg-[#0A0A0F]/70 p-5 border border-white/10 flex flex-col sm:flex-row items-center gap-6">
+<!-- Circular Gauge -->
+<div class="relative w-24 h-24 flex items-center justify-center shrink-0">
+<svg class="w-full h-full -rotate-90" viewbox="0 0 36 36">
+<path class="text-white/10" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<path class="text-[#A855F7]" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="98, 100" stroke-linecap="round" stroke-width="3"></path>
+</svg>
+<div class="absolute text-center">
+<span class="text-xl font-bold font-mono text-white">98</span>
+<span class="text-[10px] block text-[#ddb7ff] -mt-1">%</span>
+</div>
+</div>
+<div class="space-y-1.5 w-full">
+<div class="flex justify-between text-xs">
+<span class="text-white font-medium">Head Angle Alignment</span>
+<span class="text-[#4cd7f6] font-mono">100% Match</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+<div class="w-full h-full bg-[#06B6D4]"></div>
+</div>
+<div class="flex justify-between text-xs pt-1">
+<span class="text-white font-medium">Left Arm Elevation</span>
+<span class="text-[#ddb7ff] font-mono">96% Match</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+<div class="w-[96%] h-full bg-[#A855F7]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 4: Multiple Frames (Cyan/Emerald Glow Accent) -->
+<div class="rounded-2xl glass-prism-card p-8 relative overflow-hidden flex flex-col justify-between border-t border-white/20">
+<div class="absolute top-0 right-0 w-64 h-64 bg-[#06B6D4]/10 rounded-full blur-3xl pointer-events-none"></div>
+<div>
+<div class="flex items-center gap-2 mb-6">
+<span class="glass-pill px-2.5 py-1 rounded text-xs font-mono text-[#4cd7f6]">Studio Aesthetics</span>
+<span class="glass-pill px-2.5 py-1 rounded text-xs font-mono text-white/60">Export Ready</span>
+</div>
+<h3 class="text-headline-md font-headline-md text-white mb-2">Holographic Frames &amp; Strips</h3>
+<p class="text-body-md font-body-md text-[#94A3B8] mb-6 max-w-md">
+              Transform moments into Korean photostrip layouts, Y2K vaporwave frames, or cinematic minimalism with instant QR delivery.
+            </p>
+</div>
+<!-- Photostrip Mini Preview -->
+<div class="flex gap-3 justify-center pt-2">
+<div class="w-24 h-32 rounded-lg bg-surface-container-high border border-white/15 p-2 flex flex-col justify-between shadow-lg rotate-[-3deg] hover:rotate-0 transition-transform">
+<div class="w-full h-8 rounded bg-[#A855F7]/30"></div>
+<div class="w-full h-8 rounded bg-[#06B6D4]/30"></div>
+<div class="text-[8px] font-mono text-center text-white/50">POSEBOOTH AI</div>
+</div>
+<div class="w-24 h-32 rounded-lg bg-[#0e0e13] border border-[#A855F7]/40 p-2 flex flex-col justify-between shadow-[0_0_15px_rgba(168,85,247,0.25)] rotate-[2deg] hover:rotate-0 transition-transform">
+<div class="w-full h-8 rounded bg-gradient-to-r from-[#A855F7]/40 to-[#06B6D4]/40"></div>
+<div class="w-full h-8 rounded bg-white/10"></div>
+<div class="text-[8px] font-mono text-center text-[#F0ABFC]">2026 SPECIAL</div>
+</div>
+<div class="w-24 h-32 rounded-lg bg-surface-container-high border border-white/15 p-2 flex flex-col justify-between shadow-lg rotate-[4deg] hover:rotate-0 transition-transform">
+<div class="w-full h-8 rounded bg-emerald-500/20"></div>
+<div class="w-full h-8 rounded bg-white/10"></div>
+<div class="text-[8px] font-mono text-center text-white/50">POLAROID</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- TECH STACK ROW -->
+<section class="max-w-7xl mx-auto px-6 lg:px-12 py-16" id="technology">
+<div class="rounded-2xl glass-prism-card p-8 text-center border-t border-white/20">
+<div class="text-xs font-mono uppercase tracking-widest text-[#94A3B8] mb-8">
+          Powered By High-Performance Open Vision Engineering
+        </div>
+<div class="flex flex-wrap items-center justify-center gap-4 md:gap-8">
+<div class="glass-pill px-5 py-2.5 rounded-full flex items-center gap-2.5 hover:border-[#A855F7]/50 transition-colors">
+<span class="w-2 h-2 rounded-full bg-[#A855F7] shadow-[0_0_6px_#A855F7]"></span>
+<span class="font-mono text-sm font-semibold text-white">YOLOv8</span>
+</div>
+<div class="glass-pill px-5 py-2.5 rounded-full flex items-center gap-2.5 hover:border-[#06B6D4]/50 transition-colors">
+<span class="w-2 h-2 rounded-full bg-[#06B6D4] shadow-[0_0_6px_#06B6D4]"></span>
+<span class="font-mono text-sm font-semibold text-white">MediaPipe</span>
+</div>
+<div class="glass-pill px-5 py-2.5 rounded-full flex items-center gap-2.5 hover:border-emerald-400/50 transition-colors">
+<span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]"></span>
+<span class="font-mono text-sm font-semibold text-white">FastAPI</span>
+</div>
+<div class="glass-pill px-5 py-2.5 rounded-full flex items-center gap-2.5 hover:border-white/40 transition-colors">
+<span class="w-2 h-2 rounded-full bg-white shadow-[0_0_6px_#ffffff]"></span>
+<span class="font-mono text-sm font-semibold text-white">Next.js 15</span>
+</div>
+<div class="glass-pill px-5 py-2.5 rounded-full flex items-center gap-2.5 hover:border-emerald-500/50 transition-colors">
+<span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]"></span>
+<span class="font-mono text-sm font-semibold text-white">GSAP</span>
+</div>
+<div class="glass-pill px-5 py-2.5 rounded-full flex items-center gap-2.5 hover:border-amber-400/50 transition-colors">
+<span class="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_6px_#f59e0b]"></span>
+<span class="font-mono text-sm font-semibold text-white">Python 3.12</span>
+</div>
+</div>
+</div>
+</section>
+<!-- CALL TO ACTION BANNER -->
+<section class="max-w-5xl mx-auto px-6 py-20 text-center">
+<div class="relative rounded-3xl glass-prism-card p-12 md:p-16 overflow-hidden border border-white/20">
+<!-- Radial Glow Center -->
+<div class="absolute inset-0 bg-gradient-to-r from-[#A855F7]/20 via-[#D946EF]/20 to-[#06B6D4]/20 opacity-40 blur-2xl"></div>
+<div class="relative z-10">
+<h2 class="text-headline-lg-mobile md:text-headline-lg font-headline-lg-mobile md:font-headline-lg tracking-tight mb-4 text-white">
+            Ready to Strike Your Next Signature Pose?
+          </h2>
+<p class="text-body-lg font-body-lg text-[#94A3B8] max-w-xl mx-auto mb-8">
+            Experience next-generation edge vision capture right directly in your web browser. No plugins or native app required.
+          </p>
+<a class="inline-flex items-center gap-2 px-9 py-4 rounded-lg bg-[#A855F7] text-[#F8FAFC] font-label-lg text-label-lg luminescent-violet hover:brightness-110 active:scale-[0.98] transition-all" href="#booth-demo">
+<span class="material-symbols-outlined text-xl">camera</span>
+<span>Launch Pose-Booth AI Now</span>
+</a>
+</div>
+</div>
+</section>
+</main>
+<!-- Shared Component: Footer (Exact mapping from JSON) -->
+<footer class="w-full docked full-width bg-surface-container-lowest/80 dark:bg-surface-container-lowest/80 backdrop-blur-2xl border-t border-outline-variant/20 shadow-[0_-8px_32px_-4px_rgba(0,0,0,0.5)]">
+<div class="max-w-7xl mx-auto px-6 py-12 flex flex-col md:flex-row justify-between items-center gap-6">
+<!-- Logo + Academic & Copyright Notice -->
+<div class="flex flex-col items-center md:items-start gap-2">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></span>
+<span class="text-headline-sm font-headline-sm font-bold text-on-surface dark:text-on-surface">Pose-Booth AI</span>
+<span class="text-xs font-mono text-outline">· EXE101 FPT University 2026</span>
+</div>
+<p class="text-on-surface-variant dark:text-on-surface-variant text-body-sm font-body-sm text-center md:text-left">
+          © 2025 Pose-Booth AI Inc. Real-time neural vision engineering. All rights reserved.
+        </p>
+</div>
+<!-- Links from JSON -->
+<nav class="flex flex-wrap justify-center items-center gap-6">
+<a class="text-on-surface-variant dark:text-on-surface-variant text-body-sm font-body-sm hover:text-primary dark:hover:text-primary transition-colors duration-200" href="#privacy">Privacy Policy</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant text-body-sm font-body-sm hover:text-primary dark:hover:text-primary transition-colors duration-200" href="#terms">Terms of Service</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant text-body-sm font-body-sm hover:text-primary dark:hover:text-primary transition-colors duration-200" href="#api">API Documentation</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant text-body-sm font-body-sm hover:text-primary dark:hover:text-primary transition-colors duration-200 flex items-center gap-1.5" href="#status">
+<span class="w-1.5 h-1.5 rounded-full bg-[#06B6D4]"></span>
+          System Status
+        </a>
+<a class="text-on-surface-variant dark:text-on-surface-variant text-body-sm font-body-sm hover:text-primary dark:hover:text-primary transition-colors duration-200" href="#research">Research Paper</a>
+</nav>
+</div>
+</footer>
+</body></html>

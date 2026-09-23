@@ -1,33 +1,31 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, Space_Mono } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
+  variable: "--font-space-grotesk",
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
 });
 
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains",
+const spaceMono = Space_Mono({
   subsets: ["latin"],
+  variable: "--font-space-mono",
+  weight: ["400", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Pose-Booth AI — Intelligent Studio Photobooth",
-  description: "AI-assisted photobooth platform with real-time pose estimation, automated framing guidance, and instant multi-shot composition.",
-  keywords: ["photobooth", "AI", "pose detection", "MediaPipe", "computer vision"],
+  title: "Pose-Booth AI — AI Pose Detection Studio",
+  description: "Real-time AI pose guidance with glassmorphism photobooth. EXE101 · FPT University 2026.",
+  keywords: ["pose detection", "AI photobooth", "YOLOv8", "MediaPipe", "pose analysis"],
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi">
-      <body
-        className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased bg-slate-50 text-slate-900 min-h-screen flex flex-col`}
-      >
+    <html lang="en" className={`${spaceGrotesk.variable} ${spaceMono.variable}`}>
+      <body>
         {children}
       </body>
     </html>

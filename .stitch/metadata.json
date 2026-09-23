@@ -1,0 +1,25 @@
+{
+  "name": "projects/6896644739481894772",
+  "projectId": "6896644739481894772",
+  "title": "Pose-Booth AI",
+  "visibility": "PRIVATE",
+  "projectType": "PROJECT_DESIGN",
+  "origin": "STITCH",
+  "designTheme": {
+    "colorMode": "DARK",
+    "customColor": "#A855F7",
+    "font": "SPACE_GROTESK",
+    "roundness": "ROUND_EIGHT",
+    "saturation": 3
+  },
+  "deviceType": "DESKTOP",
+  "screens": {
+    "index": {
+      "id": "61adc8892ee54910b6fecbbcee294d55",
+      "sourceScreen": "projects/6896644739481894772/screens/61adc8892ee54910b6fecbbcee294d55",
+      "width": 2560,
+      "height": 7834,
+      "title": "Pose-Booth AI Landing Page"
+    }
+  }
+}

@@ -203,16 +203,19 @@ export function CountdownDisplay({ countdown, total }: { countdown: number; tota
             stroke="rgba(255,255,255,0.1)"
             strokeWidth="6"
           />
-          {/* Progress ring */}
+          {/* Progress ring with violet prism glow */}
           <circle
             cx="50" cy="50" r={radius}
             fill="none"
-            stroke="#2563eb"
+            stroke="#A855F7"
             strokeWidth="5"
             strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={dashOffset}
-            style={{ transition: "stroke-dashoffset 0.9s linear" }}
+            style={{
+              transition: "stroke-dashoffset 0.9s linear",
+              filter: "drop-shadow(0 0 8px #A855F7)",
+            }}
           />
         </svg>
 
