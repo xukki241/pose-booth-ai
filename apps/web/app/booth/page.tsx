@@ -2,10 +2,10 @@
 
 import { useRef, useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
-import { Camera, Eye, EyeOff, RotateCcw, Download, Sparkles, RefreshCw, Sliders, ChevronLeft, ChevronRight, Check, AlertCircle, Smartphone } from 'lucide-react';
+import { Camera, Eye, EyeOff, RotateCcw, Download, Sparkles, RefreshCw, Sliders, ChevronLeft, ChevronRight, Check, AlertCircle, Smartphone, Monitor, Grid3X3 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { usePoseDetection } from '@/lib/mediapipe/usePoseDetection';
-import { HuaweiArContour } from '@/components/pose/HuaweiArContour';
+import { HuaweiArContour, ViewfinderOrientation } from '@/components/pose/HuaweiArContour';
 import { usePhotoBooth, CountdownDisplay } from '@/components/booth/PhotoBoothController';
 import type { ShotMode, CapturedShot, PoseTemplate } from '@/types/pose';
 
@@ -100,9 +100,11 @@ export default function BoothPage() {
   const [cameraLoading, setCameraLoading] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
+  const [orientation, setOrientation] = useState<ViewfinderOrientation>('portrait');
+  const [showGrid, setShowGrid] = useState(false);
 
   const [showContour, setShowContour] = useState(true);
-  const [contourOpacity, setContourOpacity] = useState(0.45);
+  const [contourOpacity, setContourOpacity] = useState(0.55);
   const [selectedPose, setSelectedPose] = useState<PoseTemplate>(SAMPLE_POSES[0]);
   const [activeFrame, setActiveFrame] = useState(FRAME_COLORS[0]);
   const [liveScore, setLiveScore] = useState<number>(78);
@@ -324,6 +326,47 @@ export default function BoothPage() {
 
         {/* Right Quick Controls */}
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* Orientation Switcher (Ngang 16:9 vs Dọc 3:4) */}
+          <div className="flex items-center p-0.5 rounded-xl bg-white/[0.06] border border-white/10 text-xs font-mono">
+            <button
+              onClick={() => setOrientation("landscape")}
+              className={`px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition ${
+                orientation === "landscape"
+                  ? "bg-white text-black font-bold shadow-sm"
+                  : "text-slate-400 hover:text-white"
+              }`}
+              title="Khung ngang 16:9 (Laptop/Web)"
+            >
+              <Monitor size={13} />
+              <span className="hidden md:inline">16:9</span>
+            </button>
+            <button
+              onClick={() => setOrientation("portrait")}
+              className={`px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition ${
+                orientation === "portrait"
+                  ? "bg-white text-black font-bold shadow-sm"
+                  : "text-slate-400 hover:text-white"
+              }`}
+              title="Khung dọc 3:4 (Điện thoại/Kiosk)"
+            >
+              <Smartphone size={13} />
+              <span className="hidden md:inline">3:4</span>
+            </button>
+          </div>
+
+          {/* Grid Toggle */}
+          <button
+            onClick={() => setShowGrid(!showGrid)}
+            className={`p-2 rounded-lg border text-xs font-mono transition ${
+              showGrid
+                ? "bg-amber-500/20 border-amber-400 text-amber-300"
+                : "bg-white/5 border-white/10 text-slate-400 hover:text-white"
+            }`}
+            title="Bật/Tắt lưới tỉ lệ 1/3"
+          >
+            <Grid3X3 size={14} />
+          </button>
+
           {/* Flip camera button (Mobile & multi-camera laptops) */}
           <button
             onClick={toggleFacingMode}
@@ -371,9 +414,17 @@ export default function BoothPage() {
       {/* Main Studio Viewport */}
       <main className="flex-1 max-w-7xl mx-auto w-full p-3 sm:p-6 flex flex-col lg:flex-row gap-6">
 
-        {/* Left Column: Camera Viewfinder (3:4 Ratio) */}
+        {/* Left Column: Camera Viewfinder (Adapts to 3:4 Portrait or 16:9 Landscape) */}
         <div className="flex-1 flex flex-col gap-4">
-          <div className="relative rounded-3xl overflow-hidden aspect-[4/3] sm:aspect-video border border-white/15 shadow-[0_20px_60px_rgba(0,0,0,0.8)] bg-black">
+          <div className={`relative rounded-3xl overflow-hidden border border-white/15 shadow-[0_20px_60px_rgba(0,0,0,0.85)] bg-black transition-all duration-300 ${
+            orientation === 'landscape' ? 'aspect-video w-full' : 'aspect-[3/4] max-w-[560px] mx-auto w-full'
+          }`}>
+
+            {/* Corner Crosshairs [ ] */}
+            <div className="absolute top-4 left-4 w-6 h-6 border-t-2 border-l-2 border-white/30 rounded-tl-sm pointer-events-none z-20" />
+            <div className="absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-white/30 rounded-tr-sm pointer-events-none z-20" />
+            <div className="absolute bottom-4 left-4 w-6 h-6 border-b-2 border-l-2 border-white/30 rounded-bl-sm pointer-events-none z-20" />
+            <div className="absolute bottom-4 right-4 w-6 h-6 border-b-2 border-r-2 border-white/30 rounded-br-sm pointer-events-none z-20" />
 
             {/* Video element is PERMANENTLY mounted in the DOM to guarantee videoRef.current is never null */}
             <video
@@ -390,22 +441,24 @@ export default function BoothPage() {
             <canvas
               ref={canvasRef}
               className="absolute inset-0 w-full h-full pointer-events-none"
-              width={1280}
-              height={720}
+              width={orientation === 'landscape' ? 1280 : 720}
+              height={orientation === 'landscape' ? 720 : 960}
             />
 
-            {/* Huawei AR Silk Contour Component */}
+            {/* Huawei Organic AR Silk Contour Component */}
             {cameraReady && showContour && (
               <HuaweiArContour
                 landmarks={landmarks}
                 targetLandmarks={selectedPose.keypoints}
                 canvasRef={canvasRef}
-                width={1280}
-                height={720}
+                width={orientation === 'landscape' ? 1280 : 720}
+                height={orientation === 'landscape' ? 720 : 960}
                 opacity={contourOpacity}
                 score={liveScore}
                 showScoreHud={true}
                 guidanceText={guidanceHint}
+                orientation={orientation}
+                showGrid={showGrid}
               />
             )}
 
