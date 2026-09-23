@@ -125,22 +125,91 @@ export default function PoseStudioPage() {
   const filteredPoses =
     activeCategory === "all" ? poses : poses.filter((p) => (p.category || "portrait") === activeCategory);
 
-  const startCamera = async () => {
+  const streamRef = useRef<MediaStream | null>(null);
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
+  const [cameraLoading, setCameraLoading] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+
+  const startCamera = async (preferredFacing: "user" | "environment" = facingMode) => {
+    setCameraLoading(true);
+    setCameraError(null);
+
+    if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+      setCameraError("Trình duyệt yêu cầu kết nối an toàn (HTTPS hoặc localhost) để mở Camera.");
+      setCameraLoading(false);
+      return;
+    }
+
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+
+    let stream: MediaStream | null = null;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 1280, height: 720, facingMode: "user" },
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: preferredFacing,
+          width: { ideal: 1280, max: 1920 },
+          height: { ideal: 720, max: 1080 },
+        },
+        audio: false,
       });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.onloadedmetadata = () => {
-          videoRef.current?.play();
-          setCameraReady(true);
-        };
-      }
     } catch {
-      alert("Không thể truy cập camera. Vui lòng cấp quyền trong cài đặt trình duyệt.");
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: preferredFacing },
+          audio: false,
+        });
+      } catch {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        } catch (err: unknown) {
+          console.error("Camera access failed:", err);
+          setCameraError("Không thể mở camera. Vui lòng cấp quyền trong cài đặt trình duyệt.");
+          setCameraLoading(false);
+          return;
+        }
+      }
+    }
+
+    if (stream && videoRef.current) {
+      streamRef.current = stream;
+      const video = videoRef.current;
+      video.srcObject = stream;
+      video.playsInline = true;
+      video.muted = true;
+      video.onloadedmetadata = async () => {
+        try {
+          await video.play();
+          setCameraReady(true);
+          setCameraLoading(false);
+        } catch {
+          setCameraReady(true);
+          setCameraLoading(false);
+        }
+      };
+    } else {
+      setCameraLoading(false);
     }
   };
+
+  const toggleFacingMode = () => {
+    const next = facingMode === "user" ? "environment" : "user";
+    setFacingMode(next);
+    if (cameraReady) {
+      startCamera(next);
+    }
+  };
+
+  useEffect(() => {
+    startCamera("user");
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+      }
+    };
+  }, []);
 
   const scoreAgainstPose = async () => {
     if (!selectedPose || cocoKeypoints.length === 0) return;
@@ -252,8 +321,55 @@ export default function PoseStudioPage() {
               boxShadow: "0 0 40px -8px rgba(168,85,247,0.35), 0 8px 32px -4px rgba(0,0,0,0.7)",
             }}
           >
-            {!cameraReady ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+            {/* Video is permanently mounted in DOM so videoRef.current is never null */}
+            <video
+              ref={videoRef}
+              className={`w-full h-full object-cover scale-x-[-1] transition-opacity duration-300 ${
+                cameraReady ? 'opacity-100' : 'opacity-0'
+              }`}
+              muted
+              playsInline
+              autoPlay
+            />
+            <canvas
+              ref={canvasRef}
+              className="skeleton-canvas absolute inset-0 w-full h-full pointer-events-none"
+              width={1280}
+              height={720}
+            />
+
+            {/* Huawei AR Silk Contour */}
+            {cameraReady && (
+              <HuaweiArContour
+                landmarks={landmarks}
+                targetLandmarks={selectedPose?.keypoints}
+                canvasRef={canvasRef}
+                width={1280}
+                height={720}
+                showScoreHud={score !== null}
+                score={score ?? undefined}
+                guidanceText={feedback.length > 0 ? feedback[0] : (score && score >= 85 ? 'Dáng khớp rất chuẩn! Giữ yên.' : undefined)}
+              />
+            )}
+
+            {/* Vision Model Loading Indicator */}
+            {cameraReady && isLoading && (
+              <div
+                className="absolute top-3.5 left-3.5 backdrop-blur px-3 py-1.5 rounded-lg text-xs border flex items-center gap-2 font-mono z-30"
+                style={{
+                  background: "rgba(10,10,15,0.9)",
+                  borderColor: "rgba(6,182,212,0.3)",
+                  color: "var(--text-secondary)",
+                }}
+              >
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" style={{ color: "#06B6D4" }} />
+                <span>Đang nạp mô hình thị giác...</span>
+              </div>
+            )}
+
+            {/* Onboarding Overlay when camera is not active */}
+            {!cameraReady && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 bg-gradient-to-b from-slate-950/95 via-black/90 to-black z-20">
                 <div
                   className="w-16 h-16 rounded-2xl flex items-center justify-center mb-1"
                   style={{
@@ -267,54 +383,37 @@ export default function PoseStudioPage() {
                   <p className="font-bold text-base" style={{ color: "var(--text-primary)" }}>
                     Chưa Bật Camera Studio
                   </p>
-                  <p className="text-xs mt-1" style={{ color: "var(--text-secondary)" }}>
-                    Bật webcam để hệ thống nhận diện khung xương và so sánh với tư thế mẫu
+                  <p className="text-xs mt-1 max-w-sm" style={{ color: "var(--text-secondary)" }}>
+                    Bật webcam hoặc camera điện thoại để hệ thống nhận diện khung xương và so sánh với tư thế mẫu
                   </p>
                 </div>
-                <button onClick={startCamera} className="btn-prism-primary text-xs px-6 py-2.5 mt-1">
-                  <Camera className="w-4 h-4" />
-                  Bật Camera Ngay
-                </button>
-              </div>
-            ) : (
-              <>
-                <video
-                  ref={videoRef}
-                  className="w-full h-full object-cover scale-x-[-1]"
-                  muted
-                  playsInline
-                />
-                <canvas
-                  ref={canvasRef}
-                  className="skeleton-canvas"
-                  width={1280}
-                  height={720}
-                />
-                <HuaweiArContour
-                  landmarks={landmarks}
-                  targetLandmarks={selectedPose?.keypoints}
-                  canvasRef={canvasRef}
-                  width={1280}
-                  height={720}
-                  showScoreHud={score !== null}
-                  score={score ?? undefined}
-                  guidanceText={feedback.length > 0 ? feedback[0] : (score && score >= 85 ? 'Dáng khớp rất chuẩn! Giữ yên.' : undefined)}
-                />
 
-                {isLoading && (
-                  <div
-                    className="absolute top-3.5 left-3.5 backdrop-blur px-3 py-1.5 rounded-lg text-xs border flex items-center gap-2 font-mono"
-                    style={{
-                      background: "rgba(10,10,15,0.9)",
-                      borderColor: "rgba(6,182,212,0.3)",
-                      color: "var(--text-secondary)",
-                    }}
-                  >
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" style={{ color: "#06B6D4" }} />
-                    <span>Đang nạp mô hình thị giác...</span>
+                {cameraError && (
+                  <div className="max-w-md p-3 rounded-xl bg-red-950/50 border border-red-500/30 text-red-300 text-xs text-left">
+                    <span>{cameraError}</span>
                   </div>
                 )}
-              </>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => startCamera(facingMode)}
+                    disabled={cameraLoading}
+                    className="btn-prism-primary text-xs px-6 py-2.5"
+                  >
+                    <Camera className="w-4 h-4" />
+                    <span>{cameraLoading ? "Đang Mở Camera..." : "Bật Camera Ngay"}</span>
+                  </button>
+
+                  <button
+                    onClick={toggleFacingMode}
+                    className="px-4 py-2.5 rounded-xl border border-white/10 text-xs font-medium hover:bg-white/5 transition flex items-center gap-1.5"
+                    style={{ background: "rgba(255,255,255,0.05)" }}
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>{facingMode === "user" ? "Đổi Cam Sau" : "Đổi Cam Trước"}</span>
+                  </button>
+                </div>
+              </div>
             )}
           </div>
 

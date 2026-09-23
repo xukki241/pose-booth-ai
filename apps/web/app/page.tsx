@@ -88,19 +88,24 @@ export default function HomePage() {
         '-=0.5'
       );
 
-    // Bento cards stagger reveal
-    gsap.from('.bento-item', {
-      scrollTrigger: {
-        trigger: '.bento-container',
-        start: 'top 80%',
-      },
-      y: 40,
-      opacity: 0,
-      scale: 0.97,
-      stagger: 0.12,
-      duration: 0.8,
-      ease: 'power2.out',
-    });
+    // Bento cards stagger reveal with safe immediateRender
+    gsap.fromTo(
+      '.bento-item',
+      { y: 30, opacity: 0, scale: 0.98 },
+      {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        stagger: 0.1,
+        duration: 0.7,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: '.bento-container',
+          start: 'top 85%',
+          toggleActions: 'play none none none',
+        },
+      }
+    );
   }, { scope: mainRef });
 
   return (
