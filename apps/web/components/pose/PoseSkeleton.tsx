@@ -1,26 +1,17 @@
 "use client";
 
-/**
- * PoseSkeleton — Canvas overlay that draws pose skeleton on webcam feed
- * Animated with GSAP for smooth joint appearance
- *
- * Props:
- *   landmarks: MediaPipe 33-landmark array
- *   canvasRef: ref to the canvas element
- *   width, height: canvas dimensions
- */
 import { useEffect, useCallback } from "react";
 import type { MediaPipeLandmark } from "@/types/pose";
 import { SKELETON_CONNECTIONS } from "@/lib/mediapipe/usePoseDetection";
 
-// Color by confidence
+// Clean, high-contrast joint colors by confidence
 const getJointColor = (confidence: number): string => {
-  if (confidence > 0.8) return "#8b5cf6"; // violet — high
-  if (confidence > 0.5) return "#f59e0b"; // amber — medium
-  return "#ef4444"; // red — low
+  if (confidence > 0.8) return "#60a5fa"; // Blue-400 — high
+  if (confidence > 0.5) return "#fbbf24"; // Amber-400 — medium
+  return "#f87171"; // Red-400 — low
 };
 
-const LIMB_COLOR = "rgba(139, 92, 246, 0.6)"; // violet with alpha
+const LIMB_COLOR = "rgba(59, 130, 246, 0.75)"; // Cobalt blue clean stroke
 
 interface PoseSkeletonProps {
   landmarks: MediaPipeLandmark[];
@@ -29,7 +20,7 @@ interface PoseSkeletonProps {
   height: number;
   showScore?: boolean;
   score?: number;
-  jointErrors?: Record<string, number>;  // joint_name → angle_diff
+  jointErrors?: Record<string, number>;
 }
 
 export function PoseSkeleton({
@@ -39,7 +30,6 @@ export function PoseSkeleton({
   height,
   showScore = false,
   score,
-  jointErrors = {},
 }: PoseSkeletonProps) {
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -48,7 +38,6 @@ export function PoseSkeleton({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Clear
     ctx.clearRect(0, 0, width, height);
 
     if (!landmarks || landmarks.length === 0) return;
@@ -56,8 +45,8 @@ export function PoseSkeleton({
     const scaleX = width;
     const scaleY = height;
 
-    // Draw limbs first (behind joints)
-    ctx.lineWidth = 3;
+    // Draw limbs
+    ctx.lineWidth = 2.5;
     ctx.lineCap = "round";
 
     for (const [startIdx, endIdx] of SKELETON_CONNECTIONS) {
@@ -83,38 +72,45 @@ export function PoseSkeleton({
       const y = lm.y * scaleY;
       const conf = lm.visibility ?? 0;
 
-      // Glow effect
-      ctx.shadowColor = getJointColor(conf);
-      ctx.shadowBlur = 8;
-
+      // Outer ring for optical definition
       ctx.beginPath();
-      ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.arc(x, y, 4.5, 0, Math.PI * 2);
       ctx.fillStyle = getJointColor(conf);
       ctx.fill();
 
-      ctx.shadowBlur = 0;
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "#0f172a";
+      ctx.stroke();
     }
 
-    // Draw score if provided
+    // Telemetry Score badge on HUD
     if (showScore && score !== undefined) {
       const scoreColor = score > 80 ? "#10b981" : score > 60 ? "#f59e0b" : "#ef4444";
 
-      ctx.font = 'bold 36px "JetBrains Mono", monospace';
-      ctx.fillStyle = scoreColor;
-      ctx.shadowColor = scoreColor;
-      ctx.shadowBlur = 15;
-      ctx.fillText(`${score}`, 20, 50);
+      // Semi-transparent HUD card
+      ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
+      ctx.beginPath();
+      ctx.roundRect(16, 16, 110, 60, 8);
+      ctx.fill();
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+      ctx.stroke();
 
-      ctx.font = '14px "Inter", sans-serif';
-      ctx.fillStyle = "rgba(255,255,255,0.7)";
-      ctx.shadowBlur = 0;
-      ctx.fillText("SCORE", 24, 68);
+      // Label
+      ctx.font = '600 10px "Inter", sans-serif';
+      ctx.fillStyle = "#94a3b8";
+      ctx.fillText("MATCH SCORE", 26, 34);
+
+      // Value
+      ctx.font = '700 24px "JetBrains Mono", monospace';
+      ctx.fillStyle = scoreColor;
+      ctx.fillText(`${score}%`, 26, 62);
     }
-  }, [landmarks, canvasRef, width, height, showScore, score, jointErrors]);
+  }, [landmarks, canvasRef, width, height, showScore, score]);
 
   useEffect(() => {
     draw();
   }, [draw]);
 
-  return null; // This component only draws on the canvas ref
+  return null;
 }

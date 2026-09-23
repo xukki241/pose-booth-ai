@@ -1,128 +1,127 @@
 "use client";
 
-/**
- * About Page
- * Project overview + tech stack + team info
- * GSAP scroll reveal animations
- */
-import { useRef } from "react";
 import Link from "next/link";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Cpu, Eye, Layers, Server, Shield, ArrowRight } from "lucide-react";
 
-gsap.registerPlugin(ScrollTrigger);
-
-const TECH_STACK = [
-  { icon: "⚛️",  name: "Next.js 16",       desc: "React framework, App Router, TypeScript" },
-  { icon: "🎨",  name: "Tailwind CSS 4",    desc: "Utility-first CSS, dark glassmorphism" },
-  { icon: "🪄",  name: "GSAP 3",            desc: "ScrollTrigger, smooth page transitions" },
-  { icon: "🤖",  name: "MediaPipe",         desc: "Browser WASM pose detection, 30fps" },
-  { icon: "🎯",  name: "YOLOv8-Pose",       desc: "Server-side AI, CUDA 12.1, 17 keypoints" },
-  { icon: "⚡",  name: "FastAPI",            desc: "Python backend, async, Pydantic v2" },
-  { icon: "📐",  name: "Cosine Similarity", desc: "Pose scoring algorithm, 0-100 score" },
-  { icon: "🌐",  name: "Nginx",             desc: "SPA routing, API proxy, HTTPS" },
+const SYSTEM_PILLARS = [
+  {
+    icon: Eye,
+    title: "Thị giác máy tính cục bộ",
+    desc: "Sử dụng MediaPipe Tasks Vision WebAssembly với GPU delegate trên trình duyệt, xử lý 33 landmarks ở tốc độ 30 FPS không cần GPU máy chủ.",
+  },
+  {
+    icon: Server,
+    title: "Backend AI linh hoạt",
+    desc: "FastAPI tích hợp YOLOv8-Pose và giải thuật Cosine Similarity chuẩn hoá theo tâm hông và chiều cao thân, độ trễ phản hồi dưới 20ms.",
+  },
+  {
+    icon: Cpu,
+    title: "Tối ưu phần cứng cá nhân",
+    desc: "Được thiết kế để chạy mượt mà trên laptop cá nhân (RTX 4050 6GB / CPU 14 nhân) hoặc máy bàn (RTX 3060 12GB), không phụ thuộc cloud API đắt đỏ.",
+  },
+  {
+    icon: Shield,
+    title: "Bảo mật & Quyền riêng tư",
+    desc: "Hình ảnh từ camera xử lý trực tiếp trong bộ nhớ RAM trình duyệt, không lưu trữ ngầm hoặc gửi hình ảnh cá nhân lên máy chủ khi không có sự đồng ý.",
+  },
 ];
 
-const TIMELINE = [
-  { week: "Tuần 1", status: "done",    title: "Setup & Backend",   desc: "Project structure, FastAPI + YOLOv8, pose library 20 poses, security scan skills" },
-  { week: "Tuần 2", status: "active",  title: "Frontend Core",     desc: "Next.js SPA, MediaPipe hook, skeleton overlay, photobooth state machine" },
-  { week: "Tuần 3", status: "pending", title: "Polish & Export",   desc: "GIF export, GSAP page transitions, mobile responsive" },
-  { week: "Tuần 4", status: "pending", title: "Integration & Demo", desc: "End-to-end test, AI training, final demo" },
+const SPECS = [
+  { label: "Frontend Framework", value: "Next.js 16 (React 19, TypeScript)" },
+  { label: "Styling & Tokens", value: "Tailwind CSS 4 (Deterministic Light Studio System)" },
+  { label: "Client-side Vision", value: "MediaPipe Vision Tasks (WASM Float16 GPU Delegate)" },
+  { label: "Server Architecture", value: "FastAPI + Uvicorn Async Workers" },
+  { label: "AI Pose Engine", value: "YOLOv8s-Pose (17 COCO Keypoints) + Cosine Distance" },
+  { label: "Production Gateway", value: "Nginx Reverse Proxy with SPA Fallback & COEP Headers" },
 ];
-
-const STATUS_COLOR: Record<string, string> = {
-  done:    "bg-emerald-400/20 text-emerald-400 border-emerald-400/30",
-  active:  "bg-violet-400/20 text-violet-400 border-violet-400/30",
-  pending: "bg-white/5 text-white/40 border-white/10",
-};
 
 export default function AboutPage() {
-  const pageRef = useRef<HTMLDivElement>(null);
-
-  useGSAP(
-    () => {
-      gsap.fromTo(
-        ".reveal-up",
-        { y: 40, opacity: 0 },
-        {
-          y: 0, opacity: 1, duration: 0.7, stagger: 0.1, ease: "power2.out",
-          scrollTrigger: { trigger: ".reveal-up", start: "top 85%" },
-        }
-      );
-    },
-    { scope: pageRef }
-  );
-
   return (
-    <div ref={pageRef} className="min-h-screen bg-zinc-950 text-white">
-      {/* Hero */}
-      <section className="py-24 px-4 text-center max-w-4xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass border border-violet-500/30 text-sm text-violet-300 mb-8">
-          <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
-          EXE101 — FPT University
-        </div>
-        <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-6">
-          Pose-Booth <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-indigo-400">AI</span>
-        </h1>
-        <p className="text-xl text-white/60 max-w-2xl mx-auto leading-relaxed">
-          Dự án môn học EXE101 xây dựng AI Photobooth với pose detection realtime,
-          gợi ý tư thế mẫu và hệ thống chấm điểm thông minh.
-        </p>
-      </section>
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
+      {/* Studio Header */}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
+        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="w-7 h-7 rounded bg-slate-900 text-white flex items-center justify-center font-bold text-xs">
+              PB
+            </span>
+            <span className="font-semibold text-sm tracking-tight text-slate-900">
+              Pose-Booth AI
+            </span>
+          </Link>
 
-      {/* Tech Stack */}
-      <section className="py-12 px-4 max-w-6xl mx-auto">
-        <h2 className="text-2xl font-bold mb-8 text-center reveal-up">Công Nghệ</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 reveal-up">
-          {TECH_STACK.map((t) => (
-            <div key={t.name} className="glass glass-hover rounded-xl p-4 flex flex-col gap-2">
-              <span className="text-2xl">{t.icon}</span>
-              <span className="font-bold text-sm">{t.name}</span>
-              <span className="text-white/40 text-xs">{t.desc}</span>
-            </div>
-          ))}
+          <nav className="flex items-center gap-5 text-xs font-medium text-slate-600">
+            <Link href="/booth" className="hover:text-slate-900 transition-colors">Photobooth</Link>
+            <Link href="/pose-studio" className="hover:text-slate-900 transition-colors">Pose Studio</Link>
+            <Link href="/frames" className="hover:text-slate-900 transition-colors">Khung Ảnh</Link>
+          </nav>
         </div>
-      </section>
+      </header>
 
-      {/* Timeline */}
-      <section className="py-12 px-4 max-w-3xl mx-auto">
-        <h2 className="text-2xl font-bold mb-8 text-center reveal-up">Kế Hoạch Phát Triển</h2>
-        <div className="flex flex-col gap-4 reveal-up">
-          {TIMELINE.map((item) => (
-            <div key={item.week} className="flex items-start gap-4 glass rounded-xl p-5">
-              <span className={`px-3 py-1 rounded-full text-xs font-bold border ${STATUS_COLOR[item.status]} whitespace-nowrap`}>
-                {item.week}
-              </span>
-              <div>
-                <div className="font-bold">{item.title}</div>
-                <div className="text-white/50 text-sm mt-1">{item.desc}</div>
+      {/* Main Content */}
+      <main className="flex-1 max-w-5xl mx-auto px-6 py-12 w-full flex flex-col gap-12">
+        {/* Intro */}
+        <div className="flex flex-col gap-3">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold text-blue-600 tracking-wider uppercase">
+            <span>Dự án khởi nghiệp môn học EXE101 · FPT University</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
+            Tổng quan kiến trúc & kỹ thuật
+          </h1>
+          <p className="text-base text-slate-600 leading-relaxed max-w-3xl">
+            Pose-Booth AI là giải pháp photobooth thông minh kết hợp công nghệ thị giác máy tính trực tiếp trên client và máy chủ cục bộ. Dự án nhằm giải quyết bài toán người chụp thường bối rối khi tạo dáng trước ống kính, cung cấp phản hồi hình thể thời gian thực và tự động dàn trang in ảnh lưu niệm.
+          </p>
+        </div>
+
+        {/* 4 Pillars Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {SYSTEM_PILLARS.map((p) => {
+            const Icon = p.icon;
+            return (
+              <div key={p.title} className="studio-card p-6 flex flex-col gap-2.5 bg-white">
+                <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-800 flex items-center justify-center">
+                  <Icon className="w-4 h-4" />
+                </div>
+                <h3 className="font-semibold text-sm text-slate-900">{p.title}</h3>
+                <p className="text-xs text-slate-600 leading-relaxed">{p.desc}</p>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
-      </section>
 
-      {/* Reference */}
-      <section className="py-12 px-4 max-w-3xl mx-auto text-center reveal-up">
-        <p className="text-white/40 text-sm">
-          UI reference:{" "}
-          <a href="https://github.com/yunkhngn/prismo-photo" className="text-violet-400 hover:underline" target="_blank" rel="noopener noreferrer">
-            prismo-photo by @yunkhngn
-          </a>
-          {" "}· Refactored với TypeScript + GSAP + dark glassmorphism
-        </p>
-      </section>
+        {/* Technical Specifications Table */}
+        <div className="studio-card p-6 bg-white flex flex-col gap-4">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800">
+            Thông số kỹ thuật triển khai
+          </h2>
+          <div className="divide-y divide-slate-100 text-xs">
+            {SPECS.map((spec) => (
+              <div key={spec.label} className="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                <span className="font-medium text-slate-600">{spec.label}</span>
+                <span className="font-mono text-slate-900 font-semibold">{spec.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
 
-      {/* CTA */}
-      <section className="py-16 px-4 text-center">
-        <Link
-          href="/booth"
-          className="px-10 py-4 rounded-xl bg-violet-600 hover:bg-violet-500 font-bold text-lg transition-all hover:scale-105"
-        >
-          Thử Photobooth →
-        </Link>
-      </section>
+        {/* References and Notes */}
+        <div className="p-4 rounded-xl bg-slate-100/70 border border-slate-200 text-xs text-slate-500 leading-relaxed">
+          <p>
+            Mã nguồn mở và tham chiếu thiết kế cấu trúc buồng chụp ảnh từ đồ án công khai <code className="font-mono text-slate-700">yunkhngn/prismo-photo</code>, được tái cấu trúc hoàn toàn trên nền tảng TypeScript, Next.js 16 và quy chuẩn thiết kế xác định (Deterministic Design).
+          </p>
+        </div>
+
+        {/* Navigation Action */}
+        <div className="flex items-center justify-between pt-2 border-t border-slate-200">
+          <Link href="/" className="text-xs text-slate-500 hover:text-slate-800 transition-colors">
+            ← Quay lại trang chủ
+          </Link>
+          <Link href="/booth" className="btn-primary text-xs">
+            <span>Mở Photobooth</span>
+            <ArrowRight className="w-3.5 h-3.5 ml-1" />
+          </Link>
+        </div>
+      </main>
     </div>
   );
 }

@@ -1,23 +1,18 @@
 "use client";
 
-/**
- * Photobooth Page — Main feature page
- * Webcam + AI skeleton overlay + countdown + multi-shot + export
- */
 import { useRef, useState, useCallback } from "react";
+import Link from "next/link";
+import { Camera, Eye, EyeOff, RotateCcw, Download, Check, RefreshCw } from "lucide-react";
 import { usePoseDetection } from "@/lib/mediapipe/usePoseDetection";
 import { PoseSkeleton } from "@/components/pose/PoseSkeleton";
-import {
-  usePhotoBooth,
-  CountdownDisplay,
-} from "@/components/booth/PhotoBoothController";
+import { usePhotoBooth, CountdownDisplay } from "@/components/booth/PhotoBoothController";
 import type { ShotMode, CapturedShot } from "@/types/pose";
 
-const SHOT_MODES: { mode: ShotMode; label: string; icon: string }[] = [
-  { mode: "single", label: "1 Shot", icon: "1️⃣" },
-  { mode: "triple", label: "3 Strip", icon: "3️⃣" },
-  { mode: "quad",   label: "4 Grid", icon: "4️⃣" },
-  { mode: "video",  label: "GIF 3s", icon: "🎞️" },
+const SHOT_MODES: { mode: ShotMode; label: string; desc: string }[] = [
+  { mode: "single", label: "1 Ảnh", desc: "Chụp 1 ảnh đơn" },
+  { mode: "triple", label: "3 Strip", desc: "Dải 3 ảnh photobooth" },
+  { mode: "quad", label: "4 Grid", desc: "Lưới 4 ảnh 2x2" },
+  { mode: "video", label: "GIF 3s", desc: "Video lặp ngắn" },
 ];
 
 export default function BoothPage() {
@@ -34,13 +29,12 @@ export default function BoothPage() {
     cameraReady && showSkeleton
   );
 
-  // Photobooth controller
-  const { state, countdown, shots, currentShot, totalShots, start, reset } =
-    usePhotoBooth({
-      videoRef,
-      mode: shotMode,
-      onComplete: setCompletedShots,
-    });
+  // Photobooth state machine
+  const { state, countdown, shots, currentShot, totalShots, start, reset } = usePhotoBooth({
+    videoRef,
+    mode: shotMode,
+    onComplete: setCompletedShots,
+  });
 
   // Start camera
   const startCamera = useCallback(async () => {
@@ -57,15 +51,14 @@ export default function BoothPage() {
         };
       }
     } catch {
-      alert("Không thể truy cập camera. Vui lòng cho phép quyền camera.");
+      alert("Không thể truy cập camera. Vui lòng cấp quyền truy cập camera trong trình duyệt.");
     }
   }, []);
 
-  // Download shots
   const downloadShot = useCallback((shot: CapturedShot, index: number) => {
     const a = document.createElement("a");
     a.href = shot.imageData;
-    a.download = `pikpose_shot_${index + 1}.jpg`;
+    a.download = `posebooth_shot_${index + 1}.jpg`;
     a.click();
   }, []);
 
@@ -74,42 +67,58 @@ export default function BoothPage() {
   }, [completedShots, downloadShot]);
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white flex flex-col">
-      {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 glass border-b border-white/5">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">📸</span>
-          <span className="font-bold">PikPose Booth</span>
-        </div>
-        <div className="flex items-center gap-4 text-sm">
-          {cameraReady && (
-            <span className="text-white/40 font-mono">
-              {fps}fps · {Math.round(confidence * 100)}% conf
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
+      {/* Top Header */}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="flex items-center gap-2">
+              <span className="w-7 h-7 rounded bg-slate-900 text-white flex items-center justify-center font-bold text-xs">
+                PB
+              </span>
+              <span className="font-semibold text-sm tracking-tight text-slate-900">
+                Photobooth Studio
+              </span>
+            </Link>
+            <div className="h-4 w-px bg-slate-200" />
+            <span className="text-xs text-slate-500 font-mono">
+              {cameraReady ? `${fps} FPS · ${Math.round(confidence * 100)}% CONF` : "STANDBY"}
             </span>
-          )}
-          <button
-            onClick={() => setShowSkeleton(!showSkeleton)}
-            className="px-3 py-1.5 rounded-lg glass glass-hover text-xs"
-          >
-            {showSkeleton ? "🦴 Skeleton ON" : "🦴 Skeleton OFF"}
-          </button>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowSkeleton(!showSkeleton)}
+              className="btn-secondary text-xs py-1.5 px-3"
+            >
+              {showSkeleton ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+              <span>Khung xương: {showSkeleton ? "Bật" : "Tắt"}</span>
+            </button>
+            <Link href="/pose-studio" className="btn-secondary text-xs py-1.5 px-3">
+              Pose Studio
+            </Link>
+          </div>
         </div>
       </header>
 
-      <div className="flex flex-1 gap-5 p-5 max-w-7xl mx-auto w-full">
-        {/* Left: Camera View */}
+      {/* Workspace */}
+      <main className="flex-1 max-w-7xl mx-auto w-full p-6 flex flex-col lg:flex-row gap-6">
+        {/* Left Column: Camera Stage & Controls */}
         <div className="flex-1 flex flex-col gap-4">
-          {/* Camera box */}
-          <div className="relative rounded-2xl overflow-hidden glass aspect-video">
+          {/* Viewport Frame */}
+          <div className="relative rounded-xl overflow-hidden bg-slate-950 aspect-video shadow-sm border border-slate-300">
             {!cameraReady ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-                <span className="text-5xl">📷</span>
-                <p className="text-white/60">Camera chưa bật</p>
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-slate-300">
+                <Camera className="w-10 h-10 text-slate-500 stroke-[1.5]" />
+                <div className="text-center">
+                  <p className="font-medium text-sm text-white">Camera chưa được kích hoạt</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Nhấn nút bên dưới để mở webcam cục bộ</p>
+                </div>
                 <button
                   onClick={startCamera}
-                  className="px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 font-semibold transition-colors"
+                  className="btn-primary text-xs px-5 py-2.5 mt-2 bg-blue-600 hover:bg-blue-700"
                 >
-                  Bật Camera
+                  Bật Camera Web
                 </button>
               </div>
             ) : (
@@ -133,111 +142,139 @@ export default function BoothPage() {
                   height={720}
                 />
 
-                {/* Countdown overlay */}
+                {/* Countdown Overlay */}
                 {state === "countdown" && (
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-[2px] flex items-center justify-center">
                     <CountdownDisplay countdown={countdown} total={3} />
                   </div>
                 )}
 
-                {/* Capture flash */}
+                {/* Flash capture animation */}
                 {state === "capturing" && (
-                  <div className="absolute inset-0 bg-white/30 animate-ping" />
+                  <div className="absolute inset-0 bg-white opacity-80 transition-opacity duration-150 pointer-events-none" />
                 )}
 
-                {/* Loading overlay */}
-                {isLoading && (
-                  <div className="absolute top-3 left-3 flex items-center gap-2 glass px-3 py-1.5 rounded-lg text-xs text-white/70">
-                    <span className="animate-spin">⚙️</span>
-                    Đang tải AI model...
-                  </div>
-                )}
-
-                {/* Shot counter */}
-                {state !== "idle" && state !== "review" && (
-                  <div className="absolute top-3 right-3 glass px-3 py-1.5 rounded-lg text-sm font-mono">
-                    Shot {currentShot + 1} / {totalShots}
-                  </div>
-                )}
+                {/* Status Bar inside viewport */}
+                <div className="absolute top-3 left-3 flex items-center gap-2">
+                  {isLoading && (
+                    <div className="bg-slate-900/80 backdrop-blur px-2.5 py-1 rounded text-xs text-slate-200 border border-slate-700 flex items-center gap-1.5 font-mono">
+                      <RefreshCw className="w-3 h-3 animate-spin text-blue-400" />
+                      <span>Loading MediaPipe...</span>
+                    </div>
+                  )}
+                  {state !== "idle" && state !== "review" && (
+                    <div className="bg-blue-600 text-white px-2.5 py-1 rounded text-xs font-mono font-semibold">
+                      SHOT {currentShot + 1} / {totalShots}
+                    </div>
+                  )}
+                </div>
               </>
             )}
           </div>
 
-          {/* Controls */}
-          <div className="flex items-center gap-3">
-            {/* Shot mode selector */}
-            <div className="flex gap-2">
-              {SHOT_MODES.map(({ mode, label, icon }) => (
+          {/* Studio Control Toolbar */}
+          <div className="studio-card p-4 flex flex-wrap items-center justify-between gap-4 bg-white">
+            {/* Mode selection buttons */}
+            <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-lg border border-slate-200">
+              {SHOT_MODES.map(({ mode, label }) => (
                 <button
                   key={mode}
-                  onClick={() => { setShotMode(mode); reset(); }}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  onClick={() => {
+                    setShotMode(mode);
+                    reset();
+                  }}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
                     shotMode === mode
-                      ? "bg-violet-600 text-white"
-                      : "glass glass-hover text-white/60"
+                      ? "bg-white text-slate-900 shadow-sm font-semibold"
+                      : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
-                  {icon} {label}
+                  {label}
                 </button>
               ))}
             </div>
 
-            <div className="flex-1" />
-
-            {/* Action buttons */}
-            {state === "review" ? (
-              <div className="flex gap-3">
+            {/* Shutter actions */}
+            <div className="flex items-center gap-3">
+              {state === "review" ? (
+                <>
+                  <button onClick={downloadAll} className="btn-accent text-xs">
+                    <Download className="w-3.5 h-3.5" /> Tải tất cả ảnh
+                  </button>
+                  <button onClick={reset} className="btn-secondary text-xs">
+                    <RotateCcw className="w-3.5 h-3.5" /> Chụp lại
+                  </button>
+                </>
+              ) : (
                 <button
-                  onClick={downloadAll}
-                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-semibold transition-colors"
+                  onClick={cameraReady ? start : startCamera}
+                  disabled={state === "countdown" || state === "capturing"}
+                  className="btn-primary text-xs px-6 py-2.5 disabled:opacity-50"
                 >
-                  ⬇️ Tải Tất Cả
+                  <Camera className="w-4 h-4" />
+                  <span>
+                    {!cameraReady
+                      ? "Bật camera"
+                      : state === "idle"
+                      ? "Bấm chụp"
+                      : "Đang chụp..."}
+                  </span>
                 </button>
-                <button
-                  onClick={reset}
-                  className="px-5 py-2.5 rounded-xl glass glass-hover font-semibold"
-                >
-                  🔄 Chụp Lại
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={cameraReady ? start : startCamera}
-                disabled={state === "countdown" || state === "capturing"}
-                className="px-8 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-lg transition-all hover:scale-105 active:scale-95"
-              >
-                {!cameraReady ? "📷 Bật Camera" : state === "idle" ? "📸 Chụp!" : "⏳ Đang chụp..."}
-              </button>
-            )}
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Right: Photo Strip */}
-        {(completedShots.length > 0 || shots.length > 0) && (
-          <div className="w-64 flex flex-col gap-3">
-            <h3 className="font-semibold text-white/80 text-sm">Ảnh Đã Chụp</h3>
-            <div className="photo-strip">
-              {completedShots.map((shot, i) => (
+        {/* Right Rail: Photo Strip & Review */}
+        <div className="w-full lg:w-80 flex flex-col gap-4">
+          <div className="studio-card p-4 flex items-center justify-between bg-white">
+            <span className="font-semibold text-xs text-slate-800 uppercase tracking-wider">
+              Dải Ảnh Photobooth
+            </span>
+            <span className="text-xs text-slate-500 font-mono">
+              {completedShots.length} / {totalShots}
+            </span>
+          </div>
+
+          <div className="studio-card p-3 flex-1 flex flex-col gap-3 min-h-[400px] max-h-[680px] overflow-y-auto bg-white">
+            {completedShots.length === 0 ? (
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-slate-400">
+                <Camera className="w-8 h-8 stroke-[1.5] text-slate-300 mb-2" />
+                <p className="text-xs font-medium text-slate-500">Chưa có ảnh nào</p>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Ảnh chụp sẽ hiển thị ở đây sau khi hoàn thành lượt chụp
+                </p>
+              </div>
+            ) : (
+              completedShots.map((shot, idx) => (
                 <div
                   key={shot.id}
-                  className="relative group cursor-pointer"
-                  onClick={() => downloadShot(shot, i)}
+                  className="group relative rounded-lg overflow-hidden border border-slate-200 bg-slate-100"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={shot.imageData}
-                    alt={`Shot ${i + 1}`}
-                    className="w-full rounded-md object-cover transition-opacity group-hover:opacity-80"
+                    alt={`Shot ${idx + 1}`}
+                    className="w-full aspect-[4/3] object-cover"
                   />
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className="text-2xl">⬇️</span>
+                  <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <button
+                      onClick={() => downloadShot(shot, idx)}
+                      className="p-2 rounded-full bg-white text-slate-900 hover:bg-slate-100 transition-colors shadow-sm"
+                      title="Tải ảnh này về"
+                    >
+                      <Download className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="absolute bottom-1.5 left-1.5 bg-slate-900/80 text-white text-[10px] font-mono px-1.5 py-0.5 rounded">
+                    SHOT #{idx + 1}
                   </div>
                 </div>
-              ))}
-            </div>
+              ))
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      </main>
     </div>
   );
 }

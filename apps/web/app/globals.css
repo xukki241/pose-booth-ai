@@ -1,55 +1,132 @@
 @import "tailwindcss";
 
-/* Design Tokens */
+/* Deterministic Design System — Crisp Studio Light Theme */
 :root {
-  --font-inter: "Inter", sans-serif;
-  --font-jetbrains: "JetBrains Mono", monospace;
+  --font-inter: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-jetbrains: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  /* Glassmorphism */
-  --glass-bg: rgba(255, 255, 255, 0.04);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-blur: 12px;
+  /* Surfaces */
+  --bg-app: #f8fafc;        /* Slate-50: Crisp studio background */
+  --surface-card: #ffffff;  /* Pure white cards */
+  --surface-muted: #f1f5f9; /* Slate-100: Secondary containers */
+  --surface-border: #e2e8f0;/* Slate-200: 1px structural hairline */
+  --surface-border-strong: #cbd5e1; /* Slate-300 */
 
-  /* Accent */
-  --accent-primary: #8b5cf6;   /* violet-500 */
-  --accent-secondary: #6366f1; /* indigo-500 */
-  --accent-glow: rgba(139, 92, 246, 0.3);
+  /* Inks */
+  --ink-primary: #0f172a;   /* Slate-900: High-contrast primary */
+  --ink-secondary: #475569; /* Slate-600: Body descriptions */
+  --ink-muted: #64748b;     /* Slate-500: Microcopy / labels */
+
+  /* Functional Accents (Strictly non-neon) */
+  --accent-primary: #2563eb;   /* Blue-600: Actionable buttons/links */
+  --accent-primary-hover: #1d4ed8;
+  --accent-dark: #0f172a;      /* Primary dark button */
+  --accent-dark-hover: #1e293b;
+  --status-success: #059669;   /* Emerald-600 */
+  --status-warning: #d97706;   /* Amber-600 */
+  --status-danger: #dc2626;    /* Red-600 */
 }
 
-/* Base styles */
+/* Base resets & overflow gates */
 * {
   box-sizing: border-box;
 }
 
-body {
+html, body {
+  overflow-x: clip; /* Strict prevention of horizontal scrollbars */
+  background-color: var(--bg-app);
+  color: var(--ink-primary);
   font-family: var(--font-inter);
-  background-color: #09090b; /* zinc-950 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Studio card */
+.studio-card {
+  background-color: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.studio-card-interactive {
+  background-color: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+  transition: all 0.15s ease;
+}
+.studio-card-interactive:hover {
+  border-color: var(--surface-border-strong);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  transform: translateY(-1px);
+}
+
+/* High-contrast tactile buttons */
+.btn-primary {
+  background-color: var(--accent-dark);
   color: #ffffff;
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+.btn-primary:hover {
+  background-color: var(--accent-dark-hover);
+}
+.btn-primary:active {
+  transform: translateY(1px);
 }
 
-/* Glassmorphism utilities */
-.glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
+.btn-secondary {
+  background-color: var(--surface-card);
+  color: var(--ink-primary);
+  border: 1px solid var(--surface-border-strong);
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+.btn-secondary:hover {
+  background-color: var(--surface-muted);
+  border-color: #94a3b8;
+}
+.btn-secondary:active {
+  transform: translateY(1px);
 }
 
-.glass-hover {
-  transition: background 0.2s ease, border-color 0.2s ease;
+.btn-accent {
+  background-color: var(--accent-primary);
+  color: #ffffff;
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.15s ease, transform 0.1s ease;
 }
-.glass-hover:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.15);
+.btn-accent:hover {
+  background-color: var(--accent-primary-hover);
 }
-
-/* Glow effects */
-.glow-violet {
-  box-shadow: 0 0 30px var(--accent-glow);
-}
-
-.glow-text {
-  text-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+.btn-accent:active {
+  transform: translateY(1px);
 }
 
 /* Skeleton overlay canvas */
@@ -62,40 +139,35 @@ body {
   pointer-events: none;
 }
 
-/* Photobooth strip layout */
-.photo-strip {
+/* Photo strip container */
+.photo-strip-container {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  background: #1a1a2e;
+  gap: 8px;
+  background-color: #ffffff;
+  border: 1px solid var(--surface-border);
   padding: 12px;
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
-/* Score display */
-.score-badge {
+/* Monospace data numbers */
+.num-mono {
   font-family: var(--font-jetbrains);
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
 }
 
-/* GSAP animation targets */
-[data-animate] {
-  will-change: transform, opacity;
-}
-
-/* Custom scrollbar */
+/* Clean minimal scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: #cbd5e1;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: #94a3b8;
 }

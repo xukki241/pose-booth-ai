@@ -207,8 +207,8 @@ export function CountdownDisplay({ countdown, total }: { countdown: number; tota
           <circle
             cx="50" cy="50" r={radius}
             fill="none"
-            stroke="#8b5cf6"
-            strokeWidth="6"
+            stroke="#2563eb"
+            strokeWidth="5"
             strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={dashOffset}
