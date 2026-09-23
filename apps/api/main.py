@@ -1,5 +1,5 @@
 """
-PikPose FastAPI Backend
+Pose-Booth AI FastAPI Backend
 AI Pose Analysis Server — YOLOv8-Pose + Pose Scoring
 """
 import os
@@ -34,8 +34,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="PikPose API",
-    description="AI Pose Analysis Backend for PikPose Photobooth",
+    title="Pose-Booth AI API",
+    description="AI Pose Analysis Backend for Pose-Booth AI Photobooth",
     version="1.0.0",
     lifespan=lifespan,
 )

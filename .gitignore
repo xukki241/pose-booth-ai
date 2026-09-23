@@ -17,7 +17,9 @@ ai/**/__pycache__/
 ai/.venv/
 
 # AI Model weights (large files — store in Git LFS or download separately)
+*.pt
 ai/models/weights/*.pt
+apps/api/*.pt
 ai/models/runs/
 
 # COCO Dataset (too large for git)

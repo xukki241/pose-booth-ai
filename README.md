@@ -79,7 +79,7 @@ pose-booth-ai/
 │
 ├── nginx/pose-booth.conf   # SPA routing + API proxy + HTTPS-ready
 ├── docs/DATA_LABELING.md   # Label Studio guide for custom data
-├── .rules/pikpose.md       # Antigravity coding rules
+├── .rules/pose-booth-ai.md # Antigravity coding rules
 └── DEPLOY.md               # Production deployment guide
 ```
 
@@ -142,7 +142,6 @@ Xem [DEPLOY.md](DEPLOY.md) để biết cách:
 - [Hướng dẫn label data](docs/DATA_LABELING.md)
 - [Deployment guide](DEPLOY.md)
 - [API Docs](http://localhost:8000/docs) (khi chạy backend)
-- [Prismo Photo](https://github.com/yunkhngn/prismo-photo) — UI reference
 
 ## License
 

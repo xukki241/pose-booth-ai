@@ -1,99 +1,125 @@
 @import "tailwindcss";
 
-/* Deterministic Design System — Crisp Studio Light Theme */
+/* ─────────────────────────────────────────────────────────────
+ * Pose-Booth AI — Vibrant Studio Light Design System
+ * Inspired by Creative Photography Studios, Clean Architecture & Stitch
+ * ───────────────────────────────────────────────────────────── */
+
 :root {
-  --font-inter: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-jetbrains: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
   /* Surfaces */
-  --bg-app: #f8fafc;        /* Slate-50: Crisp studio background */
-  --surface-card: #ffffff;  /* Pure white cards */
-  --surface-muted: #f1f5f9; /* Slate-100: Secondary containers */
-  --surface-border: #e2e8f0;/* Slate-200: 1px structural hairline */
-  --surface-border-strong: #cbd5e1; /* Slate-300 */
+  --bg-app: #fbfbfa;          /* Warm studio linen */
+  --surface-card: #ffffff;    /* Pure crisp white card */
+  --surface-subtle: #f4f4f2;  /* Warm secondary fill */
+  --surface-border: #e4e4e7;  /* Hairline slate border */
+  --surface-border-focus: #cbd5e1;
 
-  /* Inks */
-  --ink-primary: #0f172a;   /* Slate-900: High-contrast primary */
-  --ink-secondary: #475569; /* Slate-600: Body descriptions */
-  --ink-muted: #64748b;     /* Slate-500: Microcopy / labels */
+  /* Text & Inks */
+  --ink-primary: #0f172a;     /* Deep slate obsidian */
+  --ink-secondary: #334155;   /* Readable body slate */
+  --ink-muted: #64748b;       /* Muted technical caption */
 
-  /* Functional Accents (Strictly non-neon) */
-  --accent-primary: #2563eb;   /* Blue-600: Actionable buttons/links */
-  --accent-primary-hover: #1d4ed8;
-  --accent-dark: #0f172a;      /* Primary dark button */
-  --accent-dark-hover: #1e293b;
-  --status-success: #059669;   /* Emerald-600 */
-  --status-warning: #d97706;   /* Amber-600 */
-  --status-danger: #dc2626;    /* Red-600 */
+  /* Vibrant Accent Colors (Playful, creative & distinctive) */
+  --accent-coral: #f43f5e;    /* Rose/Coral Shutter */
+  --accent-coral-hover: #e11d48;
+  --accent-blue: #3b82f6;     /* Electric Cobalt */
+  --accent-indigo: #6366f1;   /* Modern Indigo */
+  --accent-emerald: #10b981;  /* Success Mint */
+  --accent-amber: #f59e0b;    /* Warm Sunburst */
+  --accent-purple: #a855f7;   /* Creative Violet */
 }
 
-/* Base resets & overflow gates */
+/* Base resets */
 * {
   box-sizing: border-box;
 }
 
 html, body {
-  overflow-x: clip; /* Strict prevention of horizontal scrollbars */
+  overflow-x: clip; /* Strict 0px horizontal scrollbar gate */
   background-color: var(--bg-app);
   color: var(--ink-primary);
-  font-family: var(--font-inter);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Studio card */
+/* Studio cards with soft, refined elevation */
 .studio-card {
   background-color: var(--surface-card);
   border: 1px solid var(--surface-border);
-  border-radius: 12px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.03), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .studio-card-interactive {
   background-color: var(--surface-card);
   border: 1px solid var(--surface-border);
-  border-radius: 12px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
-  transition: all 0.15s ease;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.03);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .studio-card-interactive:hover {
-  border-color: var(--surface-border-strong);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
-  transform: translateY(-1px);
+  border-color: #cbd5e1;
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  transform: translateY(-2px);
 }
 
-/* High-contrast tactile buttons */
-.btn-primary {
-  background-color: var(--accent-dark);
+/* Tactile Buttons */
+.btn-shutter {
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
   color: #ffffff;
-  border-radius: 8px;
-  font-weight: 500;
-  padding: 8px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  padding: 10px 22px;
   font-size: 0.875rem;
-  line-height: 1.25rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: background-color 0.15s ease, transform 0.1s ease;
+  box-shadow: 0 4px 14px -2px rgba(225, 29, 72, 0.35);
+  transition: all 0.15s ease;
+}
+.btn-shutter:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px -2px rgba(225, 29, 72, 0.45);
+}
+.btn-shutter:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background-color: #0f172a;
+  color: #ffffff;
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 9px 18px;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 2px 6px -1px rgba(15, 23, 42, 0.15);
+  transition: all 0.15s ease;
 }
 .btn-primary:hover {
-  background-color: var(--accent-dark-hover);
+  background-color: #1e293b;
+  transform: translateY(-1px);
 }
 .btn-primary:active {
-  transform: translateY(1px);
+  transform: scale(0.98);
 }
 
 .btn-secondary {
-  background-color: var(--surface-card);
-  color: var(--ink-primary);
-  border: 1px solid var(--surface-border-strong);
-  border-radius: 8px;
+  background-color: #ffffff;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
   font-weight: 500;
-  padding: 8px 16px;
+  padding: 9px 18px;
   font-size: 0.875rem;
-  line-height: 1.25rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -101,32 +127,30 @@ html, body {
   transition: all 0.15s ease;
 }
 .btn-secondary:hover {
-  background-color: var(--surface-muted);
-  border-color: #94a3b8;
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
 }
 .btn-secondary:active {
-  transform: translateY(1px);
+  transform: scale(0.98);
 }
 
-.btn-accent {
-  background-color: var(--accent-primary);
+.btn-accent-blue {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: #ffffff;
-  border-radius: 8px;
-  font-weight: 500;
-  padding: 8px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 9px 18px;
   font-size: 0.875rem;
-  line-height: 1.25rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: background-color 0.15s ease, transform 0.1s ease;
+  box-shadow: 0 3px 10px -2px rgba(37, 99, 235, 0.3);
+  transition: all 0.15s ease;
 }
-.btn-accent:hover {
-  background-color: var(--accent-primary-hover);
-}
-.btn-accent:active {
-  transform: translateY(1px);
+.btn-accent-blue:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 16px -2px rgba(37, 99, 235, 0.4);
 }
 
 /* Skeleton overlay canvas */
@@ -139,34 +163,32 @@ html, body {
   pointer-events: none;
 }
 
-/* Photo strip container */
-.photo-strip-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+/* Film strip card */
+.film-strip {
   background-color: #ffffff;
-  border: 1px solid var(--surface-border);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
   padding: 12px;
-  border-radius: 12px;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05);
 }
 
-/* Monospace data numbers */
+/* Monospace numerals */
 .num-mono {
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
-/* Clean minimal scrollbars */
+/* Custom delicate scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;

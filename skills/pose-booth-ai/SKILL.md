@@ -1,7 +1,7 @@
 ---
-name: pikpose-ai-pose
+name: pose-booth-ai
 description: |
-  PikPose project skill for AI pose analysis, photobooth, and pose scoring workflows.
+  Pose-Booth AI project skill for AI pose analysis, photobooth, and pose scoring workflows.
   
   Use this skill when:
   1. Writing or debugging MediaPipe Pose integration in browser (WASM)
@@ -18,13 +18,13 @@ description: |
 license: MIT
 metadata:
   version: v1
-  project: PikPose
+  project: Pose-Booth AI
   author: project-team
 ---
 
-# PikPose AI Pose Skill
+# Pose-Booth AI Pose Skill
 
-This skill covers the complete AI pose analysis pipeline for the PikPose photobooth project.
+This skill covers the complete AI pose analysis pipeline for the Pose-Booth AI photobooth project.
 
 ## Architecture
 

@@ -47,7 +47,7 @@ export interface PoseTemplate {
   id: string;
   name: string;
   name_vi: string;
-  category: "portrait" | "group" | "dynamic" | "casual";
+  category: "portrait" | "group" | "dynamic" | "casual" | "fun" | string;
   difficulty: "easy" | "medium" | "hard";
   description: string;
   keypoints: [number, number][];  // 17x2 normalized

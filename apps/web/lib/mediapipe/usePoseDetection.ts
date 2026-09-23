@@ -84,10 +84,14 @@ export function usePoseDetection(
         "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
       );
 
+      // Prioritize local static model file for zero latency
+      const modelAssetPath = typeof window !== "undefined"
+        ? `${window.location.origin}/models/pose_landmarker_lite.task`
+        : "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
+
       const poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
         baseOptions: {
-          modelAssetPath:
-            "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
+          modelAssetPath,
           delegate: "GPU",
         },
         runningMode: "VIDEO",
