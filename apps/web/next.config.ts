@@ -3,6 +3,10 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Standalone output for Docker builds
   output: "standalone",
+  async rewrites() {
+    const api = process.env.API_INTERNAL_URL ?? "http://127.0.0.1:8000";
+    return [{ source: "/api/:path*", destination: `${api}/api/:path*` }];
+  },
 
   // Allow cross-origin for MediaPipe WASM SharedArrayBuffer
   async headers() {
@@ -17,7 +21,7 @@ const nextConfig: NextConfig = {
     ];
   },
   // Turbopack config (Next.js 16+)
-  turbopack: {},
+  turbopack: { root: process.cwd() },
 };
 
 export default nextConfig;

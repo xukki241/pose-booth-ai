@@ -13,24 +13,24 @@ const TIMELINE = [
   { phase: 'Phase 1', date: 'Sep 2026 W2', title: 'AI Backend (FastAPI + YOLOv8)', desc: 'FastAPI server deployed with endpoints: /api/pose/analyze, /api/pose/score, /api/pose/suggest. YOLOv8s-pose.pt (22.4 MB) downloaded. Routers: pose.py, score.py, suggest.py.' },
   { phase: 'Phase 2', date: 'Sep 2026 W2', title: 'MediaPipe Integration', desc: 'pose_landmarker_lite.task (5.5 MB) downloaded to public/models/. Hook usePoseDetection.ts updated with local-first loading + CDN fallback. WASM runtime configured.' },
   { phase: 'Phase 3', date: 'Sep 2026 W3', title: 'Frontend SPA (Next.js 16)', desc: 'Next.js 16 App Router SPA with 5 routes: /, /booth, /pose-studio, /frames, /about. GSAP 3 + @gsap/react installed. Nginx config for reverse proxy.' },
-  { phase: 'Phase 4', date: 'Sep 2026 W3', title: 'Dark Prism Redesign', desc: 'Full frontend redesign: Dark Glassmorphism + Prism accents. Space Grotesk + Space Mono fonts. GSAP 3D transitions (page rotateX, card flip, parallax). Stitch AI used for design mockups.' },
+  { phase: 'Phase 4', date: 'Sep 2026 W4', title: 'Prismo Theme + Local RTX', desc: 'Port semantic Prismo tokens and Nunito/Geist Mono while preserving Pose-Booth flows. Validate YOLOv8x-pose CUDA FP16 on the local RTX 3060.' },
 ];
 
 const HARDWARE = [
-  { label: 'Laptop (Dev Machine)', gpu: 'RTX 4050 6GB', cpu: 'i5-13500HX 14C', ram: '16GB DDR5', fps: '45–60 FPS', model: 'YOLOv8n-pose', color: 'var(--prism-cyan)' },
-  { label: 'Desktop (AI Machine)', gpu: 'RTX 3060 12GB', cpu: 'R7 5700X 8C', ram: '32GB DDR4', fps: '60+ FPS', model: 'YOLOv8s-pose', color: 'var(--prism-violet)' },
+  { label: 'Edge Profile', gpu: 'CUDA hoặc CPU', cpu: 'Theo thiết bị', ram: 'Theo thiết bị', fps: 'Cần benchmark', model: 'YOLOv8s-pose', color: 'var(--prism-cyan)' },
+  { label: 'Studio (đã xác minh)', gpu: 'RTX 3060 12GB', cpu: 'Windows local', ram: 'Theo máy', fps: '36.4 FPS avg', model: 'YOLOv8x-pose FP16', color: 'var(--prism-violet)' },
 ];
 
 const STACK = [
-  { cat: 'AI / ML', items: ['YOLOv8s-pose (Ultralytics 8.4)', 'MediaPipe Pose Landmarker Lite', 'OpenCV', 'NumPy', 'PyTorch 2.14'] },
-  { cat: 'Backend', items: ['FastAPI', 'Python 3.14', 'Uvicorn ASGI', 'Pydantic v2', 'CORS Middleware'] },
-  { cat: 'Frontend', items: ['Next.js 16 (App Router)', 'TypeScript 5', 'GSAP 3 + ScrollTrigger', 'Tailwind CSS 4', 'Space Grotesk / Space Mono'] },
+  { cat: 'AI / ML', items: ['YOLOv8x-pose (Ultralytics 8.4.162)', 'MediaPipe Pose Landmarker Lite', 'OpenCV', 'NumPy', 'PyTorch 2.11 CUDA 12.8'] },
+  { cat: 'Backend', items: ['FastAPI', 'Python 3.11', 'Uvicorn ASGI', 'Pydantic v2', 'CORS Middleware'] },
+  { cat: 'Frontend', items: ['Next.js 16 (App Router)', 'TypeScript 5', 'GSAP 3 + ScrollTrigger', 'Tailwind CSS 4', 'Nunito / Geist Mono'] },
   { cat: 'Infrastructure', items: ['Nginx (SPA reverse proxy)', 'Git + GitHub (xukki241)', 'PowerShell scripts', 'Next.js standalone build'] },
 ];
 
 const PIPELINE = [
   { label: 'Camera', sub: 'MediaPipe WASM', icon: '📷', color: 'var(--prism-cyan)' },
-  { label: 'Pose Detection', sub: 'YOLOv8s-pose', icon: '🦾', color: 'var(--prism-violet)' },
+  { label: 'Pose Detection', sub: 'YOLOv8x-pose', icon: '🦾', color: 'var(--prism-violet)' },
   { label: 'Score API', sub: 'FastAPI :8000', icon: '📊', color: 'var(--prism-pink)' },
   { label: 'UI Feedback', sub: 'Next.js :3000', icon: '✨', color: 'var(--accent-emerald)' },
 ];
@@ -64,11 +64,11 @@ export default function AboutPage() {
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(ellipse 50% 40% at 70% 20%, rgba(168,85,247,0.07) 0%, transparent 70%), radial-gradient(ellipse 40% 35% at 20% 80%, rgba(6,182,212,0.06) 0%, transparent 70%)' }} />
 
       {/* NAV */}
-      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, background: 'rgba(10,10,15,0.78)', backdropFilter: 'blur(24px)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '0 2rem', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, background: 'color-mix(in oklab, var(--background) 85%, transparent)', backdropFilter: 'blur(24px)', borderBottom: '1px solid var(--border)', padding: '0 2rem', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '1.1rem', color: 'var(--text-primary)', textDecoration: 'none' }}>
           📸 <span className="prism-text">Pose-Booth AI</span>
         </Link>
-        <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+        <div className="legacy-route-nav" style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
           {([['Booth', '/booth'], ['Pose Studio', '/pose-studio'], ['Frames', '/frames']] as [string, string][]).map(([l, h]) => (
             <Link key={h} href={h} style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem' }}>{l}</Link>
           ))}

@@ -14,9 +14,9 @@ router = APIRouter()
 
 
 class KeypointInput(BaseModel):
-    x: float
-    y: float
-    confidence: float = 1.0
+    x: float = Field(allow_inf_nan=False)
+    y: float = Field(allow_inf_nan=False)
+    confidence: float = Field(default=1.0, ge=0, le=1, allow_inf_nan=False)
 
 
 class PoseScoreRequest(BaseModel):

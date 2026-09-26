@@ -20,14 +20,15 @@ export interface BoundingBox {
 export interface PersonPose {
   person_id: number;
   keypoints: Keypoint[];
-  bbox: BoundingBox | null;
-  overall_confidence: number;
+  bbox: number[] | null;
+  confidence: number;
 }
 
 export interface PoseAnalyzeResponse {
   persons: PersonPose[];
   person_count: number;
   processing_time_ms: number;
+  profile_active: string;
 }
 
 export interface JointError {
@@ -39,7 +40,11 @@ export interface JointError {
 export interface PoseScoreResponse {
   score: number;        // 0-100
   similarity: number;   // 0-1
-  joint_errors: JointError[];
+  oks_score: number;
+  anatomy_score: number;
+  match_level: string;
+  message: string;
+  profile_active: string;
   feedback: string[];
 }
 

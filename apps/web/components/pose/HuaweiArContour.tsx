@@ -327,7 +327,7 @@ function drawLiveJointRadars(
 
   jointsToTrack.forEach((idx) => {
     const lm = landmarks[idx];
-    if (!lm || (lm.visibility && lm.visibility < 0.35)) return;
+    if (!lm || (lm.visibility ?? 0) < 0.35) return;
 
     const x = lm.x * width;
     const y = lm.y * height;

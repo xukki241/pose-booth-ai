@@ -1,18 +1,8 @@
 "use client";
-
-/**
- * PhotoBoothController — Main photobooth state machine
- * Handles: idle → countdown → capture → review → export
- *
- * Modes:
- *   single  - 1 shot
- *   triple  - 3 shots in strip layout
- *   quad    - 4 shots in 2x2 grid
- *   video   - 3 second video loop → GIF
- */
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { captureVideo } from "@/lib/camera-transform";
 import type { BoothState, CapturedShot, ShotMode } from "@/types/pose";
 
 interface PhotoBoothControllerProps {
@@ -20,151 +10,67 @@ interface PhotoBoothControllerProps {
   mode: ShotMode;
   onComplete: (shots: CapturedShot[]) => void;
   countdownSeconds?: number;
+  mirror?: boolean;
 }
 
-export function usePhotoBooth({
-  videoRef,
-  mode,
-  onComplete,
-  countdownSeconds = 3,
-}: PhotoBoothControllerProps) {
+export function usePhotoBooth(options: PhotoBoothControllerProps) {
+  const latest = useRef(options);
+  latest.current = options;
   const [state, setState] = useState<BoothState>("idle");
-  const [countdown, setCountdown] = useState(countdownSeconds);
+  const [countdown, setCountdown] = useState(options.countdownSeconds ?? 3);
   const [shots, setShots] = useState<CapturedShot[]>([]);
   const [currentShot, setCurrentShot] = useState(0);
-  const [isRecording, setIsRecording] = useState(false);
-
-  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const recordedChunksRef = useRef<Blob[]>([]);
-
-  const totalShots = mode === "single" ? 1 : mode === "triple" ? 3 : mode === "quad" ? 4 : 1;
-  const isVideoMode = mode === "video";
-
-  const captureFrame = useCallback((): string => {
-    const video = videoRef.current;
-    if (!video) return "";
-
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return "";
-
-    // Mirror the frame (like a selfie)
-    ctx.scale(-1, 1);
-    ctx.drawImage(video, -canvas.width, 0);
-
-    return canvas.toDataURL("image/jpeg", 0.92);
-  }, [videoRef]);
-
-  const startCountdown = useCallback(() => {
-    setState("countdown");
-    setCountdown(countdownSeconds);
-
-    countdownRef.current = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(countdownRef.current!);
-          setState("capturing");
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  }, [countdownSeconds]);
-
-  // Handle capture phase
-  useEffect(() => {
-    if (state !== "capturing") return;
-
-    if (isVideoMode) {
-      // Start video recording
-      const stream = videoRef.current?.srcObject as MediaStream | null;
-      if (!stream) return;
-
-      recordedChunksRef.current = [];
-      const recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
-      mediaRecorderRef.current = recorder;
-
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) recordedChunksRef.current.push(e.data);
-      };
-
-      recorder.onstop = () => {
-        const blob = new Blob(recordedChunksRef.current, { type: "video/webm" });
-        const url = URL.createObjectURL(blob);
-        const shot: CapturedShot = {
-          id: crypto.randomUUID(),
-          imageData: url,
-          timestamp: Date.now(),
-        };
-        onComplete([shot]);
-        setState("review");
-      };
-
-      setIsRecording(true);
-      recorder.start();
-      setTimeout(() => {
-        recorder.stop();
-        setIsRecording(false);
-      }, 3000);
-    } else {
-      // Photo capture
-      const imageData = captureFrame();
-      const shot: CapturedShot = {
-        id: crypto.randomUUID(),
-        imageData,
-        timestamp: Date.now(),
-      };
-
-      setShots((prev) => {
-        const updated = [...prev, shot];
-        const nextShot = updated.length;
-
-        if (nextShot >= totalShots) {
-          // All shots done
-          onComplete(updated);
-          setState("review");
-        } else {
-          // More shots to take
-          setCurrentShot(nextShot);
-          setState("idle");
-          // Auto-start next countdown after brief pause
-          setTimeout(() => startCountdown(), 1500);
-        }
-
-        return updated;
-      });
-    }
-  }, [state, isVideoMode, captureFrame, totalShots, onComplete, startCountdown, videoRef]);
-
-  const start = useCallback(() => {
-    if (state !== "idle") return;
-    setShots([]);
-    setCurrentShot(0);
-    startCountdown();
-  }, [state, startCountdown]);
+  const [error, setError] = useState<string | null>(null);
+  const run = useRef<AbortController | null>(null);
+  const totalShots = options.mode === "triple" ? 3 : options.mode === "quad" ? 4 : 1;
 
   const reset = useCallback(() => {
-    clearInterval(countdownRef.current!);
-    setState("idle");
-    setShots([]);
-    setCurrentShot(0);
-    setCountdown(countdownSeconds);
-  }, [countdownSeconds]);
+    run.current?.abort();
+    run.current = null;
+    setState("idle"); setShots([]); setCurrentShot(0); setError(null);
+    setCountdown(latest.current.countdownSeconds ?? 3);
+  }, []);
+  useEffect(() => () => { run.current?.abort(); }, []);
 
-  return {
-    state,
-    countdown,
-    shots,
-    currentShot,
-    totalShots,
-    isRecording,
-    start,
-    reset,
-    progress: shots.length / totalShots,
-  };
+  const start = useCallback(async () => {
+    if (run.current) return;
+    const controller = new AbortController();
+    run.current = controller;
+    const wait = (ms: number) => new Promise<void>((resolve, reject) => {
+      const onAbort = () => { clearTimeout(timer); reject(new DOMException("Cancelled", "AbortError")); };
+      const timer = setTimeout(() => { controller.signal.removeEventListener("abort", onAbort); resolve(); }, ms);
+      controller.signal.addEventListener("abort", onAbort, { once: true });
+    });
+    const opts = latest.current;
+    const count = opts.mode === "triple" ? 3 : opts.mode === "quad" ? 4 : 1;
+    setShots([]); setError(null);
+    try {
+      if (opts.mode === "video") throw new Error("Pilot chỉ hỗ trợ ảnh; chưa hỗ trợ video/GIF.");
+      const completed: CapturedShot[] = [];
+      for (let index = 0; index < count; index++) {
+        setCurrentShot(index); setState("countdown");
+        for (let remaining = opts.countdownSeconds ?? 3; remaining > 0; remaining--) {
+          setCountdown(remaining); await wait(1000);
+        }
+        if (controller.signal.aborted) return;
+        setCountdown(0); setState("capturing");
+        if (!opts.videoRef.current) throw new Error("Camera đã ngắt");
+        const shot = { id: crypto.randomUUID(), imageData: captureVideo(opts.videoRef.current, opts.mirror ?? true), timestamp: Date.now() };
+        completed.push(shot); setShots([...completed]);
+        if (index + 1 < count) await wait(700);
+      }
+      if (!controller.signal.aborted) {
+        latest.current.onComplete(completed); setState("review");
+      }
+    } catch (exc) {
+      if (!controller.signal.aborted) {
+        setError(exc instanceof Error ? exc.message : "Không chụp được ảnh"); setState("idle");
+      }
+    } finally {
+      if (run.current === controller) run.current = null;
+    }
+  }, []);
+  return { state, countdown, shots, currentShot, totalShots, isRecording: false, error, start, reset, progress: shots.length / totalShots };
 }
 
 /**
@@ -176,7 +82,7 @@ export function CountdownDisplay({ countdown, total }: { countdown: number; tota
 
   useGSAP(
     () => {
-      if (!numberRef.current) return;
+      if (!numberRef.current || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       // Pulse animation on each countdown tick
       gsap.fromTo(
         numberRef.current,
@@ -200,21 +106,20 @@ export function CountdownDisplay({ countdown, total }: { countdown: number; tota
           <circle
             cx="50" cy="50" r={radius}
             fill="none"
-            stroke="rgba(255,255,255,0.1)"
+            stroke="var(--border)"
             strokeWidth="6"
           />
           {/* Progress ring with violet prism glow */}
           <circle
             cx="50" cy="50" r={radius}
             fill="none"
-            stroke="#A855F7"
+            stroke="var(--primary)"
             strokeWidth="5"
             strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={dashOffset}
             style={{
               transition: "stroke-dashoffset 0.9s linear",
-              filter: "drop-shadow(0 0 8px #A855F7)",
             }}
           />
         </svg>
@@ -223,7 +128,7 @@ export function CountdownDisplay({ countdown, total }: { countdown: number; tota
         <div className="absolute inset-0 flex items-center justify-center">
           <span
             ref={numberRef}
-            className="text-5xl font-bold text-white font-mono"
+            className="text-5xl font-bold text-foreground font-mono"
             data-animate
           >
             {countdown}

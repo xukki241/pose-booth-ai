@@ -20,7 +20,7 @@ const CHAPTERS = [
     badge: 'Lookbook Mẫu',
     accentColor: '#A855F7',
     techDetail: 'Lookbook Embeddings',
-    modelLatency: '< 8.2 ms',
+    modelLatency: 'Đo trên thiết bị',
   },
   {
     id: 2,
@@ -31,7 +31,7 @@ const CHAPTERS = [
     badge: 'Huawei AR Silk',
     accentColor: '#06B6D4',
     techDetail: 'Volumetric Silk Contour',
-    modelLatency: '< 7.8 ms',
+    modelLatency: 'Đo trên thiết bị',
   },
   {
     id: 3,
@@ -41,8 +41,8 @@ const CHAPTERS = [
     icon: Target,
     badge: 'Micro-Radar HUD',
     accentColor: '#38BDF8',
-    techDetail: 'Vectorized OKS 60FPS',
-    modelLatency: '< 8.1 ms',
+    techDetail: 'Vectorized OKS',
+    modelLatency: '27.47 ms AI',
   },
   {
     id: 4,
@@ -53,7 +53,7 @@ const CHAPTERS = [
     badge: 'Champagne Lock',
     accentColor: '#FCD34D',
     techDetail: 'Zero-Touch Shutter',
-    modelLatency: '< 5.4 ms',
+    modelLatency: 'Đo trên thiết bị',
   },
   {
     id: 5,
@@ -64,7 +64,7 @@ const CHAPTERS = [
     badge: 'Life4Cuts Strip',
     accentColor: '#10B981',
     techDetail: 'Life4Cuts High-Res',
-    modelLatency: '< 9.2 ms',
+    modelLatency: 'Đo trên thiết bị',
   },
 ];
 
@@ -177,11 +177,11 @@ export function PinnedScrollytellingShowcase() {
 
   return (
     // Outer scroll track: 320vh height gives ample natural scroll travel without jumping
-    <section ref={outerTrackRef} className="relative w-full h-[320vh] bg-[#07070D]">
+    <section ref={outerTrackRef} className="relative w-full h-[320vh] bg-background">
       {/* Sticky Viewport Stage: Stuck to top 0, exactly 100vh height */}
       <div
         ref={stickyContentRef}
-        className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden border-y border-white/[0.06] bg-[#08080E]/95 backdrop-blur-2xl z-20"
+        className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden border-y border-border bg-background/95 backdrop-blur-2xl z-20"
       >
         {/* Ambient Lighting Accents */}
         <div className="absolute inset-0 pointer-events-none opacity-25">
@@ -197,7 +197,7 @@ export function PinnedScrollytellingShowcase() {
                 <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
                 <span>SCROLLYTELLING INTERACTIVE SHOWCASE</span>
               </div>
-              <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-white">
+              <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground">
                 Quy Trình Tạo Dáng AI Trong 5 Bước
               </h2>
               <p className="text-slate-400 text-xs sm:text-sm mt-1 max-w-xl">
@@ -261,7 +261,7 @@ export function PinnedScrollytellingShowcase() {
           </div>
 
           {/* 3-Column Interactive Stage Body */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center bg-black/50 rounded-3xl p-5 sm:p-8 border border-white/[0.08] backdrop-blur-xl">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center bg-card/85 rounded-3xl p-5 sm:p-8 border border-border backdrop-blur-xl">
             {/* Left Column: Narrative Explanation */}
             <div className="lg:col-span-5 space-y-4 sm:space-y-6">
               <div className="space-y-3">
@@ -276,7 +276,7 @@ export function PinnedScrollytellingShowcase() {
                   <span>{currentChapter.chapter}</span>
                 </div>
 
-                <h3 className="text-xl sm:text-3xl font-bold text-white tracking-tight leading-snug">
+                <h3 className="text-xl sm:text-3xl font-bold text-foreground tracking-tight leading-snug">
                   {currentChapter.title}
                 </h3>
 
@@ -486,7 +486,7 @@ export function PinnedScrollytellingShowcase() {
                         <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
                         AI VIEW categorizer
                       </span>
-                      <span className="px-1.5 py-0.5 rounded bg-black/60 border border-white/10">60 FPS</span>
+                      <span className="px-1.5 py-0.5 rounded bg-black/60 border border-white/10">GPU READY</span>
                     </div>
 
                     {/* Micro Radar Tracking Nodes (PikPose Joint Target Rings) */}
@@ -590,12 +590,12 @@ export function PinnedScrollytellingShowcase() {
                 </div>
                 <div className="space-y-1.5 text-[10px] pt-1 border-t border-white/10">
                   <div className="flex justify-between">
-                    <span>Target Latency:</span>
-                    <span className="text-cyan-400 font-bold">&lt; 8.2 ms</span>
+                    <span>Measured Avg:</span>
+                    <span className="text-cyan-400 font-bold">27.47 ms</span>
                   </div>
                   <div className="flex justify-between">
                     <span>GPU Hardware:</span>
-                    <span className="text-white">RTX 4050 6GB (CUDA)</span>
+                    <span className="text-white">RTX 3060 12GB (CUDA)</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Scoring Model:</span>

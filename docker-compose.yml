@@ -1,60 +1,94 @@
-version: "3.9"
-
+name: posebooth
 services:
-  # ─────────────────────────────────────
-  # Frontend: Next.js SPA
-  # ─────────────────────────────────────
-  web:
-    build:
-      context: ./apps/web
-      dockerfile: Dockerfile
-    container_name: pose-booth-web
-    ports:
-      - "3000:3000"
+  postgres:
+    image: postgres:17-alpine
     environment:
-      - NEXT_PUBLIC_API_URL=http://api:8000
-    depends_on:
-      - api
+      POSTGRES_DB: posebooth
+      POSTGRES_USER: posebooth
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run scripts/init-pilot.py}
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U posebooth"]
+      interval: 5s
+      retries: 12
     restart: unless-stopped
-
-  # ─────────────────────────────────────
-  # Backend: FastAPI + YOLOv8
-  # ─────────────────────────────────────
+  redis:
+    image: redis:8.6
+    command: ["redis-server", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 12
+    restart: unless-stopped
+  rabbitmq:
+    image: rabbitmq:4.2
+    environment:
+      RABBITMQ_DEFAULT_USER: posebooth
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?Run scripts/init-pilot.py}
+    volumes: [rabbitmq_data:/var/lib/rabbitmq]
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      retries: 12
+    restart: unless-stopped
+  ai:
+    build: ./apps/api
+    environment:
+      AI_PROFILE: studio
+      MODEL_PATH: /models/yolov8x-pose.pt
+      DEVICE: cuda:0
+      USE_FP16: "true"
+      STUDIO_IMG_SIZE: "640"
+      STUDIO_MAX_PERSONS: "1"
+    volumes: [./apps/api/models:/models:ro]
+    gpus: all
+    restart: unless-stopped
   api:
     build:
       context: ./apps/api
-      dockerfile: Dockerfile
-    container_name: pose-booth-api
-    ports:
-      - "8000:8000"
-    environment:
-      - MODEL_PATH=yolov8s-pose.pt
-      - DEVICE=cpu             # Change to cuda for GPU
-      - CORS_ORIGINS=http://localhost:3000,http://web:3000
-    volumes:
-      - ./ai/models/weights:/app/weights  # Mount trained models
-    restart: unless-stopped
-    # Uncomment for GPU support:
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: 1
-    #           capabilities: [gpu]
-
-  # ─────────────────────────────────────
-  # Nginx Reverse Proxy
-  # ─────────────────────────────────────
-  nginx:
-    image: nginx:alpine
-    container_name: pose-booth-nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/pose-booth.conf:/etc/nginx/conf.d/default.conf:ro
+      dockerfile: Dockerfile.product
+    environment: &product_env
+      DATABASE_URL: postgresql://posebooth:${POSTGRES_PASSWORD}@postgres:5432/posebooth
+      RABBITMQ_URL: amqp://posebooth:${RABBITMQ_PASSWORD}@rabbitmq:5672/%2F
+      REDIS_URL: redis://redis:6379/0
+      ASSET_DIR: /assets
+      ADMIN_TOKEN: ${ADMIN_TOKEN:?Run scripts/init-pilot.py}
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost:8080}
+      AI_RUNTIME_URL: http://ai:8000
+      AI_PROFILE: studio
+      DEVICE: cuda:0
+      USE_FP16: "true"
+    volumes: [assets:/assets]
     depends_on:
-      - web
-      - api
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4)"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
     restart: unless-stopped
+  worker:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile.product
+    command: ["python", "worker.py"]
+    environment: *product_env
+    volumes: [assets:/assets]
+    depends_on:
+      postgres: {condition: service_healthy}
+      rabbitmq: {condition: service_healthy}
+    restart: unless-stopped
+  web:
+    build: ./apps/web
+    restart: unless-stopped
+  nginx:
+    image: nginx:1.28-alpine
+    ports: ["127.0.0.1:8080:80"]
+    volumes: [./nginx/pose-booth.conf:/etc/nginx/conf.d/default.conf:ro]
+    depends_on: [web, api]
+    restart: unless-stopped
+volumes:
+  postgres_data:
+  rabbitmq_data:
+  assets:

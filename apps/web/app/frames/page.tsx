@@ -63,8 +63,8 @@ export default function FramesPage() {
       <nav
         style={{
           position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-          background: 'rgba(10,10,15,0.78)', backdropFilter: 'blur(24px)',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          background: 'color-mix(in oklab, var(--background) 85%, transparent)', backdropFilter: 'blur(24px)',
+          borderBottom: '1px solid var(--border)',
           padding: '0 2rem', height: '64px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}
@@ -75,7 +75,7 @@ export default function FramesPage() {
         >
           📸 <span className="prism-text">Pose-Booth AI</span>
         </Link>
-        <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+        <div className="legacy-route-nav" style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
           {([['Booth', '/booth'], ['Pose Studio', '/pose-studio'], ['About', '/about']] as [string, string][]).map(([label, href]) => (
             <Link
               key={href}
@@ -127,15 +127,15 @@ export default function FramesPage() {
               onClick={() => setActiveCategory(cat.id)}
               style={{
                 cursor: 'pointer',
-                border: isActive ? '1px solid var(--prism-violet)' : '1px solid rgba(255,255,255,0.09)',
-                background: isActive ? 'var(--prism-violet)' : 'rgba(255,255,255,0.04)',
-                color: isActive ? '#F8FAFC' : 'var(--text-secondary)',
+                border: isActive ? '1px solid var(--primary)' : '1px solid var(--border)',
+                background: isActive ? 'var(--primary)' : 'var(--secondary)',
+                color: isActive ? 'var(--primary-foreground)' : 'var(--secondary-foreground)',
                 borderRadius: '9999px',
                 padding: '0.35rem 1rem',
                 fontSize: '0.825rem',
                 fontWeight: isActive ? 600 : 500,
                 fontFamily: 'inherit',
-                boxShadow: isActive ? '0 0 18px -4px rgba(168,85,247,0.5)' : 'none',
+                boxShadow: isActive ? '0 8px 20px -14px color-mix(in oklab, var(--primary) 70%, transparent)' : 'none',
                 transition: 'all 0.2s ease',
                 letterSpacing: '0.01em',
               }}
