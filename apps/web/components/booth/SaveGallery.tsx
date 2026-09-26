@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from 'c-comic-ui';
 
 export function SaveGallery({ image }: { image: string }) {
   const [approved, setApproved] = useState(false);

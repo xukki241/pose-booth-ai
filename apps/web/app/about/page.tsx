@@ -1,182 +1,92 @@
-'use client';
+"use client";
 
-import { useRef } from 'react';
-import { useGSAP } from '@gsap/react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import React, { useRef } from 'react';
 import Link from 'next/link';
-
-gsap.registerPlugin(ScrollTrigger);
-
-const TIMELINE = [
-  { phase: 'Phase 0', date: 'Sep 2026 W1', title: 'Project Kickoff', desc: 'EXE101 startup project defined at FPT University. 2,197 AI skills installed. GitHub repo created at xukki241/pose-booth-ai. CLAUDE.md, .rules/, and skills/ initialized.' },
-  { phase: 'Phase 1', date: 'Sep 2026 W2', title: 'AI Backend (FastAPI + YOLOv8)', desc: 'FastAPI server deployed with endpoints: /api/pose/analyze, /api/pose/score, /api/pose/suggest. YOLOv8s-pose.pt (22.4 MB) downloaded. Routers: pose.py, score.py, suggest.py.' },
-  { phase: 'Phase 2', date: 'Sep 2026 W2', title: 'MediaPipe Integration', desc: 'pose_landmarker_lite.task (5.5 MB) downloaded to public/models/. Hook usePoseDetection.ts updated with local-first loading + CDN fallback. WASM runtime configured.' },
-  { phase: 'Phase 3', date: 'Sep 2026 W3', title: 'Frontend SPA (Next.js 16)', desc: 'Next.js 16 App Router SPA with 5 routes: /, /booth, /pose-studio, /frames, /about. GSAP 3 + @gsap/react installed. Nginx config for reverse proxy.' },
-  { phase: 'Phase 4', date: 'Sep 2026 W4', title: 'Prismo Theme + Local RTX', desc: 'Port semantic Prismo tokens and Nunito/Geist Mono while preserving Pose-Booth flows. Validate YOLOv8x-pose CUDA FP16 on the local RTX 3060.' },
-];
-
-const HARDWARE = [
-  { label: 'Edge Profile', gpu: 'CUDA hoặc CPU', cpu: 'Theo thiết bị', ram: 'Theo thiết bị', fps: 'Cần benchmark', model: 'YOLOv8s-pose', color: 'var(--prism-cyan)' },
-  { label: 'Studio (đã xác minh)', gpu: 'RTX 3060 12GB', cpu: 'Windows local', ram: 'Theo máy', fps: '36.4 FPS avg', model: 'YOLOv8x-pose FP16', color: 'var(--prism-violet)' },
-];
-
-const STACK = [
-  { cat: 'AI / ML', items: ['YOLOv8x-pose (Ultralytics 8.4.162)', 'MediaPipe Pose Landmarker Lite', 'OpenCV', 'NumPy', 'PyTorch 2.11 CUDA 12.8'] },
-  { cat: 'Backend', items: ['FastAPI', 'Python 3.11', 'Uvicorn ASGI', 'Pydantic v2', 'CORS Middleware'] },
-  { cat: 'Frontend', items: ['Next.js 16 (App Router)', 'TypeScript 5', 'GSAP 3 + ScrollTrigger', 'Tailwind CSS 4', 'Nunito / Geist Mono'] },
-  { cat: 'Infrastructure', items: ['Nginx (SPA reverse proxy)', 'Git + GitHub (xukki241)', 'PowerShell scripts', 'Next.js standalone build'] },
-];
-
-const PIPELINE = [
-  { label: 'Camera', sub: 'MediaPipe WASM', icon: '📷', color: 'var(--prism-cyan)' },
-  { label: 'Pose Detection', sub: 'YOLOv8x-pose', icon: '🦾', color: 'var(--prism-violet)' },
-  { label: 'Score API', sub: 'FastAPI :8000', icon: '📊', color: 'var(--prism-pink)' },
-  { label: 'UI Feedback', sub: 'Next.js :3000', icon: '✨', color: 'var(--accent-emerald)' },
-];
+import { Camera, ArrowLeft } from 'lucide-react';
+import { Button } from 'c-comic-ui';
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
 
 export default function AboutPage() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const container = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
-    gsap.from('.about-hero-content', { opacity: 0, y: 40, duration: 0.9, ease: 'power3.out' });
-    gsap.from('.pipeline-node', {
-      scrollTrigger: { trigger: '.pipeline-section', start: 'top 80%' },
-      opacity: 0, scale: 0.7, stagger: 0.12, duration: 0.7, ease: 'back.out(1.4)',
-    });
-    gsap.from('.timeline-item', {
-      scrollTrigger: { trigger: '.timeline-section', start: 'top 80%' },
-      opacity: 0, x: -50, stagger: 0.15, duration: 0.7, ease: 'power3.out',
-    });
-    gsap.from('.hw-card', {
-      scrollTrigger: { trigger: '.hw-section', start: 'top 80%' },
-      opacity: 0, y: 40, scale: 0.9, stagger: 0.2, duration: 0.7, ease: 'back.out(1.2)',
-    });
-    gsap.from('.stack-card', {
-      scrollTrigger: { trigger: '.stack-section', start: 'top 80%' },
-      opacity: 0, y: 30, stagger: 0.1, duration: 0.6, ease: 'power3.out',
-    });
-  }, { scope: containerRef });
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const tl = gsap.timeline();
+
+    gsap.set(".animate-nav", { y: -20, opacity: 0 });
+    gsap.set(".animate-hero", { y: 50, opacity: 0 });
+    gsap.set(".animate-section", { y: 30, opacity: 0, scale: 0.95 });
+
+    tl.to(".animate-nav", { y: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: "back.out(1.7)" })
+      .to(".animate-hero", { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: "power3.out" }, "-=0.2")
+      .to(".animate-section", { y: 0, opacity: 1, scale: 1, duration: 0.5, stagger: 0.1, ease: "back.out(1.5)" }, "-=0.3");
+  }, { scope: container });
 
   return (
-    <div ref={containerRef} style={{ background: 'var(--bg-base)', minHeight: '100vh', color: 'var(--text-primary)' }}>
-      {/* Ambient */}
-      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(ellipse 50% 40% at 70% 20%, rgba(168,85,247,0.07) 0%, transparent 70%), radial-gradient(ellipse 40% 35% at 20% 80%, rgba(6,182,212,0.06) 0%, transparent 70%)' }} />
-
-      {/* NAV */}
-      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, background: 'color-mix(in oklab, var(--background) 85%, transparent)', backdropFilter: 'blur(24px)', borderBottom: '1px solid var(--border)', padding: '0 2rem', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '1.1rem', color: 'var(--text-primary)', textDecoration: 'none' }}>
-          📸 <span className="prism-text">Pose-Booth AI</span>
+    <main ref={container} className="min-h-dvh bg-white font-sans overflow-x-hidden border-4 border-black">
+      {/* Navigation */}
+      <nav aria-label="Điều hướng giới thiệu" className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 border-b-8 border-black bg-white px-6 py-6 shadow-[0_8px_0_0_#000]">
+        <Link href="/" className="animate-nav flex items-center gap-2 font-black text-2xl uppercase tracking-tighter">
+          <Camera className="size-8 stroke-[3] text-black" />
+          Pose-Booth <span className="text-[#B42355]">AI</span>
         </Link>
-        <div className="legacy-route-nav" style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-          {([['Booth', '/booth'], ['Pose Studio', '/pose-studio'], ['Frames', '/frames']] as [string, string][]).map(([l, h]) => (
-            <Link key={h} href={h} style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem' }}>{l}</Link>
-          ))}
-          <Link href="/booth" className="btn-prism-primary" style={{ padding: '0.5rem 1.25rem', fontSize: '0.875rem' }}>Open Booth</Link>
-        </div>
+        <Button size="lg" className="animate-nav border-4 border-black bg-[#FFD166] text-black hover:bg-[#FFE4EC] hover:text-black font-black uppercase text-lg shadow-[4px_4px_0_0_#000] hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all" asChild>
+          <Link href="/booth"><ArrowLeft className="mr-2 size-5 stroke-[3]" /> Về Phòng Chụp</Link>
+        </Button>
       </nav>
 
-      {/* HERO */}
-      <section style={{ paddingTop: '9rem', paddingBottom: '5rem', paddingLeft: '2rem', paddingRight: '2rem', maxWidth: '880px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
-        <div className="about-hero-content">
-          <span className="glass-pill" style={{ display: 'inline-flex', marginBottom: '1.5rem' }}>
-            <span className="dot dot-pulse" />EXE101 · FPT University 2026
-          </span>
-          <h1 style={{ fontSize: 'clamp(2.2rem,5vw,3.75rem)', fontWeight: 700, letterSpacing: '-0.04em', margin: '1rem 0' }}>
-            About <span className="prism-text">Pose-Booth AI</span>
+      <div className="mx-auto max-w-5xl px-6">
+        <header className="max-w-3xl py-16">
+          <h1 className="animate-hero text-4xl md:text-5xl font-black tracking-tight text-black">
+            <span className="text-black drop-shadow-none">Ảnh vui.</span><br/>
+            Cách dùng <span className="text-[#B42355]">rõ ràng.</span>
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: 1.75, maxWidth: '580px', margin: '0 auto' }}>
-            An AI-powered photobooth that uses computer vision to guide users into perfect poses in real-time.
-            Built as an EXE101 startup capstone at FPT University, 2026.
+          <p className="animate-hero mt-8 text-xl font-bold leading-relaxed text-black/80 bg-white p-6 border-4 border-black shadow-[6px_6px_0_0_#000] -rotate-1">
+            Pose-Booth là dự án thử nghiệm photobooth có hướng dẫn dáng. Bạn có thể chụp từ camera hoặc ghép ảnh có sẵn trên thiết bị.
           </p>
-        </div>
-      </section>
+        </header>
 
-      {/* AI PIPELINE */}
-      <section className="pipeline-section" style={{ padding: '2rem 2rem 5rem', maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-        <h2 style={{ fontSize: '1.7rem', fontWeight: 700, textAlign: 'center', marginBottom: '2.5rem' }}>AI <span className="prism-text">Pipeline</span> Architecture</h2>
-        <div className="glass-card" style={{ padding: '2.5rem', overflowX: 'auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 0, minWidth: '560px', justifyContent: 'center' }}>
-            {PIPELINE.map((node, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
-                <div className="pipeline-node" style={{ textAlign: 'center', padding: '1rem 1.25rem', background: 'rgba(255,255,255,0.04)', border: `1px solid ${node.color}40`, borderRadius: '0.75rem', minWidth: '120px' }}>
-                  <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{node.icon}</div>
-                  <div style={{ fontWeight: 600, fontSize: '0.875rem', color: node.color }}>{node.label}</div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-space-mono,monospace)', marginTop: '0.25rem' }}>{node.sub}</div>
-                </div>
-                {i < PIPELINE.length - 1 && <div style={{ padding: '0 0.625rem', color: 'var(--text-muted)', fontSize: '1.25rem', flexShrink: 0 }}>→</div>}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+        <div className="grid gap-8 py-10 md:grid-cols-2">
 
-      {/* TIMELINE */}
-      <section className="timeline-section" style={{ padding: '2rem 2rem 5rem', maxWidth: '780px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-        <h2 style={{ fontSize: '1.7rem', fontWeight: 700, textAlign: 'center', marginBottom: '3rem' }}>Development <span className="prism-text">Timeline</span></h2>
-        <div style={{ position: 'relative', paddingLeft: '2.5rem' }}>
-          <div style={{ position: 'absolute', left: '0.5rem', top: 0, bottom: 0, width: '2px', background: 'linear-gradient(180deg, var(--prism-violet), var(--prism-cyan))' }} />
-          {TIMELINE.map((item, i) => (
-            <div key={i} className="timeline-item" style={{ position: 'relative', marginBottom: '2.5rem' }}>
-              <div style={{ position: 'absolute', left: '-2.5rem', top: '1.1rem', width: '12px', height: '12px', borderRadius: '50%', background: i % 2 === 0 ? 'var(--prism-violet)' : 'var(--prism-cyan)', boxShadow: `0 0 10px ${i % 2 === 0 ? 'var(--prism-violet)' : 'var(--prism-cyan)'}`, zIndex: 1 }} />
-              <div className="glass-card" style={{ padding: '1.25rem 1.5rem' }}>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <span className="glass-pill" style={{ fontSize: '0.72rem', color: 'var(--prism-violet)' }}>{item.phase}</span>
-                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: 'var(--font-space-mono,monospace)' }}>{item.date}</span>
-                </div>
-                <h3 style={{ fontWeight: 600, fontSize: '1rem', margin: '0 0 0.5rem' }}>{item.title}</h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', lineHeight: 1.65, margin: 0 }}>{item.desc}</p>
-              </div>
+          <section className="animate-section group border-4 border-black bg-white p-8 shadow-[8px_8px_0_0_#000] hover:-translate-y-2 hover:shadow-[12px_12px_0_0_#000] transition-all duration-300">
+            <h2 className="text-3xl font-black uppercase mb-4 text-[#B42355]">Ảnh của bạn đi đâu?</h2>
+            <div className="space-y-4 font-bold text-black/80 text-lg">
+              <p>Preview, bộ lọc và ghép ảnh chạy trong trình duyệt. Ảnh chỉ gửi tới máy studio khi bạn chọn lưu gallery và đồng ý điều khoản hiển thị.</p>
+              <p>Gallery hết hạn sau 24 giờ. Người có QR có thể xem ảnh của phiên. Ảnh khách không tự chuyển thành dữ liệu training.</p>
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
 
-      {/* HARDWARE */}
-      <section className="hw-section" style={{ padding: '2rem 2rem 5rem', maxWidth: '880px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-        <h2 style={{ fontSize: '1.7rem', fontWeight: 700, textAlign: 'center', marginBottom: '2.5rem' }}>Hardware <span className="prism-text">Specs</span></h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '1.5rem' }}>
-          {HARDWARE.map((hw, i) => (
-            <div key={i} className="hw-card glass-card" style={{ padding: '2rem', borderColor: `${hw.color}40` }}>
-              <span className="glass-pill" style={{ display: 'inline-flex', marginBottom: '1.25rem', color: hw.color, borderColor: `${hw.color}40` }}>{hw.label}</span>
-              <div style={{ display: 'grid', gap: '0.75rem' }}>
-                {([['GPU', hw.gpu], ['CPU', hw.cpu], ['RAM', hw.ram], ['Target FPS', hw.fps], ['Model', hw.model]] as [string, string][]).map(([k, v]) => (
-                  <div key={k} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem' }}>
-                    <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontFamily: 'var(--font-space-mono,monospace)' }}>{k}</span>
-                    <span style={{ color: 'var(--text-primary)', fontSize: '0.85rem', fontWeight: 500 }}>{v}</span>
-                  </div>
-                ))}
-              </div>
+          <section className="animate-section group border-4 border-black bg-white p-8 shadow-[8px_8px_0_0_#000] hover:-translate-y-2 hover:shadow-[12px_12px_0_0_#000] transition-all duration-300">
+            <h2 className="text-3xl font-black uppercase mb-4 text-[#118AB2]">AI giúp gì khi chụp?</h2>
+            <div className="space-y-4 font-bold text-black/80 text-lg">
+              <p>MediaPipe tìm các điểm cơ thể trên thiết bị. API so sánh điểm với dáng tham khảo; điểm số không phải đánh giá cơ thể hay sức khỏe.</p>
+              <p>Đường hướng dẫn hiện dáng từ keypoints. Tách mask từ ảnh tham chiếu và chỉnh silhouette vẫn đang phát triển.</p>
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
 
-      {/* TECH STACK */}
-      <section className="stack-section" style={{ padding: '2rem 2rem 5rem', maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-        <h2 style={{ fontSize: '1.7rem', fontWeight: 700, textAlign: 'center', marginBottom: '2.5rem' }}>Tech <span className="prism-text">Stack</span></h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '1.25rem' }}>
-          {STACK.map((cat, i) => (
-            <div key={i} className="stack-card glass-card" style={{ padding: '1.5rem' }}>
-              <span className="prism-text-lr" style={{ fontWeight: 600, fontSize: '0.8rem', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '1rem', display: 'block' }}>{cat.cat}</span>
-              <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {cat.items.map(item => (
-                  <li key={item} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                    <span style={{ display: 'inline-block', width: 4, height: 4, borderRadius: '50%', background: 'var(--prism-cyan)', boxShadow: '0 0 5px var(--prism-cyan)', flexShrink: 0 }} />
-                    {item}
-                  </li>
-                ))}
-              </ul>
+          <section className="animate-section group border-4 border-black bg-white p-8 shadow-[8px_8px_0_0_#000] hover:-translate-y-2 hover:shadow-[12px_12px_0_0_#000] transition-all duration-300">
+            <h2 className="text-3xl font-black uppercase mb-4 text-primary">Nền tảng local</h2>
+            <div className="space-y-4 font-bold text-black/80 text-lg">
+              <p>Next.js phục vụ giao diện. FastAPI xử lý nghiệp vụ; AI runtime riêng chạy model. PostgreSQL lưu phiên, RabbitMQ chạy tác vụ nền và Redis giới hạn request.</p>
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
 
-      {/* FOOTER */}
-      <footer style={{ padding: '3rem 2rem', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.06)', position: 'relative', zIndex: 1 }}>
-        <Link href="/booth" className="btn-prism-primary" style={{ display: 'inline-flex', marginBottom: '2rem' }}>Try Pose-Booth AI →</Link>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Pose-Booth AI © 2026 · EXE101 FPT University</p>
+          <section className="animate-section group border-4 border-black bg-white p-8 shadow-[8px_8px_0_0_#000] hover:-translate-y-2 hover:shadow-[12px_12px_0_0_#000] transition-all duration-300">
+            <h2 className="text-3xl font-black uppercase mb-4 text-primary">Giới hạn bản thử nghiệm</h2>
+            <div className="space-y-4 font-bold text-black/80 text-lg">
+              <p>Mỗi phiên hướng tới một người. Chưa nghiệm thu ba camera đồng thời, chưa hỗ trợ thanh toán, máy in hoặc chụp nhóm. Hiệu năng cần đo trên thiết bị thực tế.</p>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      <footer className="border-t-4 border-black bg-white px-6 py-8 text-center">
+        <p className="font-semibold text-black text-sm">
+          Pose-Booth AI. Dự án EXE101 tại FPT University.
+        </p>
       </footer>
-    </div>
+    </main>
   );
 }

@@ -8,7 +8,7 @@ function loadImage(source: string): Promise<HTMLImageElement> {
   });
 }
 
-export async function compositePhotos(sources: string[], color: string, overlay?: string | null): Promise<string> {
+export async function compositePhotos(sources: string[], color: string, overlay?: string | null, filter = 'none'): Promise<string> {
   if (!sources.length) throw new Error('Chưa có ảnh');
   if (overlay && sources.length !== 4) throw new Error('Frame này cần 4 ảnh');
   const images = await Promise.all(sources.map(loadImage));
@@ -18,6 +18,7 @@ export async function compositePhotos(sources: string[], color: string, overlay?
   canvas.height = overlay ? 1800 : grid ? 1000 : sources.length * 425 + 100;
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Không tạo được ảnh xuất');
+  if (filter !== 'none' && !('filter' in ctx)) throw new Error('Trình duyệt chưa hỗ trợ xuất bộ lọc. Chọn Nguyên bản hoặc mở bằng Chrome/Edge.');
   ctx.fillStyle = color; ctx.fillRect(0, 0, canvas.width, canvas.height);
   images.forEach((image, index) => {
     const x = grid ? 50 + (index % 2) * 550 : 50;
@@ -25,12 +26,10 @@ export async function compositePhotos(sources: string[], color: string, overlay?
     // Preserve the preview crop; fit inside the frame slot without cropping again.
     const scale = Math.min(500 / image.width, 375 / image.height);
     const width = image.width * scale, height = image.height * scale;
+    ctx.filter = filter;
     ctx.drawImage(image, x + (500 - width) / 2, y + (375 - height) / 2, width, height);
+    ctx.filter = 'none';
   });
   if (overlay) ctx.drawImage(await loadImage(overlay), 0, 0, canvas.width, canvas.height);
-  else {
-    ctx.fillStyle = '#ffffff'; ctx.font = '20px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('POSE-BOOTH', canvas.width / 2, canvas.height - 30);
-  }
   return canvas.toDataURL('image/jpeg', 0.92);
 }

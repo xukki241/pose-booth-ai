@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="1800" viewBox="0 0 600 1800">
+  <title>Khung Cherry bốn ảnh, không watermark</title>
+  <defs><mask id="slots"><rect width="600" height="1800" fill="white"/><g fill="black"><rect x="50" y="50" width="500" height="375"/><rect x="50" y="475" width="500" height="375"/><rect x="50" y="900" width="500" height="375"/><rect x="50" y="1325" width="500" height="375"/></g></mask></defs>
+  <rect width="600" height="1800" fill="#fff8f4" mask="url(#slots)"/>
+  <path d="M20 20H580V1780H20Z" fill="none" stroke="#a51d35" stroke-width="12"/>
+  <g fill="none" stroke="#a51d35" stroke-width="4"><rect x="48" y="48" width="504" height="379" rx="4"/><rect x="48" y="473" width="504" height="379" rx="4"/><rect x="48" y="898" width="504" height="379" rx="4"/><rect x="48" y="1323" width="504" height="379" rx="4"/></g>
+  <path d="M270 1742H330" stroke="#a51d35" stroke-width="8" stroke-linecap="round"/>
+</svg>

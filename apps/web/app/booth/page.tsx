@@ -13,7 +13,12 @@ import { compositePhotos } from '@/lib/photo-composite';
 import { FRAMES } from '@/lib/frames';
 import { SaveGallery } from '@/components/booth/SaveGallery';
 import { useCamera } from '@/lib/useCamera';
-import { Button } from '@/components/ui/button';
+import { Button } from 'c-comic-ui';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
+import { PHOTO_FILTERS, photoFilter } from '@/lib/photo-filters';
+import { importPhoto } from '@/lib/photo-import';
+import { PhotoEditor } from '@/components/booth/PhotoEditor';
 
 const SHOT_MODES: { mode: ShotMode; label: string; badge: string }[] = [
   { mode: 'single', label: '1 Ảnh Đơn', badge: 'Quick' },
@@ -97,14 +102,35 @@ const SAMPLE_POSES: PoseTemplate[] = [
 
 
 export default function BoothPage() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    gsap.from(".animate-stagger > *", {
+      y: 30, opacity: 0, duration: 0.5, stagger: 0.1, ease: "back.out(1.5)"
+    });
+    gsap.from(".animate-fade", {
+      opacity: 0, scale: 0.98, duration: 0.6, ease: "power2.out"
+    });
+  }, { scope: containerRef });
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { ready: cameraReady, loading: cameraLoading, error: cameraError, devices, start: startCamera, stop: stopCamera } = useCamera(videoRef);
   const [deviceId, setDeviceId] = useState('');
   const [timerSeconds, setTimerSeconds] = useState(3);
+  const [filterId, setFilterId] = useState('original');
+  const filter = photoFilter(filterId);
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const importGeneration = useRef(0);
+  useEffect(() => () => { importGeneration.current++; }, []);
 
   const [shotMode, setShotMode] = useState<ShotMode>('triple');
   const [completedShots, setCompletedShots] = useState<CapturedShot[]>([]);
+  const [editedPhotos, setEditedPhotos] = useState<Record<string, string>>({});
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const editingShot = completedShots.find(shot => shot.id === editingId);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [orientation, setOrientation] = useState<ViewfinderOrientation>('portrait');
   const [showGrid, setShowGrid] = useState(false);
@@ -138,12 +164,12 @@ export default function BoothPage() {
     setComposite(null); setExportError(null);
     if (completedShots.length) {
       const colors: Record<string, string> = { dark: '#171717', violet: '#3b0764', champagne: '#451a03', cyan: '#083344' };
-      compositePhotos(completedShots.map(shot => shot.imageData), colors[activeFrame.id], overlayPath)
+      compositePhotos(completedShots.map(shot => editedPhotos[shot.id] ?? shot.imageData), colors[activeFrame.id], overlayPath, filter)
         .then(image => { if (!disposed) setComposite(image); })
         .catch(error => { if (!disposed) setExportError(error.message); });
     }
     return () => { disposed = true; };
-  }, [completedShots, activeFrame, overlayPath]);
+  }, [completedShots, editedPhotos, activeFrame, overlayPath, filter]);
 
   // MediaPipe live pose detection
   const { confidence, isLoading: isPoseModelLoading, fps, cocoKeypoints, error: poseError } = usePoseDetection(
@@ -155,11 +181,13 @@ export default function BoothPage() {
     videoRef.current?.videoWidth ?? 0, videoRef.current?.videoHeight ?? 0,
     orientation === 'portrait' ? 3 : 16, orientation === 'portrait' ? 4 : 9, facingMode === 'user'),
     [cocoKeypoints, orientation, facingMode]);
-  const { score: measuredScore, feedback } = usePoseScore(cameraReady && showContour, displayPoints, selectedPose, `${orientation}:${facingMode}:${deviceId}`);
+  const { score: measuredScore, feedback, isLoading: isScoreLoading } = usePoseScore(cameraReady && showContour, displayPoints, selectedPose, `${orientation}:${facingMode}:${deviceId}`);
   const liveScore = measuredScore ?? 0;
   const guidanceHint = feedback[0];
 
-  const handleShotsComplete = useCallback((shots: CapturedShot[]) => { setCompletedShots(shots); }, []);
+  const handleShotsComplete = useCallback((shots: CapturedShot[]) => {
+    setEditedPhotos({}); setEditingId(null); setCompletedShots(shots);
+  }, []);
 
   // Photobooth state machine
   const { state, countdown, currentShot, totalShots, start, reset, error: captureError } = usePhotoBooth({
@@ -192,76 +220,124 @@ export default function BoothPage() {
   const capturing = state === 'countdown' || state === 'capturing';
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border">
-        <nav aria-label="Studio navigation" className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
+      <header className="border-b border-black border-4 shadow-[4px_4px_0_0_#000]">
+        <nav aria-label="Studio navigation" className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 animate-fade">
           <Link href="/" className="flex items-center gap-2 font-bold"><ArrowLeft className="size-4" /> Pose-Booth</Link>
-          <div className="flex items-center gap-4 text-sm"><Link href="/frames" className="text-muted-foreground hover:text-foreground">Thư viện khung</Link><Link href="/pose-studio" className="text-muted-foreground hover:text-foreground">Luyện dáng</Link></div>
+          <div className="flex items-center gap-4 text-sm"><Link href="/frames" className="text-black/80 font-bold hover:text-foreground">Thư viện khung</Link><Link href="/pose-studio" className="text-black/80 font-bold hover:text-foreground">Luyện dáng</Link></div>
         </nav>
       </header>
-      <main className="mx-auto max-w-7xl space-y-6 p-4 pb-24 sm:p-6">
+      <main ref={containerRef} className="mx-auto max-w-7xl space-y-6 p-4 pb-24 sm:p-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <div><h1 className="text-3xl font-bold tracking-tight">Khoảnh khắc của bạn.</h1><p className="mt-1 text-sm text-muted-foreground">Chọn dáng, nhìn vào máy ảnh và để chúng tôi đếm ngược.</p></div>
-          <p role="status" className="text-xs font-mono text-muted-foreground">{cameraReady ? `Camera đã kết nối · ${fps} FPS pose` : 'Ảnh chỉ lưu khi bạn chủ động chọn'}</p>
+          <div><h1 className="text-3xl font-bold tracking-tight">Khoảnh khắc của bạn.</h1><p className="mt-1 text-sm text-black/80 font-bold">Chọn dáng, nhìn vào máy ảnh và để chúng tôi đếm ngược.</p></div>
+          <p role="status" className="text-xs font-mono text-black/80 font-bold">{cameraReady ? `Camera đã kết nối · ${fps} FPS pose` : 'Ảnh chỉ lưu khi bạn chủ động chọn'}</p>
         </div>
-        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px] animate-stagger">
           <section aria-label="Camera" className="min-w-0 space-y-3">
-            <div className={`relative mx-auto overflow-hidden rounded-2xl border border-border bg-muted ${orientation === 'landscape' ? 'aspect-video w-full' : 'aspect-[3/4] w-full max-w-[520px]'}`}>
-              <video ref={videoRef} muted playsInline className={`absolute inset-0 h-full w-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''} ${cameraReady ? '' : 'invisible'}`} />
+            <div className={`relative mx-auto overflow-hidden rounded-none border border-black border-4 shadow-[4px_4px_0_0_#000] bg-muted ${orientation === 'landscape' ? 'aspect-video w-full' : 'aspect-[3/4] w-full max-w-[520px]'}`}>
+              <video ref={videoRef} muted playsInline style={{ filter }} className={`absolute inset-0 h-full w-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''} ${cameraReady ? '' : 'invisible'}`} />
               <canvas ref={canvasRef} width={orientation === 'landscape' ? 1280 : 720} height={orientation === 'landscape' ? 720 : 960} className="pointer-events-none absolute inset-0 h-full w-full" />
               {cameraReady && <HuaweiArContour landmarks={showContour ? displayPoints : []} targetLandmarks={showContour ? selectedPose.keypoints : []} canvasRef={canvasRef} width={orientation === 'landscape' ? 1280 : 720} height={orientation === 'landscape' ? 720 : 960} opacity={contourOpacity} score={liveScore} showScoreHud={false} orientation={orientation} showGrid={showGrid} />}
               {!cameraReady && <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center">
-                <div className="rounded-full border border-border bg-background p-5"><Camera className="size-8" /></div>
-                <h2 className="text-xl font-semibold">Bắt đầu bằng một nụ cười</h2>
-                <p className="max-w-xs text-sm text-muted-foreground">Camera xử lý trên thiết bị. Chưa có ảnh nào được lưu hay gửi để training.</p>
+                <div className="rounded-full border border-black border-4 shadow-[4px_4px_0_0_#000] bg-background p-5"><Camera className="size-8" /></div>
+                <h2 className="text-xl font-black uppercase">Bắt đầu bằng một nụ cười</h2>
+                <p className="max-w-xs text-sm text-black/80 font-bold">Camera xử lý trên thiết bị. Chưa có ảnh nào được lưu hay gửi để training.</p>
                 {cameraError && <p role="alert" className="max-w-sm text-sm text-destructive">{cameraError}</p>}
                 <Button onClick={() => startCamera(facingMode, deviceId || undefined)} disabled={cameraLoading}><Camera data-icon="inline-start" />{cameraLoading ? 'Đang chờ quyền camera…' : 'Mở camera'}</Button>
                 {cameraLoading && <Button variant="ghost" onClick={stopCamera}>Hủy yêu cầu</Button>}
               </div>}
-              {cameraReady && <div className="absolute left-3 top-3 rounded-lg bg-background/90 px-3 py-2 text-xs backdrop-blur"><span className="font-semibold">{selectedPose.name_vi}</span><span className="ml-2 text-muted-foreground">{showContour ? measuredScore === null ? 'Chưa có điểm' : `${measuredScore}% khớp dáng` : 'Hướng dẫn đã tắt'}</span></div>}
+              {cameraReady && <div className="absolute left-3 top-3 rounded-none bg-background/90 px-3 py-2 text-xs backdrop-blur"><span className="font-black uppercase">{selectedPose.name_vi}</span><span className="ml-2 text-black/80 font-bold">{showContour ? measuredScore === null ? 'Chưa có điểm' : `${measuredScore}% khớp dáng` : 'Hướng dẫn đã tắt'}</span></div>}
               {state === 'countdown' && <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/60 backdrop-blur-sm" role="status" aria-live="assertive"><CountdownDisplay countdown={countdown} total={timerSeconds} /><p className="font-medium">Ảnh {currentShot + 1} / {totalShots}</p></div>}
             </div>
             <div className="flex flex-wrap items-center justify-center gap-2">
-              <Button variant="outline" size="sm" disabled={capturing} onClick={() => setOrientation(orientation === 'portrait' ? 'landscape' : 'portrait')}>{orientation === 'portrait' ? 'Dọc 3:4' : 'Ngang 16:9'}</Button>
+              <Button variant="outline" size="sm" disabled={capturing || importing} onClick={() => setOrientation(orientation === 'portrait' ? 'landscape' : 'portrait')}>{orientation === 'portrait' ? 'Dọc 3:4' : 'Ngang 16:9'}</Button>
               <Button variant={showGrid ? 'secondary' : 'outline'} size="sm" aria-pressed={showGrid} onClick={() => setShowGrid(!showGrid)}><Grid3X3 data-icon="inline-start" />Lưới</Button>
               <Button variant="outline" size="sm" disabled={capturing || cameraLoading} onClick={toggleFacingMode}><RefreshCw data-icon="inline-start" />Đổi camera</Button>
-              {cameraReady && <Button variant="ghost" size="sm" disabled={capturing} onClick={stopCamera}>Tắt camera</Button>}
+              {cameraReady && <Button variant="ghost" size="sm" disabled={capturing || importing} onClick={stopCamera}>Tắt camera</Button>}
             </div>
-            <p className="min-h-5 text-center text-sm text-muted-foreground" role="status">{poseError || (isPoseModelLoading && cameraReady ? 'Đang tải model hướng dẫn local…' : guidanceHint || 'Hướng dẫn dáng chỉ để tham khảo. Bạn luôn quyết định lúc chụp.')}</p>
+            <p className="min-h-5 text-center text-sm text-black/80 font-bold" role="status" aria-busy={(isPoseModelLoading && cameraReady && showContour) || isScoreLoading}>{poseError || (isPoseModelLoading && cameraReady && showContour ? 'Đang tải model hướng dẫn local…' : guidanceHint || 'Hướng dẫn dáng chỉ để tham khảo. Bạn luôn quyết định lúc chụp.')}</p>
           </section>
-          <aside className="space-y-6 rounded-2xl border border-border bg-card p-5 text-card-foreground">
-            <fieldset disabled={capturing} className="space-y-3"><legend className="mb-3 font-semibold">Bạn muốn chụp kiểu nào?</legend>
-              <div className="grid grid-cols-3 gap-2">{SHOT_MODES.map(item => <Button key={item.mode} variant={shotMode === item.mode ? 'default' : 'outline'} size="sm" aria-pressed={shotMode === item.mode} onClick={() => { setShotMode(item.mode); if (item.mode !== 'quad') setOverlayPath(null); }}>{item.mode === 'single' ? '1 ảnh' : item.mode === 'triple' ? '3 ảnh' : '4 ảnh'}</Button>)}</div>
-              <label className="flex items-center justify-between gap-3 text-sm">Đếm ngược<select value={timerSeconds} onChange={event => setTimerSeconds(Number(event.target.value))} className="rounded-md border border-input bg-background p-2">{[2, 3, 5, 10].map(seconds => <option key={seconds} value={seconds}>{seconds} giây</option>)}</select></label>
-              {devices.length > 1 && <label className="block text-sm">Thiết bị<select className="mt-2 w-full rounded-md border border-input bg-background p-2" value={deviceId} onChange={event => { setDeviceId(event.target.value); void startCamera(facingMode, event.target.value || undefined); }}><option value="">Tự chọn camera</option>{devices.map((device, index) => <option key={device.deviceId} value={device.deviceId}>{device.label || `Camera ${index + 1}`}</option>)}</select></label>}
+          <aside className="space-y-6 rounded-none border border-black border-4 shadow-[4px_4px_0_0_#000] bg-white p-5 text-card-foreground">
+            <fieldset id="import-photos" disabled={capturing || importing} className="space-y-3 scroll-mt-6">
+              <legend className="font-black uppercase">Dùng ảnh có sẵn</legend>
+              <p className="text-sm text-black/80 font-bold">Chọn 1-4 ảnh theo thứ tự ghép. Xử lý trên thiết bị, không cần camera.</p>
+              <label className="block text-sm font-black uppercase">Chọn ảnh JPEG, PNG hoặc WebP
+                <input className="mt-2 block w-full min-w-0 rounded-none border-4 border-black p-2 text-sm file:mr-2 file:rounded-none file:border-0 file:bg-[#FFD166] file:px-2 file:py-1 file:text-secondary-foreground" type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={async event => {
+                  const files = Array.from(event.target.files ?? []); event.target.value = '';
+                  if (!files.length) return;
+                  if (files.length > 4) { setImportError('Chọn tối đa 4 ảnh mỗi lần.'); return; }
+                  const generation = ++importGeneration.current;
+                  setImporting(true); setImportError(null);
+                  try {
+                    const shots: CapturedShot[] = [];
+                    for (const file of files) {
+                      const imageData = await importPhoto(file);
+                      if (generation !== importGeneration.current) return;
+                      shots.push({ id: crypto.randomUUID(), imageData, timestamp: Date.now() });
+                    }
+                    reset(); stopCamera();
+                    if (shots.length !== 4) setOverlayPath(null);
+                    handleShotsComplete(shots);
+                  } catch (error) { if (generation === importGeneration.current) setImportError(error instanceof Error ? error.message : 'Không đọc được ảnh.'); }
+                  finally { if (generation === importGeneration.current) setImporting(false); }
+                }} />
+              </label>
+              {importing && <p role="status" className="text-sm">Đang chuẩn bị ảnh…</p>}
+              {importError && <p role="alert" className="text-sm text-destructive">{importError}</p>}
             </fieldset>
-            <fieldset disabled={capturing} className="space-y-3 border-t border-border pt-5"><legend className="font-semibold">Dáng tham khảo</legend>
-              <p className="text-sm text-muted-foreground" role="status">Đang chọn: <span className="font-semibold text-foreground">{selectedPose.name_vi}</span></p>
-              <div className="grid grid-cols-2 gap-2">{SAMPLE_POSES.map(pose => <button key={pose.id} aria-pressed={selectedPose.id === pose.id} onClick={() => setSelectedPose(pose)} className={`rounded-lg border p-3 text-left text-sm transition-colors ${selectedPose.id === pose.id ? 'border-primary bg-secondary text-secondary-foreground' : 'border-border hover:bg-accent'}`}><span className="block font-semibold">{pose.name_vi}</span></button>)}</div>
+            <fieldset disabled={capturing || importing} className="space-y-3 border-t border-black border-4 shadow-[4px_4px_0_0_#000] pt-5">
+              <legend className="font-black uppercase">Màu ảnh</legend>
+              <div className="grid max-h-56 grid-cols-3 gap-2 overflow-y-auto p-1 animate-stagger" aria-label="20 bộ lọc và ảnh nguyên bản">
+                {PHOTO_FILTERS.map(item => <Button key={item.id} size="sm" variant={filterId === item.id ? 'default' : 'outline'} aria-pressed={filterId === item.id} onClick={() => setFilterId(item.id)}>{item.name}</Button>)}
+              </div>
+              <p className="text-xs text-black/80 font-bold">Áp dụng cho camera và ảnh ghép. Ảnh gốc luôn được giữ để đổi màu mà không giảm chất lượng qua nhiều lần lọc.</p>
+            </fieldset>
+            <fieldset disabled={capturing || importing} className="space-y-3"><legend className="mb-3 font-black uppercase">Bạn muốn chụp kiểu nào?</legend>
+              <div className="grid grid-cols-3 gap-2 animate-stagger">{SHOT_MODES.map(item => <Button key={item.mode} variant={shotMode === item.mode ? 'default' : 'outline'} size="sm" aria-pressed={shotMode === item.mode} onClick={() => { setShotMode(item.mode); if (item.mode !== 'quad') setOverlayPath(null); }}>{item.mode === 'single' ? '1 ảnh' : item.mode === 'triple' ? '3 ảnh' : '4 ảnh'}</Button>)}</div>
+              <label className="flex items-center justify-between gap-3 text-sm">Đếm ngược<select value={timerSeconds} onChange={event => setTimerSeconds(Number(event.target.value))} className="rounded-none border-4 border-black bg-background p-2">{[2, 3, 5, 10].map(seconds => <option key={seconds} value={seconds}>{seconds} giây</option>)}</select></label>
+              {devices.length > 1 && <label className="block text-sm">Thiết bị<select className="mt-2 w-full rounded-none border-4 border-black bg-background p-2" value={deviceId} onChange={event => { setDeviceId(event.target.value); void startCamera(facingMode, event.target.value || undefined); }}><option value="">Tự chọn camera</option>{devices.map((device, index) => <option key={device.deviceId} value={device.deviceId}>{device.label || `Camera ${index + 1}`}</option>)}</select></label>}
+            </fieldset>
+            <fieldset disabled={capturing || importing} className="space-y-3 border-t border-black border-4 shadow-[4px_4px_0_0_#000] pt-5"><legend className="font-black uppercase">Dáng tham khảo</legend>
+              <p className="text-sm text-black/80 font-bold" role="status">Đang chọn: <span className="font-black uppercase text-foreground">{selectedPose.name_vi}</span></p>
+              <div className="grid grid-cols-2 gap-2 animate-stagger">{SAMPLE_POSES.map(pose => <button key={pose.id} aria-pressed={selectedPose.id === pose.id} onClick={() => setSelectedPose(pose)} className={`rounded-none border p-3 text-left text-sm transition-colors ${selectedPose.id === pose.id ? 'border-primary bg-[#FFD166] text-secondary-foreground' : 'border-black border-4 shadow-[4px_4px_0_0_#000] hover:bg-[#06D6A0]'}`}><span className="block font-black uppercase">{pose.name_vi}</span></button>)}</div>
               <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={showContour} onChange={event => setShowContour(event.target.checked)} />Hiện hướng dẫn dáng</label>
               {showContour && <label className="flex items-center gap-3 text-sm">Độ mờ<input aria-label="Độ mờ hướng dẫn" className="min-w-0 flex-1 accent-primary" type="range" min="0.1" max="1" step="0.05" value={contourOpacity} onChange={event => setContourOpacity(Number(event.target.value))} /></label>}
             </fieldset>
-            <fieldset disabled={capturing} className="space-y-3 border-t border-border pt-5"><legend className="font-semibold">Khung ảnh</legend>
-              <div className="flex gap-3">{FRAME_COLORS.map(frame => <button key={frame.id} title={frame.name} aria-label={frame.name} aria-pressed={activeFrame.id === frame.id} onClick={() => setActiveFrame(frame)} className={`flex size-9 items-center justify-center rounded-full border-2 ${frame.bg} ${activeFrame.id === frame.id ? 'border-primary ring-2 ring-ring ring-offset-2 ring-offset-background' : 'border-border'}`}>{activeFrame.id === frame.id && <Check className="size-4 text-white" />}</button>)}</div>
+            <fieldset disabled={capturing || importing} className="space-y-3 border-t border-black border-4 shadow-[4px_4px_0_0_#000] pt-5"><legend className="font-black uppercase">Khung ảnh</legend>
+              <div className="flex gap-3">{FRAME_COLORS.map(frame => <button key={frame.id} title={frame.name} aria-label={frame.name} aria-pressed={activeFrame.id === frame.id} onClick={() => setActiveFrame(frame)} className={`flex size-9 items-center justify-center rounded-full border-2 ${frame.bg} ${activeFrame.id === frame.id ? 'border-primary ring-2 ring-ring ring-offset-2 ring-offset-background' : 'border-black border-4 shadow-[4px_4px_0_0_#000]'}`}>{activeFrame.id === frame.id && <Check className="size-4 text-white" />}</button>)}</div>
               <Link href="/frames" className="inline-block text-sm underline underline-offset-4">Chọn khung có họa tiết</Link>
-              {overlayPath && <p className="text-sm text-muted-foreground">Đã chọn khung 4 ảnh. <button className="underline" onClick={() => setOverlayPath(null)}>Bỏ khung</button></p>}
+              {overlayPath && <p className="text-sm text-black/80 font-bold">Đã chọn khung 4 ảnh. <button className="underline" onClick={() => setOverlayPath(null)}>Bỏ khung</button></p>}
             </fieldset>
-            <div className="space-y-2 border-t border-border pt-5">
+            <div className="space-y-2 border-t border-black border-4 shadow-[4px_4px_0_0_#000] pt-5">
               {capturing ? <Button className="w-full" variant="outline" onClick={reset}><X data-icon="inline-start" />Hủy lượt chụp</Button> :
-                <Button size="lg" className="w-full" disabled={!cameraReady || state === 'review'} onClick={() => { setCompletedShots([]); void start(); }}><Camera data-icon="inline-start" />Chụp {totalShots} ảnh</Button>}
-              <p className="text-center text-xs text-muted-foreground">Mỗi ảnh cách nhau {timerSeconds} giây đếm ngược.</p>
+                <Button size="lg" className="w-full" disabled={!cameraReady || importing || state === 'review'} onClick={() => { setCompletedShots([]); void start(); }}><Camera data-icon="inline-start" />Chụp {totalShots} ảnh</Button>}
+              <p className="text-center text-xs text-black/80 font-bold">Mỗi ảnh cách nhau {timerSeconds} giây đếm ngược.</p>
               {captureError && <p role="alert" className="text-sm text-destructive">{captureError}</p>}
             </div>
           </aside>
         </div>
-        <section id="review" aria-label="Xem lại ảnh" className="rounded-2xl border border-border bg-card p-5 text-card-foreground">
-          <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-xl font-semibold">Dải kỷ niệm của bạn</h2><p className="mt-1 text-sm text-muted-foreground">{completedShots.length ? 'Xem lại trước khi lưu. Ảnh gốc vẫn tải riêng được.' : 'Ảnh vừa chụp sẽ xuất hiện ở đây.'}</p></div>
-            {completedShots.length > 0 && <Button variant="outline" onClick={() => { reset(); setCompletedShots([]); }}><RotateCcw data-icon="inline-start" />Chụp lại</Button>}</div>
-          {completedShots.length > 0 && <div className="mt-5 grid gap-6 md:grid-cols-2"><div className="grid grid-cols-2 gap-3">{completedShots.map((shot, index) => <figure key={shot.id} className="space-y-2"><img src={shot.imageData} alt={`Ảnh chụp ${index + 1}`} className="w-full rounded-lg" /><figcaption><Button variant="ghost" size="sm" onClick={() => downloadShot(shot, index)}><Download data-icon="inline-start" />Ảnh gốc {index + 1}</Button></figcaption></figure>)}</div>
-            <div className="space-y-4">{composite && <><img src={composite} alt="Ảnh ghép đúng với file xuất" className="mx-auto max-h-[480px] max-w-full rounded-lg" /><Button onClick={downloadAll} className="w-full"><Download data-icon="inline-start" />Tải ảnh có khung</Button><SaveGallery image={composite} /></>}{exportError && <p role="alert" className="text-destructive">{exportError}</p>}</div></div>}
+        <section id="review" aria-label="Xem lại ảnh" className="rounded-none border border-black border-4 shadow-[4px_4px_0_0_#000] bg-white p-5 text-card-foreground">
+          <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-xl font-black uppercase">Dải kỷ niệm của bạn</h2><p className="mt-1 text-sm text-black/80 font-bold">{completedShots.length ? 'Xem lại trước khi lưu. Ảnh gốc vẫn tải riêng được.' : 'Ảnh vừa chụp sẽ xuất hiện ở đây.'}</p></div>
+            {completedShots.length > 0 && <Button disabled={importing} variant="outline" onClick={() => { reset(); handleShotsComplete([]); }}><RotateCcw data-icon="inline-start" />Chụp lại</Button>}</div>
+          {editingShot && <PhotoEditor key={editingShot.id} source={editingShot.imageData}
+            onApply={image => { setEditedPhotos(previous => ({ ...previous, [editingShot.id]: image })); setEditingId(null); }}
+            onCancel={() => setEditingId(null)} />}
+          {completedShots.length > 0 && <div className="mt-5 grid gap-6 md:grid-cols-2"><div className="grid grid-cols-2 gap-3">{completedShots.map((shot, index) => <figure key={shot.id} className="space-y-2">
+            <img src={editedPhotos[shot.id] ?? shot.imageData} style={{ filter }} alt={`Ảnh ${index + 1} xem trước`} className="w-full rounded-none" />
+            <figcaption className="flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" disabled={importing} onClick={() => setEditingId(shot.id)}>Chỉnh ảnh {index + 1}</Button>
+              {editedPhotos[shot.id] && <Button variant="ghost" size="sm" onClick={() => {
+                setEditedPhotos(previous => { const next = { ...previous }; delete next[shot.id]; return next; });
+                if (editingId === shot.id) setEditingId(null);
+              }}>Về ảnh gốc</Button>}
+              <Button variant="ghost" size="sm" onClick={() => downloadShot(shot, index)}><Download data-icon="inline-start" />Ảnh gốc {index + 1}</Button>
+            </figcaption></figure>)}</div>
+            <div className="space-y-4" aria-busy={!composite && !exportError}>
+              {!composite && !exportError && <p role="status" className="border-2 border-black bg-white p-5">Đang ghép ảnh và áp dụng bộ lọc…</p>}
+              {composite && <><img src={composite} alt="Ảnh ghép đúng với file xuất" className="mx-auto max-h-[480px] max-w-full rounded-none" /><Button onClick={downloadAll} className="w-full"><Download data-icon="inline-start" />Tải ảnh có khung</Button><SaveGallery image={composite} /></>}{exportError && <p role="alert" className="text-destructive">{exportError}</p>}</div></div>}
         </section>
       </main>
-      {cameraReady && <div className="fixed bottom-3 left-4 right-20 z-40 rounded-xl border border-border bg-background/95 p-2 shadow-sm backdrop-blur lg:hidden">
-        {capturing ? <Button className="w-full" variant="outline" onClick={reset}>Hủy · Ảnh {currentShot + 1}/{totalShots}</Button> : state === 'review' ? <a href="#review" className="block py-2 text-center text-sm font-semibold">Xem ảnh vừa chụp</a> : <Button className="w-full" onClick={() => { setCompletedShots([]); void start(); }}><Camera data-icon="inline-start" />Chụp {totalShots} ảnh</Button>}
+      {cameraReady && <div className="fixed bottom-3 left-4 right-20 z-40 rounded-none border border-black border-4 shadow-[4px_4px_0_0_#000] bg-background/95 p-2 shadow-[4px_4px_0_0_#000] backdrop-blur lg:hidden">
+        {capturing ? <Button className="w-full" variant="outline" onClick={reset}>Hủy · Ảnh {currentShot + 1}/{totalShots}</Button> : state === 'review' ? <a href="#review" className="block py-2 text-center text-sm font-black uppercase">Xem ảnh vừa chụp</a> : <Button disabled={importing} className="w-full" onClick={() => { setCompletedShots([]); void start(); }}><Camera data-icon="inline-start" />Chụp {totalShots} ảnh</Button>}
       </div>}
     </div>
   );

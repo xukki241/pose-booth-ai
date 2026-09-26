@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="1800" viewBox="0 0 600 1800">
+  <title>Khung Dâu hồng bốn ảnh, không watermark</title>
+  <defs><mask id="slots"><rect width="600" height="1800" fill="white"/><g fill="black"><rect x="50" y="50" width="500" height="375"/><rect x="50" y="475" width="500" height="375"/><rect x="50" y="900" width="500" height="375"/><rect x="50" y="1325" width="500" height="375"/></g></mask></defs>
+  <rect width="600" height="1800" fill="#ffe4ec" mask="url(#slots)"/>
+  <g fill="none" stroke="#b42355" stroke-width="4"><rect x="24" y="24" width="552" height="1752" rx="12"/><rect x="48" y="48" width="504" height="379"/><rect x="48" y="473" width="504" height="379"/><rect x="48" y="898" width="504" height="379"/><rect x="48" y="1323" width="504" height="379"/></g>
+  <g fill="#b42355"><circle cx="270" cy="1742" r="8"/><circle cx="300" cy="1742" r="8"/><circle cx="330" cy="1742" r="8"/></g>
+</svg>
