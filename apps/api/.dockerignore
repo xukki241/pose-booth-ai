@@ -1,0 +1,9 @@
+.venv
+.env*
+.runtime
+__pycache__
+**/__pycache__
+*.pt
+models/*.pt
+*.log
+tests

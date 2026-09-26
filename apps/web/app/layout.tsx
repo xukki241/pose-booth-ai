@@ -1,20 +1,35 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Space_Mono } from "next/font/google";
+import Script from "next/script";
+import { Geist_Mono, Nunito } from "next/font/google";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import "./globals.css";
 
-const spaceGrotesk = Space_Grotesk({
+const nunito = Nunito({
   subsets: ["latin"],
-  variable: "--font-space-grotesk",
-  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-nunito",
   display: "swap",
 });
 
-const spaceMono = Space_Mono({
+const geistMono = Geist_Mono({
   subsets: ["latin"],
-  variable: "--font-space-mono",
-  weight: ["400", "700"],
+  variable: "--font-geist-mono",
   display: "swap",
 });
+
+const themeBootstrap = `(() => {
+  try {
+    const raw = localStorage.getItem('pose-booth-theme');
+    const saved = raw ? JSON.parse(raw)?.state?.theme : 'system';
+    const theme = ['light', 'dark', 'system'].includes(saved) ? saved : 'system';
+    const resolved = theme === 'system'
+      ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : theme;
+    document.documentElement.classList.toggle('dark', resolved === 'dark');
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = resolved;
+  } catch {}
+})();`;
 
 export const metadata: Metadata = {
   title: "Pose-Booth AI — AI Pose Detection Studio",
@@ -24,9 +39,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${spaceGrotesk.variable} ${spaceMono.variable}`}>
-      <body>
-        {children}
+    <html lang="vi" suppressHydrationWarning className={`${nunito.variable} ${geistMono.variable}`}>
+      <body className="font-sans antialiased">
+        <Script id="theme-bootstrap" strategy="beforeInteractive">
+          {themeBootstrap}
+        </Script>
+        <ThemeProvider>
+          {children}
+          <ThemeToggle />
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -7,12 +7,12 @@ Dual-Profile AI Server:
 from __future__ import annotations
 
 import logging
+import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import settings
-from core.engine import YOLOv8PoseEngine
 from services.library import pose_library_service
 from routers import pose, suggest, score
 
@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(na
 logger = logging.getLogger("api_main")
 
 # Global engine instance
-pose_engine: YOLOv8PoseEngine | None = None
+pose_engine = None
 
 
 @asynccontextmanager
@@ -30,12 +30,21 @@ async def lifespan(app: FastAPI):
     logger.info(f"=== Starting Pose-Booth AI API in [{settings.AI_PROFILE.upper()}] profile ===")
     logger.info(f"Hardware Target: Device={settings.DEVICE} | FP16={settings.USE_FP16}")
 
-    pose_engine = YOLOv8PoseEngine()
+    if os.getenv("AI_RUNTIME_URL"):
+        from core.remote_engine import RemotePoseEngine
+        pose_engine = RemotePoseEngine(os.environ["AI_RUNTIME_URL"])
+    else:
+        from core.engine import YOLOv8PoseEngine
+        pose_engine = YOLOv8PoseEngine()
     app.state.pose_engine = pose_engine
 
     # Ensure pose vector cache is loaded
     pose_library_service.load_library()
     app.state.pose_library = pose_library_service
+    if os.getenv("DATABASE_URL"):
+        from services.product_store import migrate, expire_assets
+        migrate()
+        expire_assets()
 
     yield
 
@@ -52,7 +61,7 @@ app = FastAPI(
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "*"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
@@ -62,19 +71,32 @@ app.add_middleware(
 app.include_router(pose.router, prefix="/api/pose", tags=["Pose Analysis"])
 app.include_router(suggest.router, prefix="/api/pose", tags=["Pose Library"])
 app.include_router(score.router, prefix="/api/pose", tags=["Pose Scoring"])
+if os.getenv("DATABASE_URL"):
+    from routers.product import router as product_router
+    app.include_router(product_router, tags=["Product"])
 
 
 @app.get("/health")
-async def health_check() -> dict:
+def health_check() -> dict:
     """Health check endpoint displaying active profile and engine status."""
+    ready = pose_engine.is_ready() if pose_engine else False
     return {
         "status": "ok",
         "profile": settings.AI_PROFILE,
         "device": settings.DEVICE,
-        "fp16_enabled": settings.USE_FP16,
-        "engine_ready": pose_engine.is_ready() if pose_engine else False,
+        "fp16_enabled": bool(pose_engine and pose_engine.fp16_enabled),
+        "engine_ready": ready,
         "library_poses_cached": len(pose_library_service.poses),
     }
+
+
+@app.get("/api/v1/capabilities")
+def capabilities():
+    health = health_check()
+    return {"pose_inference": health["engine_ready"], "pose_scoring": True,
+            "photo_persistence": bool(os.getenv("DATABASE_URL")),
+            "training_collection": False, "profile": health["profile"],
+            "fp16_enabled": health["fp16_enabled"]}
 
 
 if __name__ == "__main__":

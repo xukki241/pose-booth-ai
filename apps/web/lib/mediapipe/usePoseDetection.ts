@@ -8,7 +8,7 @@
  *   const videoRef = useRef<HTMLVideoElement>(null);
  *   const { landmarks, confidence, isLoading } = usePoseDetection(videoRef);
  */
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import type { MediaPipeLandmark } from "@/types/pose";
 
 // COCO-compatible indices from MediaPipe 33-landmark set
@@ -68,9 +68,11 @@ export function usePoseDetection(
   const poseLandmarkerRef = useRef<unknown>(null);
   const animFrameRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
+  const lastVideoTimeRef = useRef(-1);
   const fpsCounterRef = useRef<number[]>([]);
+  const generationRef = useRef(0);
 
-  const initMediaPipe = useCallback(async () => {
+  const initMediaPipe = useCallback(async (generation: number) => {
     try {
       setIsLoading(true);
       setError(null);
@@ -81,7 +83,7 @@ export function usePoseDetection(
       );
 
       const vision = await FilesetResolver.forVisionTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+        "/mediapipe/wasm"
       );
 
       // Prioritize local static model file for zero latency
@@ -101,12 +103,14 @@ export function usePoseDetection(
         minTrackingConfidence: 0.5,
       });
 
+      if (generationRef.current !== generation) { poseLandmarker.close(); return; }
       poseLandmarkerRef.current = poseLandmarker;
       setIsLoading(false);
       setIsDetecting(true);
     } catch (err) {
+      if (generationRef.current !== generation) return;
       console.error("MediaPipe init error:", err);
-      setError("Could not load AI model. Check internet connection.");
+      setError("Không tải được model local. Kiểm tra assets MediaPipe.");
       setIsLoading(false);
     }
   }, []);
@@ -121,6 +125,14 @@ export function usePoseDetection(
     }
 
     const now = performance.now();
+    if (video.currentTime === lastVideoTimeRef.current) {
+      if (now - lastTimeRef.current > 1500) {
+        setLandmarks(previous => previous.length ? [] : previous);
+        setFps(0); setConfidence(0);
+      }
+      animFrameRef.current = requestAnimationFrame(processFrame);
+      return;
+    }
 
     // Cap at 30fps
     if (now - lastTimeRef.current < 33) {
@@ -129,9 +141,11 @@ export function usePoseDetection(
     }
 
     lastTimeRef.current = now;
+    lastVideoTimeRef.current = video.currentTime;
 
     try {
       const results = landmarker.detectForVideo(video, now);
+      setError(null);
 
       if (results.landmarks && results.landmarks.length > 0) {
         const lms = results.landmarks[0] as MediaPipeLandmark[];
@@ -155,20 +169,33 @@ export function usePoseDetection(
       );
       setFps(fpsCounterRef.current.length);
     } catch {
-      // Silent fail on individual frames
+      setLandmarks([]);
+      setConfidence(0);
+      setFps(0);
+      setError("Không xử lý được frame camera");
     }
 
     animFrameRef.current = requestAnimationFrame(processFrame);
   }, [videoRef, enabled]);
 
   useEffect(() => {
-    initMediaPipe();
+    const generation = ++generationRef.current;
+    lastVideoTimeRef.current = -1;
+    setLandmarks([]);
+    setConfidence(0);
+    setFps(0);
+    setIsDetecting(false);
+    if (enabled) void initMediaPipe(generation);
+    else setIsLoading(false);
     return () => {
+      generationRef.current++;
+      (poseLandmarkerRef.current as { close(): void } | null)?.close();
+      poseLandmarkerRef.current = null;
       if (animFrameRef.current) {
         cancelAnimationFrame(animFrameRef.current);
       }
     };
-  }, [initMediaPipe]);
+  }, [initMediaPipe, enabled]);
 
   useEffect(() => {
     if (isDetecting && enabled) {
@@ -182,9 +209,9 @@ export function usePoseDetection(
   }, [isDetecting, enabled, processFrame]);
 
   // Convert MediaPipe 33 landmarks to COCO 17 keypoints
-  const cocoKeypoints = Object.entries(MP_TO_COCO_MAP)
+  const cocoKeypoints = useMemo(() => landmarks.length !== 33 ? [] : Object.entries(MP_TO_COCO_MAP)
     .sort(([, a], [, b]) => a - b)
-    .map(([mpIdx]) => landmarks[Number(mpIdx)] ?? { x: 0, y: 0, z: 0, visibility: 0 });
+    .map(([mpIdx]) => landmarks[Number(mpIdx)]), [landmarks]);
 
   return { landmarks, cocoKeypoints, confidence, isLoading, isDetecting, fps, error };
 }

@@ -29,7 +29,7 @@ class PoseLibraryService:
     def load_library(self) -> None:
         json_file = self.data_dir / "poses.json"
         if not json_file.exists():
-            logger.warning(f"Pose library file not found at {json_file}. Initializing with defaults.")
+            logger.warning(f"Pose library file not found at {json_file}; catalog unavailable.")
             self._load_fallback_poses()
             return
 
@@ -66,20 +66,10 @@ class PoseLibraryService:
         return [p for p in self.poses if p.get("category") == category][:limit]
 
     def _load_fallback_poses(self) -> None:
-        fallback = [
-            {
-                "id": "power_pose",
-                "name": "Power Pose",
-                "name_vi": "Tư Thế Tự Tin",
-                "category": "portrait",
-                "difficulty": "easy",
-                "description": "Đứng thẳng, hai tay chống hông tự tin.",
-                "keypoints": [[0.5, 0.2 + (i * 0.04)] for i in range(17)]
-            }
-        ]
-        self.poses = fallback
-        self._pose_map = {p["id"]: p for p in fallback}
-        self._vector_cache = {p["id"]: np.array(p["keypoints"], dtype=np.float32) for p in fallback}
+        # Fail closed: do not fabricate a person from a vertical line of points.
+        self.poses = []
+        self._pose_map = {}
+        self._vector_cache = {}
 
 
 # Global singleton instance

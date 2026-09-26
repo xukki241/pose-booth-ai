@@ -1,5 +1,8 @@
 # Dependencies
 node_modules/
+apps/web/public/mediapipe/wasm/
+ai/artifacts/
+ai/data/
 .pnp
 .pnp.js
 
@@ -13,6 +16,7 @@ apps/api/**/__pycache__/
 apps/api/.venv/
 apps/api/*.egg-info/
 apps/api/.pytest_cache/
+apps/api/.runtime/
 ai/**/__pycache__/
 ai/.venv/
 
@@ -31,6 +35,8 @@ prismo-photo-ref/
 
 # Environment files
 .env
+.env.pilot
+certs/
 apps/api/.env
 apps/web/.env.local
 apps/web/.env*.local
@@ -57,3 +63,6 @@ build/
 
 # Antigravity temp
 .gemini/
+
+# Antigravity Scratch Files
+scratch/

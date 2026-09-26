@@ -35,7 +35,7 @@ async def suggest_poses(
     limit: int = Query(default=20, ge=1, le=100),
 ) -> PoseSuggestResponse:
     """Return pose templates from the in-memory pose library."""
-    all_poses = pose_library_service.list_poses(category=category, limit=limit)
+    all_poses = pose_library_service.list_poses(category=category, limit=len(pose_library_service.poses))
 
     if difficulty:
         all_poses = [p for p in all_poses if p.get("difficulty") == difficulty]

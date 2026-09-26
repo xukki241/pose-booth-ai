@@ -25,9 +25,11 @@ def run_benchmark():
     engine = YOLOv8PoseEngine()
     init_time = (time.perf_counter() - t0) * 1000
     print(f"[1/4] Engine loaded in {init_time:.2f} ms")
+    if not engine.is_ready():
+        raise RuntimeError(f"AI engine failed to initialize: {engine.load_error}")
 
     # 2. Test Dummy Inference (10 iterations)
-    dummy_img = np.zeros((settings.EDGE_IMG_SIZE, settings.EDGE_IMG_SIZE, 3), dtype=np.uint8)
+    dummy_img = np.zeros((engine.img_size, engine.img_size, 3), dtype=np.uint8)
     # Draw simple stick figure so keypoint detector has some signal
     dummy_img[100:300, 200:400] = 200
 

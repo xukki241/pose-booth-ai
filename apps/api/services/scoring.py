@@ -181,8 +181,15 @@ def score_pose_pair(
     # Parse target coords
     if len(target_kps) > 0 and isinstance(target_kps[0], (list, tuple)):
         t_coords = np.array([[pt[0], pt[1]] for pt in target_kps], dtype=np.float32)
+        t_vis = np.array([pt[2] if len(pt) > 2 else 1.0 for pt in target_kps], dtype=np.float32)
     else:
         t_coords = np.array([[kp.get("x", 0.0), kp.get("y", 0.0)] for kp in target_kps], dtype=np.float32)
+        t_vis = np.array([kp.get("confidence", 1.0) for kp in target_kps], dtype=np.float32)
+    u_vis = np.minimum(u_vis, t_vis)
+    if np.count_nonzero(u_vis > 0.3) < 6:
+        return {"score": 0, "oks_score": 0.0, "anatomy_score": 0.0,
+                "match_level": "poor", "message": "Chưa đủ khớp rõ để chấm pose",
+                "feedback": ["Đưa các khớp cần chấm vào khung hình"], "profile_active": settings.AI_PROFILE}
 
     # Calculate metrics
     oks = SimilarityScorer.calculate_oks(u_coords, t_coords, visibility=u_vis)
@@ -206,7 +213,10 @@ def score_pose_pair(
         match_level = "poor"
         message = "Chưa khớp, hãy quan sát dáng mẫu và điều chỉnh lại."
 
-    feedback = SimilarityScorer.generate_directional_feedback(u_coords, t_coords)
+    # Never give directions based on hidden joints.
+    feedback = (SimilarityScorer.generate_directional_feedback(u_coords, t_coords)
+                if np.all(u_vis[[0, 5, 6, 9, 10]] > 0.3)
+                else ["Đưa đầu, vai và hai cổ tay vào khung hình để nhận hướng dẫn"])
 
     return {
         "score": final_score,
