@@ -31,10 +31,10 @@ def admin(value: str = Depends(token)):
 
 def rate_limit(key: str, limit: int):
     try:
-        cache = redis.Redis.from_url(os.environ["REDIS_URL"], socket_connect_timeout=1, socket_timeout=1)
         script = "local n=redis.call('INCR',KEYS[1]); if n==1 then redis.call('EXPIRE',KEYS[1],60) end; return n"
-        count = cache.eval(script, 1, "limit:" + key)
-        cache.close()
+        # Close the connection even when Redis fails; do not leak per-request clients.
+        with redis.Redis.from_url(os.environ["REDIS_URL"], socket_connect_timeout=1, socket_timeout=1) as cache:
+            count = cache.eval(script, 1, "limit:" + key)
         if count > limit:
             raise HTTPException(429, "Rate limit exceeded")
     except redis.RedisError as exc:

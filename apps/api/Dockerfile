@@ -10,8 +10,8 @@ RUN apt-get update && apt-get install -y \
 
 # Install the CUDA-enabled PyTorch wheels before application dependencies.
 COPY requirements.txt requirements-gpu-cu128.txt ./
-RUN pip install --no-cache-dir -r requirements-gpu-cu128.txt \
-    && pip install --no-cache-dir -r requirements.txt
+RUN pip --default-timeout=1000 install --no-cache-dir -r requirements-gpu-cu128.txt \
+    && pip --default-timeout=1000 install --no-cache-dir -r requirements.txt
 
 RUN useradd --create-home --uid 10001 app
 COPY --chown=app:app . .

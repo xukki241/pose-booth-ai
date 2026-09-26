@@ -1,8 +1,8 @@
 """
 Pose-Booth AI FastAPI Backend
 Dual-Profile AI Server:
-  - Profile 1 (Edge): Laptop RTX 4050 6GB / CPU, FP16 Autocast, in-memory cache, <8ms inference.
-  - Profile 2 (Studio): Desktop RTX 3060 12GB+, multi-person tracking, deep OKS refinement.
+  - Edge and studio profiles select inference parameters from validated settings.
+  - Actual device, precision and readiness are exposed by health; latency requires measurement.
 """
 from __future__ import annotations
 

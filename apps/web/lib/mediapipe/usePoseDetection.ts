@@ -2,7 +2,7 @@
 
 /**
  * usePoseDetection — MediaPipe Pose realtime hook
- * Processes webcam frames at ~30fps using MediaPipe Tasks Vision WASM.
+ * Schedules at most 30 inferences per second; measured throughput depends on the device.
  *
  * Usage:
  *   const videoRef = useRef<HTMLVideoElement>(null);
@@ -86,7 +86,7 @@ export function usePoseDetection(
         "/mediapipe/wasm"
       );
 
-      // Prioritize local static model file for zero latency
+      // Serve the pinned model locally; initialization and inference still have a cost.
       const modelAssetPath = typeof window !== "undefined"
         ? `${window.location.origin}/models/pose_landmarker_lite.task`
         : "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task";

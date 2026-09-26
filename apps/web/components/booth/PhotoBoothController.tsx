@@ -90,7 +90,7 @@ export function CountdownDisplay({ countdown, total }: { countdown: number; tota
         { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(2)" }
       );
     },
-    { dependencies: [countdown], scope: containerRef }
+    { dependencies: [countdown], scope: containerRef, revertOnUpdate: true }
   );
 
   const radius = 45;
@@ -109,7 +109,7 @@ export function CountdownDisplay({ countdown, total }: { countdown: number; tota
             stroke="var(--border)"
             strokeWidth="6"
           />
-          {/* Progress ring with violet prism glow */}
+          {/* Progress ring uses the shared theme accent. */}
           <circle
             cx="50" cy="50" r={radius}
             fill="none"

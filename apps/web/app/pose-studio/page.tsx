@@ -1,4 +1,7 @@
 "use client";
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
+
 import { useRef, useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Camera, ArrowLeft, ArrowRight, RefreshCw, Grid3X3 } from "lucide-react";
@@ -8,7 +11,7 @@ import { HuaweiArContour, type ViewfinderOrientation } from "@/components/pose/H
 import type { PoseTemplate } from "@/types/pose";
 import { mapCoverPoints } from "@/lib/camera-transform";
 import { useCamera } from "@/lib/useCamera";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "c-comic-ui";
 
 const ANATOMICAL_RICH_POSES: PoseTemplate[] = [
   {
@@ -134,6 +137,18 @@ const CATEGORIES = [
 
 
 export default function PoseStudioPage() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    gsap.from(".animate-stagger > *", {
+      y: 30, opacity: 0, duration: 0.5, stagger: 0.1, ease: "back.out(1.5)"
+    });
+    gsap.from(".animate-fade", {
+      opacity: 0, scale: 0.98, duration: 0.6, ease: "power2.out"
+    });
+  }, { scope: containerRef });
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const camera = useCamera(videoRef);
@@ -152,7 +167,7 @@ export default function PoseStudioPage() {
     videoRef.current?.videoWidth ?? 0, videoRef.current?.videoHeight ?? 0,
     orientation === "portrait" ? 3 : 16, orientation === "portrait" ? 4 : 9, facingMode === "user"),
     [detection.cocoKeypoints, orientation, facingMode]);
-  const { score, feedback } = usePoseScore(camera.ready && showContour, points, selectedPose, `${orientation}:${facingMode}`);
+  const { score, feedback, isLoading: isScoreLoading } = usePoseScore(camera.ready && showContour, points, selectedPose, `${orientation}:${facingMode}`);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -177,21 +192,21 @@ export default function PoseStudioPage() {
   };
 
   return <div className="min-h-screen bg-background text-foreground">
-    <header className="border-b border-border"><nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+    <header className="border-b border-black border-4 shadow-[4px_4px_0_0_#000]"><nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 animate-fade">
       <Link href="/" className="flex items-center gap-2 font-bold"><ArrowLeft className="size-4" />Pose-Booth</Link>
       <Link href={`/booth?pose=${encodeURIComponent(selectedPose.id)}`} className={buttonVariants({ size: "sm" })}>Chụp dáng này<ArrowRight className="ml-2 size-4" /></Link>
     </nav></header>
-    <main className="mx-auto max-w-7xl space-y-6 p-4 pb-24 sm:p-6">
-      <div><h1 className="text-3xl font-bold tracking-tight">Tìm dáng thật tự nhiên.</h1><p className="mt-1 text-sm text-muted-foreground">Thử một dáng, điều chỉnh theo hướng dẫn rồi chuyển sang phòng chụp.</p></div>
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+    <main ref={containerRef} className="mx-auto max-w-7xl space-y-6 p-4 pb-24 sm:p-6">
+      <div><h1 className="text-3xl font-bold tracking-tight">Tìm dáng thật tự nhiên.</h1><p className="mt-1 text-sm text-black/80 font-bold">Thử một dáng, điều chỉnh theo hướng dẫn rồi chuyển sang phòng chụp.</p></div>
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px] animate-stagger">
         <section className="min-w-0 space-y-4" aria-label="Luyện dáng với camera">
-          <div className={`relative mx-auto overflow-hidden rounded-2xl border border-border bg-muted ${orientation === "portrait" ? "aspect-[3/4] w-full max-w-[480px]" : `aspect-video w-full ${camera.ready ? '' : 'min-h-80'}`}`}>
+          <div className={`relative mx-auto overflow-hidden rounded-none border border-black border-4 shadow-[4px_4px_0_0_#000] bg-muted ${orientation === "portrait" ? "aspect-[3/4] w-full max-w-[480px]" : `aspect-video w-full ${camera.ready ? '' : 'min-h-80'}`}`}>
             <video ref={videoRef} muted playsInline className={`absolute inset-0 size-full object-cover ${facingMode === "user" ? "scale-x-[-1]" : ""} ${camera.ready ? "" : "invisible"}`} />
             <canvas ref={canvasRef} width={orientation === "portrait" ? 720 : 1280} height={orientation === "portrait" ? 960 : 720} className="pointer-events-none absolute inset-0 size-full" />
             {camera.ready && <HuaweiArContour landmarks={showContour ? points : []} targetLandmarks={showContour ? selectedPose.keypoints : []} canvasRef={canvasRef} width={orientation === "portrait" ? 720 : 1280} height={orientation === "portrait" ? 960 : 720} opacity={opacity} score={score ?? 0} showScoreHud={false} orientation={orientation} showGrid={showGrid} />}
             {!camera.ready && <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-5 text-center">
-              <Camera className="size-8" /><h2 className="text-lg font-semibold">Không cần tạo dáng hoàn hảo ngay</h2>
-              <p className="max-w-xs text-sm text-muted-foreground">Bật camera để thử. Trang này không lưu ảnh của bạn.</p>
+              <Camera className="size-8" /><h2 className="text-lg font-black uppercase">Không cần tạo dáng hoàn hảo ngay</h2>
+              <p className="max-w-xs text-sm text-black/80 font-bold">Bật camera để thử. Trang này không lưu ảnh của bạn.</p>
               {camera.error && <p className="max-w-sm text-sm text-destructive" role="alert">{camera.error}</p>}
               <Button disabled={camera.loading} onClick={() => camera.start(facingMode)}>{camera.loading ? "Đang chờ quyền…" : "Mở camera"}</Button>
               {camera.loading && <Button variant="ghost" onClick={camera.stop}>Hủy yêu cầu</Button>}
@@ -203,19 +218,19 @@ export default function PoseStudioPage() {
             <Button variant="outline" size="sm" disabled={camera.loading} onClick={flip}><RefreshCw data-icon="inline-start" />Đổi camera</Button>
             {camera.ready && <Button variant="ghost" size="sm" onClick={camera.stop}>Tắt camera</Button>}
           </div>
-          <div className="space-y-3 rounded-xl border border-border bg-card p-5 text-card-foreground">
-            <div className="flex items-start justify-between gap-4"><div><h2 className="text-lg font-semibold">{selectedPose.name_vi}</h2><p className="mt-1 text-sm text-muted-foreground">{selectedPose.description}</p></div><span className="shrink-0 font-mono text-2xl font-semibold">{score === null ? "—" : `${score}%`}</span></div>
-            <p role="status" className="text-sm">{detection.error || (detection.isLoading && camera.ready ? "Đang tải model local…" : feedback[0])}</p>
-            <div className="flex flex-wrap items-center gap-4 border-t border-border pt-3 text-sm"><label className="flex items-center gap-2"><input type="checkbox" checked={showContour} onChange={event => setShowContour(event.target.checked)} />Hiện dáng mẫu</label><label className="flex min-w-0 items-center gap-2">Độ mờ<input type="range" className="w-24 accent-primary" min=".1" max="1" step=".05" value={opacity} onChange={event => setOpacity(Number(event.target.value))} /></label></div>
-            <p className="text-xs text-muted-foreground">Điểm biểu thị độ giống dáng tham khảo, không phải đánh giá cơ thể hay sức khỏe. Silhouette hiện được dựng từ keypoints, chưa phải mask người thật.</p>
+          <div className="space-y-3 rounded-none border border-black border-4 shadow-[4px_4px_0_0_#000] bg-white p-5 text-card-foreground">
+            <div className="flex items-start justify-between gap-4"><div><h2 className="text-lg font-black uppercase">{selectedPose.name_vi}</h2><p className="mt-1 text-sm text-black/80 font-bold">{selectedPose.description}</p></div><span className="shrink-0 font-mono text-2xl font-black uppercase">{score === null ? "—" : `${score}%`}</span></div>
+            <p role="status" aria-busy={(detection.isLoading && camera.ready && showContour) || isScoreLoading} className="text-sm">{detection.error || (detection.isLoading && camera.ready && showContour ? "Đang tải model local…" : feedback[0])}</p>
+            <div className="flex flex-wrap items-center gap-4 border-t border-black border-4 shadow-[4px_4px_0_0_#000] pt-3 text-sm"><label className="flex items-center gap-2"><input type="checkbox" checked={showContour} onChange={event => setShowContour(event.target.checked)} />Hiện dáng mẫu</label><label className="flex min-w-0 items-center gap-2">Độ mờ<input type="range" className="w-24 accent-primary" min=".1" max="1" step=".05" value={opacity} onChange={event => setOpacity(Number(event.target.value))} /></label></div>
+            <p className="text-xs text-black/80 font-bold">Điểm biểu thị độ giống dáng tham khảo, không phải đánh giá cơ thể hay sức khỏe. Silhouette hiện được dựng từ keypoints, chưa phải mask người thật.</p>
           </div>
         </section>
-        <aside className="space-y-4 rounded-2xl border border-border bg-card p-5 text-card-foreground">
-          <div><h2 className="font-semibold">Thư viện dáng</h2><p className="mt-1 text-xs text-muted-foreground">{catalogStatus} · {poses.length} mẫu</p></div>
-          <label className="block text-sm">Tìm dáng<input value={search} onChange={event => setSearch(event.target.value)} placeholder="Tên hoặc kiểu dáng" className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2" /></label>
+        <aside className="space-y-4 rounded-none border border-black border-4 shadow-[4px_4px_0_0_#000] bg-white p-5 text-card-foreground">
+          <div><h2 className="font-black uppercase">Thư viện dáng</h2><p className="mt-1 text-xs text-black/80 font-bold">{catalogStatus} · {poses.length} mẫu</p></div>
+          <label className="block text-sm">Tìm dáng<input value={search} onChange={event => setSearch(event.target.value)} placeholder="Tên hoặc kiểu dáng" className="mt-2 w-full rounded-none border-4 border-black bg-background px-3 py-2" /></label>
           <div className="flex flex-wrap gap-2">{CATEGORIES.map(item => <Button key={item.id} size="sm" variant={category === item.id ? "default" : "outline"} aria-pressed={category === item.id} onClick={() => setCategory(item.id)}>{item.label}</Button>)}</div>
-          <div className="max-h-[560px] space-y-2 overflow-y-auto">{visiblePoses.map(pose => <button key={pose.id} aria-pressed={selectedPose.id === pose.id} onClick={() => setSelectedPose(pose)} className={`w-full rounded-xl border p-3 text-left transition-colors ${selectedPose.id === pose.id ? "border-primary bg-secondary" : "border-border hover:bg-accent"}`}><span className="block font-semibold">{pose.name_vi}</span><span className="mt-1 block text-sm text-muted-foreground">{pose.description}</span></button>)}
-            {!visiblePoses.length && <p className="py-6 text-sm text-muted-foreground">Không có dáng phù hợp. Thử từ khóa khác.</p>}</div>
+          <div className="max-h-[560px] space-y-2 overflow-y-auto">{visiblePoses.map(pose => <button key={pose.id} aria-pressed={selectedPose.id === pose.id} onClick={() => setSelectedPose(pose)} className={`w-full rounded-none border p-3 text-left transition-colors ${selectedPose.id === pose.id ? "border-primary bg-[#FFD166]" : "border-black border-4 shadow-[4px_4px_0_0_#000] hover:bg-[#06D6A0]"}`}><span className="block font-black uppercase">{pose.name_vi}</span><span className="mt-1 block text-sm text-black/80 font-bold">{pose.description}</span></button>)}
+            {!visiblePoses.length && <p className="py-6 text-sm text-black/80 font-bold">Không có dáng phù hợp. Thử từ khóa khác.</p>}</div>
         </aside>
       </div>
     </main>

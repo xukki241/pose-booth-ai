@@ -18,6 +18,9 @@ jobs:
       - run: npm ci
       - run: node --experimental-strip-types --test tests/camera-transform.test.mjs
       - run: node --test tests/camera-lifecycle.test.mjs
+      - run: node --experimental-strip-types --test tests/photo-filters.test.mjs
+      - run: node --experimental-strip-types --test tests/photo-edit.test.mjs
+      - run: node --test tests/pose-score-state.test.mjs
       - run: npm run build
   python-contracts:
     runs-on: ubuntu-latest
