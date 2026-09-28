@@ -1,9 +1,8 @@
 .venv
-.env*
-.runtime
 __pycache__
-**/__pycache__
+.pytest_cache
+.runtime
 *.pt
-models/*.pt
-*.log
-tests
+*.pyc
+.env
+.egg-info

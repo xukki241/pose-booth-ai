@@ -1,6 +1,16 @@
 # Pose-Booth AI
 
-Photobooth local-first đang phát triển cho pilot một người mỗi phiên trên RTX 3060. Frontend chuẩn là **apps/web (Next.js)**; frontend Vite ở root là legacy, không phát triển hai UI độc lập.
+Photobooth local-first. **Giao diện đã khóa C-Comic UI 1.2.0, light-only** (merge GitHub PR #2). Không dark theme.
+
+- Web kiosk: `apps/web` (Next.js + `c-comic-ui@1.2.0`)
+- Mobile: `apps/mobile` (Flutter, cùng token comic)
+- Test điện thoại: [docs/FLUTTER_ANDROID_STUDIO.md](docs/FLUTTER_ANDROID_STUDIO.md)
+
+```powershell
+docker compose -f docker-compose.dev.yml up --build -d api
+cd apps/mobile
+flutter run --dart-define=API_BASE=http://127.0.0.1:8000
+```
 
 ## Bắt đầu
 
@@ -22,7 +32,7 @@ Mở **http://localhost:8080/booth**. Cần weights local được phép dùng v
 
 Chọn dáng / khung → mở camera → countdown → xem lại ảnh gốc và ảnh ghép → tải xuống → tùy chọn đồng ý lưu local / QR. Thời hạn gallery 24 giờ tính từ lúc tạo phiên. QR chỉ đọc và có thể thu hồi. Training consent tách biệt, hiện chưa bật thu thập từ khách.
 
-Prismo semantic theme có system/light/dark, Zustand lưu lựa chọn. Model pose trên browser dùng assets local đã ghim package lock; scoring dùng API, không sinh điểm ngẫu nhiên. Đường viền pose hiện vẫn là hình dựng từ keypoints, **chưa phải segmentation mask từ ảnh tham chiếu**.
+Prismo semantic theme đã được thay bằng C-Comic **trắng-only**. Scoring dùng API, không sinh điểm ngẫu nhiên.
 
 ## Kiến trúc đã triển khai
 

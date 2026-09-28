@@ -66,3 +66,13 @@ build/
 
 # Antigravity Scratch Files
 scratch/
+
+# Flutter
+apps/mobile/.dart_tool/
+apps/mobile/.idea/
+apps/mobile/build/
+apps/mobile/.flutter-plugins
+apps/mobile/.flutter-plugins-dependencies
+
+# Superpowers scratch
+.superpowers/

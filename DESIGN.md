@@ -4,6 +4,7 @@
 - Nền trắng duy nhất, không đổi theo hệ điều hành hoặc lựa chọn theme cũ.
 - Một UI kit: c-comic-ui 1.2.0 đã cài trong worktree theo yêu cầu Comic UI mới. Giữ nền trang trắng, viền ink và bóng lệch ngắn; màu khối chỉ dùng cho thành phần nhấn. Không thêm thư viện component song song.
 - Nunito cho nội dung; Geist Mono cho số liệu. Chữ charcoal, primary #b42355, secondary #fff1f5, muted foreground #62565c.
+- App Flutter (`apps/mobile`) dùng cùng token light-only: nền `#FFFFFF`, ink `#171717`, primary `#B42355`, secondary `#FFF1F5`, accent `#FFE4EC`, muted `#62565C`, bóng lệch 3px. `ThemeMode.light` cố định; không `Brightness.dark`.
 - Dùng semantic token background/foreground, card/card-foreground, primary/primary-foreground. Không dùng chữ sáng trên nền trắng hoặc gradient xám.
 - Comic tokens: border 2px, radius 8px, shadow lệch 3px. Nút có vùng chạm tối thiểu 44px. Panel tác nghiệp không cần viền 8px hoặc chữ uppercase cho mọi đoạn mô tả.
 - Giữ route, API contract và workflow. Không sửa frontend Vite legacy.

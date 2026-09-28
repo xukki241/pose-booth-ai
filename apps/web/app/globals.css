@@ -2,8 +2,6 @@
 @source "../node_modules/c-comic-ui";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
