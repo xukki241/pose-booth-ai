@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
+import { ComicNav } from '@/components/motion/ComicNav';
 
 export default function GalleryPage() {
   const [photos, setPhotos] = useState<{ id: string; url: string }[]>([]);
@@ -36,7 +36,7 @@ export default function GalleryPage() {
     return () => { controller.abort(); urls.forEach(url => URL.revokeObjectURL(url)); };
   }, []);
   return <main className="mx-auto max-w-5xl space-y-6 p-6">
-    <Link href="/" className="text-primary underline">Pose-Booth</Link>
+    <ComicNav />
     <h1 className="text-3xl font-bold">Ảnh của bạn</h1>
     <p role="status" className="text-muted-foreground">{message}</p>
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{photos.map(photo => <figure key={photo.id} className="rounded-xl border border-border bg-card p-4">

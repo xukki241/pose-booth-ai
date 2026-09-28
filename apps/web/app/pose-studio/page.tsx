@@ -3,15 +3,15 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 
 import { useRef, useState, useEffect, useMemo } from "react";
-import Link from "next/link";
-import { Camera, ArrowLeft, ArrowRight, RefreshCw, Grid3X3 } from "lucide-react";
+import { Camera, RefreshCw, Grid3X3 } from "lucide-react";
 import { usePoseDetection } from "@/lib/mediapipe/usePoseDetection";
 import { usePoseScore } from "@/lib/mediapipe/usePoseScore";
 import { HuaweiArContour, type ViewfinderOrientation } from "@/components/pose/HuaweiArContour";
 import type { PoseTemplate } from "@/types/pose";
 import { mapCoverPoints } from "@/lib/camera-transform";
 import { useCamera } from "@/lib/useCamera";
-import { Button, buttonVariants } from "c-comic-ui";
+import { Button } from "c-comic-ui";
+import { ComicNav } from "@/components/motion/ComicNav";
 
 const ANATOMICAL_RICH_POSES: PoseTemplate[] = [
   {
@@ -192,16 +192,13 @@ export default function PoseStudioPage() {
   };
 
   return <div className="min-h-screen bg-background text-foreground">
-    <header className="border-b border-black border-4 shadow-[4px_4px_0_0_#000]"><nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 animate-fade">
-      <Link href="/" className="flex items-center gap-2 font-bold"><ArrowLeft className="size-4" />Pose-Booth</Link>
-      <Link href={`/booth?pose=${encodeURIComponent(selectedPose.id)}`} className={buttonVariants({ size: "sm" })}>Chụp dáng này<ArrowRight className="ml-2 size-4" /></Link>
-    </nav></header>
+    <ComicNav ctaHref={`/booth?pose=${encodeURIComponent(selectedPose.id)}`} ctaLabel="Chụp dáng này" />
     <main ref={containerRef} className="mx-auto max-w-7xl space-y-6 p-4 pb-24 sm:p-6">
       <div><h1 className="text-3xl font-bold tracking-tight">Tìm dáng thật tự nhiên.</h1><p className="mt-1 text-sm text-black/80 font-bold">Thử một dáng, điều chỉnh theo hướng dẫn rồi chuyển sang phòng chụp.</p></div>
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px] animate-stagger">
         <section className="min-w-0 space-y-4" aria-label="Luyện dáng với camera">
           <div className={`relative mx-auto overflow-hidden rounded-none border border-black border-4 shadow-[4px_4px_0_0_#000] bg-muted ${orientation === "portrait" ? "aspect-[3/4] w-full max-w-[480px]" : `aspect-video w-full ${camera.ready ? '' : 'min-h-80'}`}`}>
-            <video ref={videoRef} muted playsInline className={`absolute inset-0 size-full object-cover ${facingMode === "user" ? "scale-x-[-1]" : ""} ${camera.ready ? "" : "invisible"}`} />
+            <video ref={videoRef} muted playsInline className={`booth-filter-live absolute inset-0 size-full object-cover ${facingMode === "user" ? "scale-x-[-1]" : ""} ${camera.ready ? "" : "invisible"}`} />
             <canvas ref={canvasRef} width={orientation === "portrait" ? 720 : 1280} height={orientation === "portrait" ? 960 : 720} className="pointer-events-none absolute inset-0 size-full" />
             {camera.ready && <HuaweiArContour landmarks={showContour ? points : []} targetLandmarks={showContour ? selectedPose.keypoints : []} canvasRef={canvasRef} width={orientation === "portrait" ? 720 : 1280} height={orientation === "portrait" ? 960 : 720} opacity={opacity} score={score ?? 0} showScoreHud={false} orientation={orientation} showGrid={showGrid} />}
             {!camera.ready && <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-5 text-center">

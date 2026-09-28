@@ -10,6 +10,7 @@
  */
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import type { MediaPipeLandmark } from "@/types/pose";
+import { lerpLandmarks } from "@/lib/pose-smooth";
 
 // COCO-compatible indices from MediaPipe 33-landmark set
 // MediaPipe 33 → COCO 17 mapping
@@ -71,6 +72,8 @@ export function usePoseDetection(
   const lastVideoTimeRef = useRef(-1);
   const fpsCounterRef = useRef<number[]>([]);
   const generationRef = useRef(0);
+  const smoothedRef = useRef<MediaPipeLandmark[]>([]);
+  const lastFpsStampRef = useRef(0);
 
   const initMediaPipe = useCallback(async (generation: number) => {
     try {
@@ -149,25 +152,29 @@ export function usePoseDetection(
 
       if (results.landmarks && results.landmarks.length > 0) {
         const lms = results.landmarks[0] as MediaPipeLandmark[];
-        setLandmarks(lms);
+        const smoothed = lerpLandmarks(smoothedRef.current, lms, 0.42);
+        smoothedRef.current = smoothed;
+        setLandmarks(smoothed);
 
-        // Compute overall confidence
-        const visibleLms = lms.filter((lm) => (lm.visibility ?? 0) > 0.3);
+        const visibleLms = smoothed.filter((lm) => (lm.visibility ?? 0) > 0.3);
         const avgConf =
           visibleLms.reduce((sum, lm) => sum + (lm.visibility ?? 0), 0) /
           Math.max(visibleLms.length, 1);
         setConfidence(avgConf);
       } else {
+        smoothedRef.current = [];
         setLandmarks([]);
         setConfidence(0);
       }
 
-      // FPS tracking
       fpsCounterRef.current.push(now);
       fpsCounterRef.current = fpsCounterRef.current.filter(
         (t) => now - t < 1000
       );
-      setFps(fpsCounterRef.current.length);
+      if (now - lastFpsStampRef.current >= 250) {
+        lastFpsStampRef.current = now;
+        setFps(fpsCounterRef.current.length);
+      }
     } catch {
       setLandmarks([]);
       setConfidence(0);
@@ -181,6 +188,7 @@ export function usePoseDetection(
   useEffect(() => {
     const generation = ++generationRef.current;
     lastVideoTimeRef.current = -1;
+    smoothedRef.current = [];
     setLandmarks([]);
     setConfidence(0);
     setFps(0);

@@ -1,40 +1,23 @@
 "use client";
 
 import React, { useRef } from 'react';
-import Link from 'next/link';
-import { Camera, ArrowLeft } from 'lucide-react';
-import { Button } from 'c-comic-ui';
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { ComicNav } from "@/components/motion/ComicNav";
 
 export default function AboutPage() {
   const container = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const tl = gsap.timeline();
-
-    gsap.set(".animate-nav", { y: -20, opacity: 0 });
-    gsap.set(".animate-hero", { y: 50, opacity: 0 });
-    gsap.set(".animate-section", { y: 30, opacity: 0, scale: 0.95 });
-
-    tl.to(".animate-nav", { y: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: "back.out(1.7)" })
-      .to(".animate-hero", { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: "power3.out" }, "-=0.2")
-      .to(".animate-section", { y: 0, opacity: 1, scale: 1, duration: 0.5, stagger: 0.1, ease: "back.out(1.5)" }, "-=0.3");
+    gsap.from(".animate-hero", { y: 12, opacity: 0.92, duration: 0.35, stagger: 0.08, ease: "power2.out" });
+    gsap.from(".animate-section", { y: 10, duration: 0.35, stagger: 0.08, ease: "power2.out" });
   }, { scope: container });
 
   return (
     <main ref={container} className="min-h-dvh bg-white font-sans overflow-x-hidden border-4 border-black">
       {/* Navigation */}
-      <nav aria-label="Điều hướng giới thiệu" className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 border-b-8 border-black bg-white px-6 py-6 shadow-[0_8px_0_0_#000]">
-        <Link href="/" className="animate-nav flex items-center gap-2 font-black text-2xl uppercase tracking-tighter">
-          <Camera className="size-8 stroke-[3] text-black" />
-          Pose-Booth <span className="text-[#B42355]">AI</span>
-        </Link>
-        <Button size="lg" className="animate-nav border-4 border-black bg-[#FFD166] text-black hover:bg-[#FFE4EC] hover:text-black font-black uppercase text-lg shadow-[4px_4px_0_0_#000] hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all" asChild>
-          <Link href="/booth"><ArrowLeft className="mr-2 size-5 stroke-[3]" /> Về Phòng Chụp</Link>
-        </Button>
-      </nav>
+      <ComicNav ctaHref="/booth" ctaLabel="Về phòng chụp" />
 
       <div className="mx-auto max-w-5xl px-6">
         <header className="max-w-3xl py-16">

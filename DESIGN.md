@@ -11,7 +11,7 @@
 
 ## Chuyển động
 - Cuộn native; không scroll-driven React state, pin/scrub marketing, blur toàn màn hình hay renderer 3D trang trí.
-- Feedback ngắn, chỉ transform/opacity khi có lý do. Countdown GSAP có scope, cleanup khi cập nhật và giảm chuyển động theo system preference.
+- Feedback ngắn: hover-press CSS, View Transition stamp + morph `booth-nav`/`booth-cta`. Countdown GSAP có scope. Camera/video/skeleton không nằm trong transition.
 - Không tuyên bố FPS hoặc mức giảm lag nếu chưa có trace đo thực tế.
 
 ## Camera, filter và ảnh tải lên

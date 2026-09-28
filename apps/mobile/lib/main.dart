@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'core/api/pose_api_client.dart';
 import 'core/theme/comic_theme.dart';
-import 'features/booth/booth_page.dart';
+import 'features/home/home_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +22,7 @@ class PoseBoothApp extends StatelessWidget {
       theme: comicLightTheme(nunitoFamily: nunito),
       darkTheme: comicDarkTheme(nunitoFamily: nunito),
       themeMode: ThemeMode.system,
-      home: BoothPage(api: PoseApiClient(baseUrl: PoseApiClient.fromEnvironment())),
+      home: HomePage(api: PoseApiClient(baseUrl: PoseApiClient.fromEnvironment())),
     );
   }
 }

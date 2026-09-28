@@ -252,7 +252,13 @@ class _BoothPageState extends State<BoothPage> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Phòng chụp', style: TextStyle(fontWeight: FontWeight.w900)),
+        title: const Hero(
+          tag: 'booth-nav',
+          child: Material(
+            type: MaterialType.transparency,
+            child: Text('Phòng chụp', style: TextStyle(fontWeight: FontWeight.w900)),
+          ),
+        ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(28),
           child: Padding(
@@ -401,9 +407,15 @@ class _BoothPageState extends State<BoothPage> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: FilledButton(
-                    onPressed: cam == null ? null : _capture,
-                    child: const Text('Chụp'),
+                  child: Hero(
+                    tag: 'booth-cta',
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: FilledButton(
+                        onPressed: cam == null ? null : _capture,
+                        child: const Text('Chụp'),
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),

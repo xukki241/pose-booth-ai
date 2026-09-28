@@ -1,8 +1,9 @@
 'use client';
 
 import { useRef, useState, useCallback, useEffect, useMemo } from 'react';
-import Link from 'next/link';
-import { Camera, RotateCcw, Download, RefreshCw, ArrowLeft, Check, Grid3X3, X } from 'lucide-react';
+import { ComicNav } from '@/components/motion/ComicNav';
+import { ComicLink } from '@/components/motion/ComicLink';
+import { Camera, RotateCcw, Download, RefreshCw, Check, Grid3X3, X } from 'lucide-react';
 import { usePoseDetection } from '@/lib/mediapipe/usePoseDetection';
 import { usePoseScore } from '@/lib/mediapipe/usePoseScore';
 import { HuaweiArContour, ViewfinderOrientation } from '@/components/pose/HuaweiArContour';
@@ -228,12 +229,7 @@ export default function BoothPage() {
   const capturing = state === 'countdown' || state === 'capturing';
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-black border-4 shadow-[4px_4px_0_0_#000]">
-        <nav aria-label="Studio navigation" className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 animate-fade">
-          <Link href="/" className="flex items-center gap-2 font-bold"><ArrowLeft className="size-4" /> Pose-Booth</Link>
-          <div className="flex items-center gap-4 text-sm"><Link href="/frames" className="text-black/80 font-bold hover:text-foreground">Thư viện khung</Link><Link href="/pose-studio" className="text-black/80 font-bold hover:text-foreground">Luyện dáng</Link></div>
-        </nav>
-      </header>
+      <ComicNav />
       <main ref={containerRef} className="mx-auto max-w-7xl space-y-6 p-4 pb-24 sm:p-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div><h1 className="text-3xl font-bold tracking-tight">Khoảnh khắc của bạn.</h1><p className="mt-1 text-sm text-black/80 font-bold">Chọn dáng, nhìn vào máy ảnh và để chúng tôi đếm ngược.</p></div>
@@ -242,7 +238,7 @@ export default function BoothPage() {
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px] animate-stagger">
           <section aria-label="Camera" className="min-w-0 space-y-3">
             <div className={`relative mx-auto overflow-hidden rounded-none border border-black border-4 shadow-[4px_4px_0_0_#000] bg-muted ${orientation === 'landscape' ? 'aspect-video w-full' : 'aspect-[3/4] w-full max-w-[520px]'}`}>
-              <video ref={videoRef} muted playsInline style={{ filter }} className={`absolute inset-0 h-full w-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''} ${cameraReady ? '' : 'invisible'}`} />
+              <video ref={videoRef} muted playsInline style={{ filter }} className={`booth-filter-live absolute inset-0 h-full w-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''} ${cameraReady ? '' : 'invisible'}`} />
               <canvas ref={canvasRef} width={orientation === 'landscape' ? 1280 : 720} height={orientation === 'landscape' ? 720 : 960} className="pointer-events-none absolute inset-0 h-full w-full" />
               {stickerIds.length > 0 && (
                 <div className="pointer-events-none absolute inset-0">
@@ -343,12 +339,12 @@ export default function BoothPage() {
                   </button>
                 ))}
               </div>
-              <Link href="/frames" className="inline-block text-sm underline underline-offset-4">Chọn khung có họa tiết</Link>
+              <ComicLink href="/frames" className="comic-press inline-block text-sm underline underline-offset-4">Chọn khung có họa tiết</ComicLink>
               {overlayPath && <p className="text-sm text-black/80 font-bold">Đã chọn khung 4 ảnh. <button className="underline" onClick={() => setOverlayPath(null)}>Bỏ khung</button></p>}
             </fieldset>
             <div className="space-y-2 border-t border-black border-4 shadow-[4px_4px_0_0_#000] pt-5">
               {capturing ? <Button className="w-full" variant="outline" onClick={reset}><X data-icon="inline-start" />Hủy lượt chụp</Button> :
-                <Button size="lg" className="w-full" disabled={!cameraReady || importing || state === 'review'} onClick={() => { setCompletedShots([]); void start(); }}><Camera data-icon="inline-start" />Chụp {totalShots} ảnh</Button>}
+                <Button size="lg" className="booth-cta w-full" disabled={!cameraReady || importing || state === 'review'} onClick={() => { setCompletedShots([]); void start(); }}><Camera data-icon="inline-start" />Chụp {totalShots} ảnh</Button>}
               <p className="text-center text-xs text-black/80 font-bold">Mỗi ảnh cách nhau {timerSeconds} giây đếm ngược.</p>
               {captureError && <p role="alert" className="text-sm text-destructive">{captureError}</p>}
             </div>
