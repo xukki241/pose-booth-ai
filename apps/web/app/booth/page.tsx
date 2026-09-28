@@ -171,7 +171,7 @@ export default function BoothPage() {
         colors[activeFrame.id],
         overlayPath,
         filter,
-        stickerIds.map(id => STICKERS.find(item => item.id === id)?.src).filter((src): src is string => Boolean(src)),
+        STICKERS.filter(item => stickerIds.includes(item.id)).map(item => item.src),
       )
         .then(image => { if (!disposed) setComposite(image); })
         .catch(error => { if (!disposed) setExportError(error.message); });
@@ -339,7 +339,7 @@ export default function BoothPage() {
               <div className="grid grid-cols-3 gap-2">
                 {FRAMES.filter(frame => frame.overlayPath).map(frame => (
                   <button key={frame.id} type="button" onClick={() => { setOverlayPath(frame.overlayPath); setShotMode('quad'); }} className={`border-4 border-black p-1 ${overlayPath === frame.overlayPath ? 'bg-accent' : 'bg-background'}`}>
-                    <img src={frame.thumbnailPath ?? frame.overlayPath} alt={frame.name} className="h-16 w-full object-contain" />
+                    <img src={frame.thumbnailPath ?? frame.overlayPath ?? undefined} alt={frame.name} className="h-16 w-full object-contain" />
                   </button>
                 ))}
               </div>
