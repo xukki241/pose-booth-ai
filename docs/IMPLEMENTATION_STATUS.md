@@ -1,8 +1,29 @@
 # Trạng thái triển khai và release gates
 
-Ngày cập nhật: 2026-09-26. Đây là tracking kỹ thuật, không phải chứng nhận hoàn thành toàn plan. Working tree gồm thay đổi có từ trước và thay đổi mới; chưa commit/push.
+Ngày cập nhật: 2026-09-28. Đây là tracking kỹ thuật, không phải chứng nhận hoàn thành toàn plan. Working tree gồm thay đổi có từ trước và thay đổi mới; chưa commit/push. Không có số FPS, điểm pose hay consent được bịa trong đợt này.
 
-## Cập nhật hiện hành: Comic UI trắng và chỉnh ảnh
+## Cập nhật hiện hành: Scalar /docs, C-Comic OS, sticker/filter/frame, Flutter, Docker CPU
+
+Phần này ghi bằng chứng của đợt 2026-09-28. Không thay thế các mục chưa nghiệm thu bên dưới.
+
+- Scalar: `apps/api/main.py` đặt `docs_url=None` và `GET /docs` trả `HTMLResponse` tải CDN `@scalar/api-reference` với `data-url="/openapi.json"`. Router `/api/pose/*` không đổi trong diff này. Sau `docker cp` + restart `pose-booth-api-dev`, `GET http://127.0.0.1:8000/docs` (2026-09-28) HTTP 200, HTML chứa `@scalar/api-reference`, không còn Swagger. `/health`: `status=ok`, `profile=edge`, `device=cpu`, `fp16_enabled=false`, `engine_ready=false`, `library_poses_cached=20`.
+- C-Comic OS light/dark: `apps/web/app/globals.css` dùng `@media (prefers-color-scheme: dark)` với nền `#171717`, primary `#ff6b9d`, paper ink `#f5f0eb`; `html { color-scheme: light dark }`. `DESIGN.md` ghi token này. Flutter `apps/mobile/lib/main.dart` `themeMode: ThemeMode.system` + `comicLightTheme` / `comicDarkTheme`. Chưa có visual QA light/dark trên thiết bị trong đợt này.
+- Web stickers/filters/frames: booth import `STICKERS` (6 SVG trong `apps/web/public/stickers/`), `PHOTO_FILTERS` (24 mục color-only trong `apps/web/lib/photo-filters.ts`, gồm Original), `FRAMES` (5 overlay SVG + none). Filter định nghĩa dùng chung preview/export; không có bằng chứng browser đợt này cho từng preset trên ảnh người.
+- Flutter client: `apps/mobile` có `BoothPage`, `PoseApiClient`, C-Comic `ThemeMode.system`, 24 `ColorFilter` khớp id web, sticker emoji, 4 màu khung. `flutter test` 4/4 pass trên SDK local. Chưa cắm máy (`adb devices` chưa được chạy/ghi nhận trong đợt này).
+- Docker CPU: `docker-compose.dev.yml` + `apps/api/Dockerfile.cpu`, `DEVICE=cpu`, `AI_PROFILE=edge`. `apps/api/.dockerignore` loại `*.pt`. Compose CPU không mount volume weights. Health `engine_ready=false` khớp engine: file weights local được duyệt là bắt buộc, không tự download — analyze chưa sẵn sàng trên stack đang chạy.
+- QR: UI `SaveGallery` gọi `POST /api/v1/assets` và `POST /api/v1/share/qr` khi có `DATABASE_URL`; CPU compose hiện không gắn product DB. Print/GIF: không thấy implementation trong `apps/web/app` hay `apps/api/routers`. Có download JPEG composite trên booth.
+
+### Cổng còn mở (đợt này)
+
+| Hạng mục | Bằng chứng / việc còn lại |
+|---|---|
+| YOLO analyze | `engine_ready=false` trên API CPU đang chạy; `.dockerignore` loại `*.pt`; compose CPU không mount models. Có file `.pt` trên disk máy dev nhưng gitignored — không chứng minh analyze. |
+| Ba camera | Chưa có soak/ba thiết bị; không có p50/p95/VRAM đo được. |
+| Điện thoại adb | `docs/FLUTTER_ANDROID_STUDIO.md` mô tả Poco + `adb reverse`; chưa ghi nhận máy đã cắm trong đợt này. |
+| QR / print / GIF | QR phụ thuộc product API + DB; print và GIF chưa có code booth/API tương ứng. Download JPEG không phải GIF/print. |
+| Scalar live | Source + process `:8000` đã Scalar sau restart container từ `main.py` working tree. |
+
+## Cập nhật trước: Comic UI trắng và chỉnh ảnh
 
 Phần này thay thế các mô tả white-strawberry/shadcn/light-dark lịch sử bên dưới.
 

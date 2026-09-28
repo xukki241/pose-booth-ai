@@ -17,7 +17,7 @@ abstract final class ComicTokens {
 }
 
 ThemeData comicLightTheme({required String nunitoFamily}) {
-  final scheme = const ColorScheme.light(
+  const scheme = ColorScheme.light(
     primary: ComicTokens.primary,
     onPrimary: ComicTokens.onPrimary,
     secondary: ComicTokens.secondary,
@@ -36,6 +36,31 @@ ThemeData comicLightTheme({required String nunitoFamily}) {
     appBarTheme: const AppBarTheme(
       backgroundColor: ComicTokens.background,
       foregroundColor: ComicTokens.ink,
+      elevation: 0,
+    ),
+  );
+}
+
+ThemeData comicDarkTheme({required String nunitoFamily}) {
+  const scheme = ColorScheme.dark(
+    primary: Color(0xFFFF6B9D),
+    onPrimary: Color(0xFF171717),
+    secondary: Color(0xFF3F1D2E),
+    onSecondary: Color(0xFFF5F0EB),
+    surface: Color(0xFF171717),
+    onSurface: Color(0xFFF5F0EB),
+    error: Color(0xFFFF6B6B),
+    onError: Color(0xFF171717),
+  );
+  return ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.dark,
+    colorScheme: scheme,
+    scaffoldBackgroundColor: const Color(0xFF171717),
+    fontFamily: nunitoFamily,
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Color(0xFF171717),
+      foregroundColor: Color(0xFFF5F0EB),
       elevation: 0,
     ),
   );

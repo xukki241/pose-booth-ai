@@ -17,6 +17,7 @@ import { Button } from 'c-comic-ui';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { PHOTO_FILTERS, photoFilter } from '@/lib/photo-filters';
+import { STICKERS } from '@/lib/stickers';
 import { importPhoto } from '@/lib/photo-import';
 import { PhotoEditor } from '@/components/booth/PhotoEditor';
 
@@ -140,6 +141,7 @@ export default function BoothPage() {
   const [selectedPose, setSelectedPose] = useState<PoseTemplate>(SAMPLE_POSES[0]);
   const [activeFrame, setActiveFrame] = useState(FRAME_COLORS[0]);
   const [overlayPath, setOverlayPath] = useState<string | null>(null);
+  const [stickerIds, setStickerIds] = useState<string[]>([]);
   const [composite, setComposite] = useState<string | null>(null);
   const [exportError, setExportError] = useState<string | null>(null);
   useEffect(() => {
@@ -164,12 +166,18 @@ export default function BoothPage() {
     setComposite(null); setExportError(null);
     if (completedShots.length) {
       const colors: Record<string, string> = { dark: '#171717', violet: '#3b0764', champagne: '#451a03', cyan: '#083344' };
-      compositePhotos(completedShots.map(shot => editedPhotos[shot.id] ?? shot.imageData), colors[activeFrame.id], overlayPath, filter)
+      compositePhotos(
+        completedShots.map(shot => editedPhotos[shot.id] ?? shot.imageData),
+        colors[activeFrame.id],
+        overlayPath,
+        filter,
+        stickerIds.map(id => STICKERS.find(item => item.id === id)?.src).filter((src): src is string => Boolean(src)),
+      )
         .then(image => { if (!disposed) setComposite(image); })
         .catch(error => { if (!disposed) setExportError(error.message); });
     }
     return () => { disposed = true; };
-  }, [completedShots, editedPhotos, activeFrame, overlayPath, filter]);
+  }, [completedShots, editedPhotos, activeFrame, overlayPath, filter, stickerIds]);
 
   // MediaPipe live pose detection
   const { confidence, isLoading: isPoseModelLoading, fps, cocoKeypoints, error: poseError } = usePoseDetection(
@@ -236,6 +244,17 @@ export default function BoothPage() {
             <div className={`relative mx-auto overflow-hidden rounded-none border border-black border-4 shadow-[4px_4px_0_0_#000] bg-muted ${orientation === 'landscape' ? 'aspect-video w-full' : 'aspect-[3/4] w-full max-w-[520px]'}`}>
               <video ref={videoRef} muted playsInline style={{ filter }} className={`absolute inset-0 h-full w-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''} ${cameraReady ? '' : 'invisible'}`} />
               <canvas ref={canvasRef} width={orientation === 'landscape' ? 1280 : 720} height={orientation === 'landscape' ? 720 : 960} className="pointer-events-none absolute inset-0 h-full w-full" />
+              {stickerIds.length > 0 && (
+                <div className="pointer-events-none absolute inset-0">
+                  {stickerIds.map((id, index) => {
+                    const sticker = STICKERS.find(item => item.id === id);
+                    if (!sticker) return null;
+                    const spots = ['left-4 top-6', 'right-6 top-10', 'left-8 bottom-10', 'right-4 bottom-8', 'left-1/2 top-4', 'right-10 top-1/3'];
+                    return <img key={`${id}-${index}`} src={sticker.src} alt="" className={`absolute h-12 w-12 ${spots[index % spots.length]}`} />;
+                  })}
+                </div>
+              )}
+              {overlayPath && <img src={overlayPath} alt="" className="pointer-events-none absolute inset-0 h-full w-full object-fill" />}
               {cameraReady && <HuaweiArContour landmarks={showContour ? displayPoints : []} targetLandmarks={showContour ? selectedPose.keypoints : []} canvasRef={canvasRef} width={orientation === 'landscape' ? 1280 : 720} height={orientation === 'landscape' ? 720 : 960} opacity={contourOpacity} score={liveScore} showScoreHud={false} orientation={orientation} showGrid={showGrid} />}
               {!cameraReady && <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center">
                 <div className="rounded-full border border-black border-4 shadow-[4px_4px_0_0_#000] bg-background p-5"><Camera className="size-8" /></div>
@@ -256,7 +275,7 @@ export default function BoothPage() {
             </div>
             <p className="min-h-5 text-center text-sm text-black/80 font-bold" role="status" aria-busy={(isPoseModelLoading && cameraReady && showContour) || isScoreLoading}>{poseError || (isPoseModelLoading && cameraReady && showContour ? 'Đang tải model hướng dẫn local…' : guidanceHint || 'Hướng dẫn dáng chỉ để tham khảo. Bạn luôn quyết định lúc chụp.')}</p>
           </section>
-          <aside className="space-y-6 rounded-none border border-black border-4 shadow-[4px_4px_0_0_#000] bg-white p-5 text-card-foreground">
+          <aside className="space-y-6 rounded-none border border-black border-4 shadow-[4px_4px_0_0_#000] bg-background p-5 text-card-foreground">
             <fieldset id="import-photos" disabled={capturing || importing} className="space-y-3 scroll-mt-6">
               <legend className="font-black uppercase">Dùng ảnh có sẵn</legend>
               <p className="text-sm text-black/80 font-bold">Chọn 1-4 ảnh theo thứ tự ghép. Xử lý trên thiết bị, không cần camera.</p>
@@ -286,10 +305,23 @@ export default function BoothPage() {
             </fieldset>
             <fieldset disabled={capturing || importing} className="space-y-3 border-t border-black border-4 shadow-[4px_4px_0_0_#000] pt-5">
               <legend className="font-black uppercase">Màu ảnh</legend>
-              <div className="grid max-h-56 grid-cols-3 gap-2 overflow-y-auto p-1 animate-stagger" aria-label="20 bộ lọc và ảnh nguyên bản">
+              <div className="grid max-h-56 grid-cols-3 gap-2 overflow-y-auto p-1 animate-stagger" aria-label="24 bộ lọc và ảnh nguyên bản">
                 {PHOTO_FILTERS.map(item => <Button key={item.id} size="sm" variant={filterId === item.id ? 'default' : 'outline'} aria-pressed={filterId === item.id} onClick={() => setFilterId(item.id)}>{item.name}</Button>)}
               </div>
               <p className="text-xs text-black/80 font-bold">Áp dụng cho camera và ảnh ghép. Ảnh gốc luôn được giữ để đổi màu mà không giảm chất lượng qua nhiều lần lọc.</p>
+            </fieldset>
+            <fieldset disabled={capturing || importing} className="space-y-3 border-t border-border pt-5">
+              <legend className="font-black uppercase">Sticker trang trí</legend>
+              <div className="flex flex-wrap gap-2">
+                {STICKERS.map(item => {
+                  const on = stickerIds.includes(item.id);
+                  return (
+                    <Button key={item.id} size="sm" variant={on ? 'default' : 'outline'} aria-pressed={on} onClick={() => setStickerIds(prev => on ? prev.filter(id => id !== item.id) : [...prev, item.id])}>
+                      {item.name}
+                    </Button>
+                  );
+                })}
+              </div>
             </fieldset>
             <fieldset disabled={capturing || importing} className="space-y-3"><legend className="mb-3 font-black uppercase">Bạn muốn chụp kiểu nào?</legend>
               <div className="grid grid-cols-3 gap-2 animate-stagger">{SHOT_MODES.map(item => <Button key={item.mode} variant={shotMode === item.mode ? 'default' : 'outline'} size="sm" aria-pressed={shotMode === item.mode} onClick={() => { setShotMode(item.mode); if (item.mode !== 'quad') setOverlayPath(null); }}>{item.mode === 'single' ? '1 ảnh' : item.mode === 'triple' ? '3 ảnh' : '4 ảnh'}</Button>)}</div>
@@ -304,6 +336,13 @@ export default function BoothPage() {
             </fieldset>
             <fieldset disabled={capturing || importing} className="space-y-3 border-t border-black border-4 shadow-[4px_4px_0_0_#000] pt-5"><legend className="font-black uppercase">Khung ảnh</legend>
               <div className="flex gap-3">{FRAME_COLORS.map(frame => <button key={frame.id} title={frame.name} aria-label={frame.name} aria-pressed={activeFrame.id === frame.id} onClick={() => setActiveFrame(frame)} className={`flex size-9 items-center justify-center rounded-full border-2 ${frame.bg} ${activeFrame.id === frame.id ? 'border-primary ring-2 ring-ring ring-offset-2 ring-offset-background' : 'border-black border-4 shadow-[4px_4px_0_0_#000]'}`}>{activeFrame.id === frame.id && <Check className="size-4 text-white" />}</button>)}</div>
+              <div className="grid grid-cols-3 gap-2">
+                {FRAMES.filter(frame => frame.overlayPath).map(frame => (
+                  <button key={frame.id} type="button" onClick={() => { setOverlayPath(frame.overlayPath); setShotMode('quad'); }} className={`border-4 border-black p-1 ${overlayPath === frame.overlayPath ? 'bg-accent' : 'bg-background'}`}>
+                    <img src={frame.thumbnailPath ?? frame.overlayPath} alt={frame.name} className="h-16 w-full object-contain" />
+                  </button>
+                ))}
+              </div>
               <Link href="/frames" className="inline-block text-sm underline underline-offset-4">Chọn khung có họa tiết</Link>
               {overlayPath && <p className="text-sm text-black/80 font-bold">Đã chọn khung 4 ảnh. <button className="underline" onClick={() => setOverlayPath(null)}>Bỏ khung</button></p>}
             </fieldset>

@@ -17,6 +17,12 @@
 /.next/
 /out/
 
+# Capacitor generated native shells and copied assets (not web source)
+/android/
+/ios/
+/www/
+/.capacitor/
+
 # production
 /build
 

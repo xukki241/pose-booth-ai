@@ -20,7 +20,8 @@ class PoseBoothApp extends StatelessWidget {
       title: 'PoseBooth AI',
       debugShowCheckedModeBanner: false,
       theme: comicLightTheme(nunitoFamily: nunito),
-      themeMode: ThemeMode.light,
+      darkTheme: comicDarkTheme(nunitoFamily: nunito),
+      themeMode: ThemeMode.system,
       home: BoothPage(api: PoseApiClient(baseUrl: PoseApiClient.fromEnvironment())),
     );
   }

@@ -1,6 +1,6 @@
 # Flutter + Android Studio Device Mirroring (Poco)
 
-App mobile dùng C-Comic light-only (cùng token web: nền trắng, ink `#171717`, primary `#B42355`). Không dark theme.
+App mobile dùng C-Comic theo hệ điều hành (`ThemeMode.system`). Light: nền trắng, ink `#171717`, primary `#B42355`. Dark: nền `#171717`, primary `#ff6b9d`, paper ink `#f5f0eb`.
 
 ## Điều kiện
 

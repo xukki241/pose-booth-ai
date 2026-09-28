@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi" data-theme="light" style={{ colorScheme: "light" }} className={`${nunito.variable} ${geistMono.variable}`}>
+    <html lang="vi" className={`${nunito.variable} ${geistMono.variable}`}>
       <body className="font-sans antialiased">
         {children}
       </body>
