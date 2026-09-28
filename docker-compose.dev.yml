@@ -1,0 +1,19 @@
+# Local stack for Flutter / kiosk testing (CPU). Do not use GPU compose secrets.
+name: posebooth-dev
+
+services:
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile.cpu
+    container_name: pose-booth-api-dev
+    ports:
+      - "8000:8000"
+    environment:
+      AI_PROFILE: edge
+      DEVICE: cpu
+      HOST: 0.0.0.0
+      PORT: "8000"
+      USE_FP16: "false"
+      CORS_ORIGINS: "http://localhost:3000,http://127.0.0.1:3000,http://localhost"
+    restart: unless-stopped

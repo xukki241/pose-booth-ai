@@ -26,9 +26,9 @@ export default function ComicLanding() {
   }, { scope: container });
 
   return (
-    <div ref={container} className="min-h-dvh bg-white font-sans overflow-x-hidden border-4 border-black">
+    <div ref={container} className="min-h-dvh bg-background text-foreground font-sans overflow-x-hidden border-4 border-border">
       {/* Navigation */}
-      <nav aria-label="Main Navigation" className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 border-b-8 border-black bg-white px-6 py-6 shadow-[0_8px_0_0_#000]">
+      <nav aria-label="Main Navigation" className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 border-b-8 border-border bg-background px-6 py-6 shadow-[0_8px_0_0_var(--border)]">
         <Link href="/" className="animate-nav flex items-center gap-2 font-black text-2xl uppercase tracking-tighter">
           <Camera className="size-8 stroke-[3] text-black" />
           Pose-Booth <span className="text-[#B42355]">AI</span>

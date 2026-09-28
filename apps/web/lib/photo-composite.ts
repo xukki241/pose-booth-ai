@@ -8,7 +8,13 @@ function loadImage(source: string): Promise<HTMLImageElement> {
   });
 }
 
-export async function compositePhotos(sources: string[], color: string, overlay?: string | null, filter = 'none'): Promise<string> {
+export async function compositePhotos(
+  sources: string[],
+  color: string,
+  overlay?: string | null,
+  filter = 'none',
+  stickerSrcs: string[] = [],
+): Promise<string> {
   if (!sources.length) throw new Error('Chưa có ảnh');
   if (overlay && sources.length !== 4) throw new Error('Frame này cần 4 ảnh');
   const images = await Promise.all(sources.map(loadImage));
@@ -30,6 +36,21 @@ export async function compositePhotos(sources: string[], color: string, overlay?
     ctx.drawImage(image, x + (500 - width) / 2, y + (375 - height) / 2, width, height);
     ctx.filter = 'none';
   });
+  if (stickerSrcs.length) {
+    const stickers = await Promise.all(stickerSrcs.map(loadImage));
+    const spots: Array<[number, number]> = [
+      [40, 40],
+      [canvas.width - 140, 60],
+      [50, canvas.height - 140],
+      [canvas.width - 140, canvas.height - 140],
+      [canvas.width / 2 - 50, 40],
+      [canvas.width - 180, canvas.height / 3],
+    ];
+    stickers.forEach((image, index) => {
+      const [x, y] = spots[index % spots.length];
+      ctx.drawImage(image, x, y, 100, 100);
+    });
+  }
   if (overlay) ctx.drawImage(await loadImage(overlay), 0, 0, canvas.width, canvas.height);
   return canvas.toDataURL('image/jpeg', 0.92);
 }

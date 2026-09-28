@@ -21,6 +21,9 @@ export const PHOTO_FILTERS = [
   { id: 'noir', name: 'Noir', css: 'grayscale(1) contrast(1.4) brightness(0.92)' },
   { id: 'silver', name: 'Bạc', css: 'grayscale(1) contrast(0.85) brightness(1.15)' },
   { id: 'sepia', name: 'Ảnh xưa', css: 'sepia(1) contrast(0.95)' },
+  { id: 'golden', name: 'Hoàng kim', css: 'sepia(0.35) saturate(1.25) brightness(1.08)' },
+  { id: 'polaroid', name: 'Polaroid', css: 'contrast(1.08) saturate(0.9) brightness(1.1)' },
+  { id: 'arctic', name: 'Bắc cực', css: 'hue-rotate(190deg) saturate(0.85) brightness(1.12)' },
 ] as const;
 
 export function photoFilter(id: string): string {

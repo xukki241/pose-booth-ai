@@ -19,4 +19,25 @@ export const FRAMES = [
     thumbnailPath: '/frames/frame-cherry.svg',
     category: 'Red'
   },
+  {
+    id: 'frame-classic',
+    name: 'Cổ điển 1',
+    overlayPath: '/frames/frame-1.svg',
+    thumbnailPath: '/frames/frame-1.svg',
+    category: 'Classic'
+  },
+  {
+    id: 'frame-classic-2',
+    name: 'Cổ điển 2',
+    overlayPath: '/frames/frame-2.svg',
+    thumbnailPath: '/frames/frame-2.svg',
+    category: 'Classic'
+  },
+  {
+    id: 'frame-classic-3',
+    name: 'Cổ điển 3',
+    overlayPath: '/frames/frame-3.svg',
+    thumbnailPath: '/frames/frame-3.svg',
+    category: 'Classic'
+  },
 ]

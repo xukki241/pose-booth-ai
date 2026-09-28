@@ -4,10 +4,10 @@ import { PHOTO_FILTERS, photoFilter } from '../lib/photo-filters.ts';
 import { importPhoto } from '../lib/photo-import.ts';
 import { compositePhotos } from '../lib/photo-composite.ts';
 
-test('20 distinct color presets plus original, no geometry or blur changes', () => {
-  assert.equal(PHOTO_FILTERS.length, 21);
-  assert.equal(new Set(PHOTO_FILTERS.map(item => item.id)).size, 21);
-  assert.equal(new Set(PHOTO_FILTERS.map(item => item.css)).size, 21);
+test('24 distinct color presets plus original, no geometry or blur changes', () => {
+  assert.equal(PHOTO_FILTERS.length, 24);
+  assert.equal(new Set(PHOTO_FILTERS.map(item => item.id)).size, 24);
+  assert.equal(new Set(PHOTO_FILTERS.map(item => item.css)).size, 24);
   for (const item of PHOTO_FILTERS) assert.doesNotMatch(item.css, /blur|url|drop-shadow/);
   assert.equal(photoFilter('original'), 'none');
   assert.throws(() => photoFilter('missing'));
@@ -44,6 +44,8 @@ test('composite filters photo pixels but not frame artwork or caption', async ()
     assert.equal(draws.slice(0, 4).every(draw => draw.filter === 'grayscale(1)'), true);
     assert.deepEqual(draws[4], { source: 'frame', filter: 'none' });
     assert.equal(context.filter, 'none');
+    await compositePhotos(['one'], '#fff', null, 'none', ['sticker']);
+    assert.deepEqual(draws.at(-1), { source: 'sticker', filter: 'none' });
     await compositePhotos(['one'], '#fff', null, 'none');
     delete context.filter;
     await assert.rejects(compositePhotos(['one'], '#fff', null, photoFilter('mono')), /chưa hỗ trợ/);

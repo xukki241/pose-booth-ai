@@ -66,3 +66,33 @@ build/
 
 # Antigravity Scratch Files
 scratch/
+
+# Flutter
+apps/mobile/.dart_tool/
+apps/mobile/.idea/
+apps/mobile/build/
+apps/mobile/.flutter-plugins
+apps/mobile/.flutter-plugins-dependencies
+
+# Superpowers scratch
+.superpowers/
+
+# Nested Next caches and leftover Capacitor/Android Studio junk
+apps/web/apps/
+apps/web/android/
+apps/web/ios/
+apps/web/www/
+apps/web/.capacitor/
+**/.gradle/
+**/.next/
+**/*.iml
+**/.cxx/
+local.properties
+*.apk
+*.aab
+*.jks
+*.keystore
+*.hprof
+
+# OS / editor noise
+.cursor/*.log

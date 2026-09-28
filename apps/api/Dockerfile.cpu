@@ -1,0 +1,28 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1 \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip --default-timeout=1000 install --no-cache-dir \
+      torch torchvision --index-url https://download.pytorch.org/whl/cpu \
+ && pip --default-timeout=1000 install --no-cache-dir -r requirements.txt
+
+RUN useradd --create-home --uid 10001 app
+COPY --chown=app:app . .
+USER app
+ENV YOLO_AUTOINSTALL=false
+ENV HOST=0.0.0.0
+ENV DEVICE=cpu
+ENV AI_PROFILE=edge
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+  CMD python -c "import json,urllib.request; data=json.load(urllib.request.urlopen('http://127.0.0.1:8000/health')); raise SystemExit(0 if data.get('status')=='ok' else 1)"
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

@@ -1,9 +1,10 @@
 # Pose-Booth: quy chuẩn giao diện và media
 
 ## Quyết định hiện hành
-- Nền trắng duy nhất, không đổi theo hệ điều hành hoặc lựa chọn theme cũ.
-- Một UI kit: c-comic-ui 1.2.0 đã cài trong worktree theo yêu cầu Comic UI mới. Giữ nền trang trắng, viền ink và bóng lệch ngắn; màu khối chỉ dùng cho thành phần nhấn. Không thêm thư viện component song song.
-- Nunito cho nội dung; Geist Mono cho số liệu. Chữ charcoal, primary #b42355, secondary #fff1f5, muted foreground #62565c.
+- Nền C-Comic theo hệ điều hành (`prefers-color-scheme` / `ThemeMode.system`), không light-only. Dark dùng cùng token comic (ink/primary lệch, không quay lại Prism).
+- Một UI kit: c-comic-ui 1.2.0. Viền ink và bóng lệch ngắn; màu khối cho nhấn. Không thêm thư viện component song song.
+- Nunito cho nội dung; Geist Mono cho số liệu. Light: nền trắng, ink charcoal, primary #b42355. Dark: nền #171717, primary #ff6b9d, paper ink #f5f0eb.
+- App Flutter (`apps/mobile`) `ThemeMode.system` với cùng token light/dark; không khóa `ThemeMode.light`.
 - Dùng semantic token background/foreground, card/card-foreground, primary/primary-foreground. Không dùng chữ sáng trên nền trắng hoặc gradient xám.
 - Comic tokens: border 2px, radius 8px, shadow lệch 3px. Nút có vùng chạm tối thiểu 44px. Panel tác nghiệp không cần viền 8px hoặc chữ uppercase cho mọi đoạn mô tả.
 - Giữ route, API contract và workflow. Không sửa frontend Vite legacy.
@@ -30,4 +31,4 @@
 - Browser test không thay thế kiểm camera vật lý, ba thiết bị hoặc soak test.
 
 ## Nguồn gốc
-Typography và nền semantic tokens trước đây được tham khảo Prismo (MIT), giữ attribution tương ứng. Quyết định trắng-only hiện tại thay thế hoàn toàn quy chuẩn system/light/dark cũ. Asset frame có màu riêng, không phải theme giao diện.
+Typography và nền semantic tokens trước đây được tham khảo Prismo (MIT), giữ attribution tương ứng. C-Comic light/dark theo hệ điều hành thay thế quy chuẩn Prism cũ. Asset frame/sticker có màu riêng, không phải theme giao diện.

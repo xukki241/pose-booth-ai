@@ -11,6 +11,7 @@ import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 
 from config import settings
 from services.library import pose_library_service
@@ -56,6 +57,8 @@ app = FastAPI(
     description="Dual-Profile AI Pose Estimation & Similarity Scoring Backend",
     version="2.0.0",
     lifespan=lifespan,
+    docs_url=None,
+    redoc_url="/redoc",
 )
 
 # CORS configuration
@@ -74,6 +77,26 @@ app.include_router(score.router, prefix="/api/pose", tags=["Pose Scoring"])
 if os.getenv("DATABASE_URL"):
     from routers.product import router as product_router
     app.include_router(product_router, tags=["Product"])
+
+
+@app.get("/docs", include_in_schema=False)
+def scalar_docs() -> HTMLResponse:
+    """Interactive Scalar docs: read OpenAPI and try requests in the browser."""
+    return HTMLResponse(
+        """<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pose-Booth API</title>
+  </head>
+  <body>
+    <script id="api-reference" data-url="/openapi.json" data-proxy-url=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+  </body>
+</html>
+"""
+    )
 
 
 @app.get("/health")
